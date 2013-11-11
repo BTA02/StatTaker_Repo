@@ -4,5 +4,9 @@
     <string name="app_name">StatTaker</string>
     <string name="action_settings">Settings</string>
     <string name="hello_world">Hello world!</string>
+    <string name="title_activity_record_game">RecordGame</string>
+    <string name="title_activity_record_game2">RecordGame2</string>
+    <string name="dummy_button">Dummy Button</string>
+    <string name="dummy_content">DUMMY\nCONTENT</string>
 
 </resources>

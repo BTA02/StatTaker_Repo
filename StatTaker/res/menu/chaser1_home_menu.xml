@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+    <item 
+        android:id="@+id/chaser1_home_shot"
+        android:title="Shot" />
+    
+    <item 
+        android:id="@+id/chaser1_home_goal"
+        android:title="Goal" />
+    
+    <item 
+        android:id="@+id/chaser1_home_assist"
+        android:title="Assist" />
+    
+    <item 
+        android:id="@+id/chaser1_home_turnover"
+        android:title="Turnover" />
+    
+    <item 
+        android:id="@+id/chaser1_home_steal"
+        android:title="Steal" />
+    
+    <item 
+        android:id="@+id/chaser1_home_sub_out"
+        android:title="Sub Out" />
+    
+
+</menu>
