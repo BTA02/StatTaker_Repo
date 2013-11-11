@@ -6,25 +6,25 @@ public class Database
 {
 	//make my own hashmapped database
 	HashMap db = new HashMap();
-	//key = team
-	//value = object
-	//obj - opponent / player / stat / value
+	//key = object
+	//value = stat number
+	//obj - team / opponent / player / stat
 
 	
 
 
 	
-	void printStat()
+	void printStat() //for game review screen
 	{
 		
 	}
 	
-	void addRowToTable(String key, Value value)
+	void addRowToDatabse(Key k, int value)
 	{
-		//add row stuff
+		//hm....
 	}
 	
-	void updateStatValue(String key, Value value) //grab the given object, edit it
+	void updateStatValue(Key k, int value) //grab the given object, edit it
 	{
 		//update and existing object
 		//return the object

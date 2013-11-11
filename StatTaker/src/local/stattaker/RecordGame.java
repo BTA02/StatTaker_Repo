@@ -2,12 +2,13 @@ package local.stattaker;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.PopupMenu;
-import android.widget.PopupMenu.OnMenuItemClickListener;
+import android.widget.Toast;
 
 public class RecordGame extends Activity {
 
@@ -45,10 +46,28 @@ public class RecordGame extends Activity {
 		inflater.inflate(R.menu.chaser2_home_menu, chaser_popup.getMenu() );
 		chaser_popup.show();
 	}
+	
 	public void showChaser3HomeMenu(View v)
 	{
 		PopupMenu chaser_popup = new PopupMenu(this, v);
-		//chaser_popup.setOnMenuItemClickListener((OnMenuItemClickListener) this);
+		chaser_popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener()
+		{
+
+			@Override
+			public boolean onMenuItemClick(MenuItem item) 
+			{
+				switch ( item.getItemId() )
+				{
+					case R.id.chaser3_home_assist:
+						//add 1 assist to chaser 3
+						Toast msg = Toast.makeText(RecordGame.this, "Assist, chaser 3", Toast.LENGTH_SHORT);
+						msg.show();
+						return true;
+				}
+				return false;
+			}
+			
+		});
 		MenuInflater inflater = chaser_popup.getMenuInflater();
 		inflater.inflate(R.menu.chaser3_home_menu, chaser_popup.getMenu() );
 		chaser_popup.show();
@@ -62,24 +81,7 @@ public class RecordGame extends Activity {
 		keeper_popup.show();
 	}
 	
-	//this runs everything
-	public boolean onMenuItemClick(MenuItem item)
-	{
-		switch ( item.getItemId() )
-		{
-			case R.id.chaser1_home_assist:
-				//do something
-				return true;
-			case R.id.chaser1_home_goal:
-				//do something
-				return true;
-			case R.id.chaser1_home_shot:
-				//do something
-				return true;
-		
-		}
-		return false;
-	}
+
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) 

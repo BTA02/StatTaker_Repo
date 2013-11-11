@@ -1,10 +1,9 @@
 package local.stattaker;
 
-import java.util.Date;
 
-public class Value 
+public class Key
 {
-	//basically, this is a key value or whatever
+	String team;
 	String opponent;
 	String player;
 	String statName;
