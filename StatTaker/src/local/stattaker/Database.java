@@ -19,6 +19,11 @@ public class Database
 		
 	}
 	
+	void addRoster(Roster r)
+	{
+		
+	}
+	
 	void addRowToDatabse(Key k, int value)
 	{
 		//hm....

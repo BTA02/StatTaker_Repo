@@ -19,7 +19,6 @@ public class RecordGame extends Activity {
 		setContentView(R.layout.activity_record_game);
 		
 		
-		
 	}
 	
 	public void showSeekerMenu(View v)
