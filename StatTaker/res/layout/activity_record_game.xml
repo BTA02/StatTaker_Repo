@@ -10,7 +10,7 @@
 
     <Button
         android:id="@+id/keeper_home"
-        android:onClick="showKeeperMenu"
+        android:onClick="showKeeperHomeMenu"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
@@ -20,7 +20,7 @@
 
     <Button
         android:id="@+id/seeker_home"
-        android:onClick="showSeekerMenu"
+        android:onClick="showSeekerHomeMenu"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"

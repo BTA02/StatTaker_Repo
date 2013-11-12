@@ -1,6 +1,7 @@
 package local.stattaker;
 
 import android.app.Activity;
+import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -18,10 +19,28 @@ public class RecordGame extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_record_game);
 		
+		Context c = this.getApplicationContext();
 		
+		Bundle rosterNames = getIntent().getExtras();
+		if (rosterNames == null)
+		{
+			Log.i("Failure", "Failed to load roster names");
+		}
+		String hT = rosterNames.getString("home_team");
+		String aT = rosterNames.getString("away_team");
+		Team homeTeam = new Team(c, hT);
+    //Team awayTeam = new Team(c, aT);
+		
+		
+		
+		
+		//at the end of it all, save it as a game
+		//Game saveGame = new Game (homeTeam, awayTeam);
+
 	}
 	
-	public void showSeekerMenu(View v)
+
+	public void showSeekerHomeMenu(View v)
 	{
 		PopupMenu seeker_popup = new PopupMenu(this, v);
 		MenuInflater inflater = seeker_popup.getMenuInflater();
@@ -58,9 +77,30 @@ public class RecordGame extends Activity {
 				switch ( item.getItemId() )
 				{
 					case R.id.chaser3_home_assist:
-						//add 1 assist to chaser 3
-						Toast msg = Toast.makeText(RecordGame.this, "Assist, chaser 3", Toast.LENGTH_SHORT);
-						msg.show();
+						//get player name 
+						//homeTeam.players.get("2").stats.get("assits").value += 1;
+						showMessage("Assist, Chaser 3");
+						return true;
+					case R.id.chaser3_home_goal:
+						//add 1 goal to chaser 3
+						//add 1 plus to every player as well
+						//add 1 minus to all opposing players when you get there
+						showMessage("Goal, chaser 3");
+						return true;
+					case R.id.chaser3_home_shot:
+						//add 1 shot to chaser 3
+						showMessage("Shot, chaser 3");
+						return true;
+					case R.id.chaser3_home_steal:
+						//add 1 steal to chaser 3
+						showMessage("Steal, chaser 3");
+						return true;
+					case R.id.chaser3_home_turnover:
+						//add 1 turnover to chaser 3
+						showMessage("Turnover, chaser 3");
+						return true;
+					case R.id.chaser3_home_sub_out:
+						subOut();
 						return true;
 				}
 				return false;
@@ -72,7 +112,10 @@ public class RecordGame extends Activity {
 		chaser_popup.show();
 	}
 	
-	public void showKeeperMenu(View v)
+
+
+
+	public void showKeeperHomeMenu(View v)
 	{
 		PopupMenu keeper_popup = new PopupMenu(this, v);
 		MenuInflater inflater = keeper_popup.getMenuInflater();
@@ -80,7 +123,19 @@ public class RecordGame extends Activity {
 		keeper_popup.show();
 	}
 	
+	protected void showMessage(String string) 
+	{
+		Toast msg = Toast.makeText(RecordGame.this, string, Toast.LENGTH_SHORT);
+		msg.show();
+	}
 
+
+	protected void subOut()
+	{
+		//1. menu for selecting players
+		//2. assign button to edit new players stats
+		//3. change the name on the button to #___
+	}
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) 

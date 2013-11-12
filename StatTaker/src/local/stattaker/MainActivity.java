@@ -7,6 +7,10 @@ import android.view.Menu;
 import android.view.View;
 import android.widget.Button;
 
+import com.parse.Parse;
+import com.parse.ParseAnalytics;
+import com.parse.ParseObject;
+
 public class MainActivity extends Activity 
 {
     @Override
@@ -15,29 +19,36 @@ public class MainActivity extends Activity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         
+        Parse.initialize(this, "RoDlI2ENBnxSWlPvdG2VEsFPRSt06qHJ78nZop77", "fbuEyPT9Exq141IZfueUO1asOcbAFaBjJvdAFI1A");
+        ParseAnalytics.trackAppOpened(getIntent());
         
-        //create player buttons, use onLongPress and stuff
+        /*
+        ParseObject testObject = new ParseObject("TestObject");
+        testObject.put("foo", "bar");
+        testObject.saveInBackground();
+        */
+        
         Button recordGame = (Button) findViewById(R.id.existing_team_1);
         recordGame.setOnClickListener(new View.OnClickListener() 
         {
 					@Override
 					public void onClick(View v) 
 					{
-						//so here, i need to add michigan's roster with a new opponent to the db
+
+						//pass over team names to next page
+						
 						Intent i = new Intent (getApplicationContext(), RecordGame.class);
-						i.putExtra("umroster", 4);
+						//these get set with the actual teams
+						String homeTeam = "University_of_Michigan";
+						String awayTeam = "Dummy";
+						i.putExtra("home_team", homeTeam);
+						i.putExtra("away_team", awayTeam);
 						startActivity(i);
 					}
 				});
         
-        
-        
-        
-        
-        
     }
     
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu) 
     {
@@ -48,6 +59,7 @@ public class MainActivity extends Activity
     
     public void fillOutMichiganRoster()
     {
+    	/*
       Roster michiganRoster = new Roster("Michigan");
     	Player a = new Player("Andrew", "Axtell", 2);
     	Player b = new Player("Malek", "Atassi", 404);
@@ -91,7 +103,7 @@ public class MainActivity extends Activity
       michiganRoster.addPlayer(s);
       michiganRoster.addPlayer(t);
       michiganRoster.addPlayer(u);
-      
+      */
       
     }
     
