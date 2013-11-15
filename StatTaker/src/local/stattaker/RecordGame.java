@@ -354,6 +354,7 @@ public class RecordGame extends Activity {
 			//put them in order by their number
 			
 			
+			
 			f = homeTeam.players.get(key).fname;
 			l = homeTeam.players.get(key).lname;
 			bench_popup.getMenu().add(key + " " + f + " " + l );

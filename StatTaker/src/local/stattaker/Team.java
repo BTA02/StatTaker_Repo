@@ -3,8 +3,8 @@ package local.stattaker;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.TreeMap;
 
 import android.content.Context;
 import android.content.res.AssetManager;
@@ -15,7 +15,7 @@ public class Team implements Serializable
 
 	String tName;
 	
-	Map<String, Player> players = new HashMap<String, Player>();
+	Map<String, Player> players = new TreeMap<String, Player>();
 	
 	
 	public Team(Context myContext, String teamName) 
