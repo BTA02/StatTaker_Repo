@@ -19,16 +19,6 @@
         android:text="keeper" />
 
     <Button
-        android:id="@+id/seeker_home"
-        android:onClick="showSeekerHomeMenu"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:layout_alignParentTop="true"
-        android:layout_marginTop="22dp"
-        android:text="seeker" />
-
-    <Button
         android:id="@+id/beater_home_2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -44,60 +34,69 @@
         android:layout_alignParentLeft="true"
         android:text="beater 1" />
 
-    <Button
-        android:id="@+id/chaser_home_1"
-        android:onClick="showChaser1HomeMenu"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/seeker_home"
-        android:layout_below="@+id/seeker_home"
-        android:layout_marginTop="26dp"
-        android:text="chaser 1" />
-
-    <Button
-        android:id="@+id/chaser_home_3"
-        android:onClick="showChaser3HomeMenu"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentRight="true"
-        android:layout_below="@+id/chaser_home_1"
-        android:text="chaser 3" />
-
-    <Button
-        android:id="@+id/chaser_home_2"
-        android:onClick="showChaser2HomeMenu"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:layout_below="@+id/chaser_home_1"
-        android:text="chaser 2" />
-
-    <TextView
-        android:id="@+id/score"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:layout_below="@+id/chaser_home_2"
-        android:layout_marginTop="100dp"
-        android:text="Current score"
-        android:textAppearance="?android:attr/textAppearanceLarge" />
-
-    <Button
-        android:id="@+id/save_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:layout_below="@+id/score"
-        android:layout_marginTop="50dp"
-        android:text="Save Game" />
-    
 	<Button
-        android:id="@+id/undo_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:layout_below="@+id/score"
-        android:layout_marginTop="100dp"
-        android:text="Undo" />
+	    android:id="@+id/undo_button"
+	    android:layout_width="wrap_content"
+	    android:layout_height="wrap_content"
+	    android:layout_alignParentLeft="true"
+	    android:layout_centerVertical="true"
+	    android:text="Undo" />
 
+	<Button
+	    android:id="@+id/save_button"
+	    android:layout_width="wrap_content"
+	    android:layout_height="wrap_content"
+	    android:layout_alignBaseline="@+id/undo_button"
+	    android:layout_alignBottom="@+id/undo_button"
+	    android:layout_alignParentRight="true"
+	    android:text="Save Game" />
+
+	<TextView
+	    android:id="@+id/score"
+	    android:layout_width="wrap_content"
+	    android:layout_height="wrap_content"
+	    android:layout_alignBaseline="@+id/save_button"
+	    android:layout_alignBottom="@+id/save_button"
+	    android:layout_centerHorizontal="true"
+	    android:text="Current score"
+	    android:textAppearance="?android:attr/textAppearanceLarge" />
+
+	<Button
+	    android:id="@+id/chaser_home_2"
+	    android:layout_width="wrap_content"
+	    android:layout_height="wrap_content"
+	    android:layout_above="@+id/beater_home_1"
+	    android:layout_alignLeft="@+id/beater_home_1"
+	    android:layout_marginBottom="84dp"
+	    android:onClick="showChaser2HomeMenu"
+	    android:text="chaser 2" />
+
+	<Button
+	    android:id="@+id/chaser_home_1"
+	    android:layout_width="wrap_content"
+	    android:layout_height="wrap_content"
+	    android:layout_below="@+id/save_button"
+	    android:layout_centerHorizontal="true"
+	    android:layout_marginTop="33dp"
+	    android:onClick="showChaser1HomeMenu"
+	    android:text="chaser 1" />
+
+	<Button
+	    android:id="@+id/chaser_home_3"
+	    android:layout_width="wrap_content"
+	    android:layout_height="wrap_content"
+	    android:layout_alignRight="@+id/beater_home_2"
+	    android:layout_alignTop="@+id/chaser_home_2"
+	    android:onClick="showChaser3HomeMenu"
+	    android:text="chaser 3" />
+
+	<Button
+	    android:id="@+id/seeker_home"
+	    android:layout_width="wrap_content"
+	    android:layout_height="wrap_content"
+	    android:layout_centerHorizontal="true"
+	    android:layout_below="@+id/chaser_home_3"
+	    android:onClick="showSeekerHomeMenu"
+	    android:text="seeker" />
+	
 </RelativeLayout>

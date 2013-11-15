@@ -9,7 +9,7 @@
         android:title="Shot" />
     
     <item 
-        android:id="@+id/keeper_home_gaol"
+        android:id="@+id/keeper_home_goal"
         android:title="Goal" />
     
     <item 

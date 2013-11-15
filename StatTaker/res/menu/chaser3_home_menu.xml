@@ -22,7 +22,13 @@
     
     <item 
         android:id="@+id/chaser3_home_sub_out"
-        android:title="Sub Out" />
+        android:title="Sub Out" >
+        
+        <menu
+            android:id="@+id/home_bench">
+            <!-- will be filled with bench players -->
+        </menu>
+    </item>
     
 
 </menu>

@@ -2,17 +2,20 @@ package local.stattaker;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.Serializable;
 import java.util.HashMap;
+import java.util.Map;
 
 import android.content.Context;
 import android.content.res.AssetManager;
 import android.util.Log;
 
-public class Team 
+public class Team implements Serializable
 {
+
 	String tName;
 	
-	HashMap players;
+	Map<String, Player> players = new HashMap<String, Player>();
 	
 	
 	public Team(Context myContext, String teamName) 
@@ -50,7 +53,7 @@ public class Team
 				{
 					number = str;
 					Player a = new Player(fname, lname, number);
-					//this.players.put(number, a); //add player to the team
+					this.players.put(number, a); //add player to the team
 				}
 				str = "";
 				looper++;
@@ -62,10 +65,5 @@ public class Team
 			Log.i("Failure", "Reading file failure");
 			e.printStackTrace();
 		}
-
-		
-		
 	}
-
-
 }
