@@ -1,8 +1,8 @@
 package local.stattaker;
 
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.ObjectOutputStream;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 
 import android.app.Activity;
 import android.content.Context;
@@ -83,7 +83,6 @@ public class RecordGame extends Activity {
 						showMessage("Snitch caught by " + playerName );
 						return true;
 					case R.id.seeker_home_sub_out:
-						subOut(homeTeam);
 						showHomeBenchMenu(v, R.id.seeker_home);
 						return true;
 				}
@@ -141,7 +140,6 @@ public class RecordGame extends Activity {
 						showMessage("Turnover, " + playerName );
 						return true;
 					case R.id.chaser1_home_sub_out:
-						subOut(homeTeam);
 						showHomeBenchMenu(v, R.id.chaser_home_1);
 						return true;
 				}
@@ -347,17 +345,37 @@ public class RecordGame extends Activity {
 		});
 		String f;
 		String l;
+		String n;
+		ArrayList<Player> myList = new ArrayList<Player>();
 		//it would be nice if it were sorted
 		//----populating menu-------------
 		for (String key : homeTeam.players.keySet() )
 		{
-			//put them in order by their number
-			
-			
-			
-			f = homeTeam.players.get(key).fname;
-			l = homeTeam.players.get(key).lname;
-			bench_popup.getMenu().add(key + " " + f + " " + l );
+			myList.add(homeTeam.players.get(key) );
+		}
+		Collections.sort(myList, new Comparator<Player>() 
+		{
+			@Override
+			public int compare(Player lhs, Player rhs) 
+			{
+				try
+				{
+					Integer.parseInt(lhs.number);
+					Integer.parseInt(rhs.number);
+				}
+				catch (Exception e)
+				{
+					return -1;
+				}
+				return (Integer.parseInt(lhs.number) - Integer.parseInt(rhs.number) );
+			}
+		});
+		for (int i=0; i < myList.size(); i++)
+		{
+			f = myList.get(i).fname;
+			l = myList.get(i).lname;
+			n = myList.get(i).number;
+			bench_popup.getMenu().add(n + " " + f + " " + l );
 		}
 		//----end populating menu----------
 		
@@ -374,17 +392,9 @@ public class RecordGame extends Activity {
 	}
 
 
-	protected void subOut(Team t)
-	{
-		//1. menu/drawer for selecting players
-		//2. assign button to edit new players stats
-		//3. change the name on the button to #___
-	}
-
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) 
 	{
-		// Inflate the menu; this adds items to the action bar if it is present.
 		getMenuInflater().inflate(R.menu.record_game, menu);
 		return true;
 	}
