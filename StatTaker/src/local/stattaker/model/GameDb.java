@@ -1,0 +1,171 @@
+package local.stattaker.model;
+
+ 
+public class GameDb
+{
+     
+  //private variables
+  int gameId; 
+  String team; 
+  //I think I'm a huge fan of this
+  String opponent;
+  int playerId;
+  int shots;
+  int goals;
+  int assists;
+  int steals;
+  int turnovers;
+  int saves;
+  int snitches;
+  int plusses;
+  int minuses;
+  
+   
+  // Empty constructor
+  public GameDb()
+  {
+       
+  }
+  
+  // constructor
+  public GameDb(int gid, String t, String o)
+  {
+    this.gameId = gid;
+    this.team = t;
+    this.opponent = o;
+    
+  }
+  
+  // gets
+  public int getID()
+  {
+    return this.gameId;
+  }
+  
+  public String getTeam()
+  {
+  	return this.team;
+  }
+  
+  public String getOpponent()
+  {
+  	return this.opponent;
+  }
+  
+  public int getPlayerId()
+  {
+  	return this.playerId;
+  }
+  
+  public int getShots()
+  {
+  	return this.shots;
+  }
+  
+  public int getGoals()
+  {
+  	return this.goals;
+  }
+  
+  public int getAssists()
+  {
+  	return this.assists;
+  }
+  
+  public int getSteals()
+  {
+  	return this.steals;
+  }
+  
+  public int getTurnovers()
+  {
+  	return this.turnovers;
+  }
+  
+  public int getSaves()
+  {
+  	return this.saves;
+  }
+  
+  public int getSnitches()
+  {
+  	return this.snitches;
+  }
+  
+  public int getPlusses()
+  {
+  	return this.plusses;
+  }
+  
+  public int getMinuses()
+  {
+  	return this.minuses;
+  }
+  
+  //sets
+  public void setID(int i)
+  {
+    this.gameId = i;
+  }
+  
+  public void setTeam(String str)
+  {
+  	this.team = str;
+  }
+  
+  public void setOpponent(String str)
+  {
+  	this.opponent = str;
+  }
+  
+  public void setPlayerId(int i)
+  {
+  	this.playerId = i;
+  }
+  
+  public void setShots(int i)
+  {
+  	this.shots = i;
+  }
+  
+  public void setGoals(int i)
+  {
+  	this.goals = i;
+  }
+  
+  public void setAssists(int i)
+  {
+  	this.assists = i;
+  }
+  
+  public void setSteals(int i)
+  {
+  	this.steals = i;
+  }
+  
+  public void setTurnovers(int i)
+  {
+  	this.turnovers = i;
+  }
+  
+  public void setSaves(int i)
+  {
+  	this.saves = i;
+  }
+  
+  public void setSnitches(int i)
+  {
+  	this.snitches = i;
+  }
+  
+  public void setPlusses(int i)
+  {
+  	this.plusses = i;
+  }
+  
+  public void setMinuses(int i)
+  {
+  	this.minuses = i;
+  }
+   
+}

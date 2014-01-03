@@ -10,5 +10,6 @@
     <string name="dummy_content">DUMMY\nCONTENT</string>
     <string name="title_activity_view_stats">ViewStatsActivity</string>
     <string name="title_activity_contact">ContactActivity</string>
+    <string name="title_activity_player_db">PlayerDB</string>
 
 </resources>
