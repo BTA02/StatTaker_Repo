@@ -332,4 +332,15 @@ public class DatabaseHelper extends SQLiteOpenHelper
       				+ COL_PLAYERID + " = ?", arguments);
       //should hopefully return 1
   }
+  
+  //R: a valid gameID and playerID
+  //M: the Game Table in the database
+  //E: deletes a single row from the database
+  public void deleteGameRow(int gID, int pID) 
+  {
+  		String[] arguments = {String.valueOf(gID), String.valueOf(pID)};
+      SQLiteDatabase db = this.getWritableDatabase();
+      db.delete(TABLE_GAME, COL_GAMEID + " = ? AND "
+  				+ COL_PLAYERID + " = ?", arguments);
+  }
 }
