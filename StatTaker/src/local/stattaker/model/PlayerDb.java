@@ -1,7 +1,7 @@
 package local.stattaker.model;
 
  
-public class PlayerDb
+public class PlayerDb //row in the player table
 {
      
   String teamName;

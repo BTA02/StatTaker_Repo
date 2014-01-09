@@ -1,13 +1,12 @@
 package local.stattaker.model;
 
  
-public class GameDb
+public class GameDb //row data for a game table
 {
      
   //private variables
   int gameId; 
-  String team; 
-  //I think I'm a huge fan of this
+  String teamName; 
   String opponent;
   int playerId;
   int shots;
@@ -31,20 +30,20 @@ public class GameDb
   public GameDb(int gid, String t, String o)
   {
     this.gameId = gid;
-    this.team = t;
+    this.teamName = t;
     this.opponent = o;
     
   }
   
   // gets
-  public int getID()
+  public int getGameId()
   {
     return this.gameId;
   }
   
-  public String getTeam()
+  public String getTeamName()
   {
-  	return this.team;
+  	return this.teamName;
   }
   
   public String getOpponent()
@@ -103,14 +102,14 @@ public class GameDb
   }
   
   //sets
-  public void setID(int i)
+  public void setId(int i)
   {
     this.gameId = i;
   }
   
-  public void setTeam(String str)
+  public void setTeamName(String str)
   {
-  	this.team = str;
+  	this.teamName = str;
   }
   
   public void setOpponent(String str)
