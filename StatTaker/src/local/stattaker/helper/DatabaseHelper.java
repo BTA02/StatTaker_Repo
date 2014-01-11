@@ -3,7 +3,6 @@ package local.stattaker.helper;
 import java.util.ArrayList;
 import java.util.List;
 
-import local.stattaker.Game;
 import local.stattaker.model.GameDb;
 import local.stattaker.model.PlayerDb;
 import android.content.ContentValues;
