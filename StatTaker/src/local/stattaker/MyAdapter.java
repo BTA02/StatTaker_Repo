@@ -20,13 +20,9 @@ public class MyAdapter extends FragmentPagerAdapter
 		switch (position)
 		{
 			case 0:
-				//return new AccountFragment();
+				return new FragmentPlayerList();
 			case 1:
-				//return new MarketFragment();
-			case 2:
-				//return new HoldingsFragment();
-			case 3:
-				//return new ResearchFragment();
+				return new FragmentStats();
 		}
 		return null;
 		
@@ -35,7 +31,7 @@ public class MyAdapter extends FragmentPagerAdapter
 	@Override
 	public int getCount() 
 	{
-		return 4; //is this the number of fragments? looks like it
+		return 2; //is this the number of fragments? looks like it
 	}
 	
 	

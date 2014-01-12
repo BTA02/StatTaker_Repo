@@ -26,26 +26,16 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="local.stattaker.RecordGame"
-            android:label="@string/title_activity_record_game" >
+            android:name="local.stattaker.FragmentMain"
+            android:label="FragmentMain" >
         </activity>
         <activity
-            android:name="local.stattaker.RecordGame2"
-            android:configChanges="orientation|keyboardHidden|screenSize"
-            android:label="@string/title_activity_record_game2"
-            android:theme="@style/FullscreenTheme" >
+            android:name="local.stattaker.FragmentPlayerList"
+            android:label="FragmentPlayerList">
         </activity>
         <activity
-            android:name="local.stattaker.ViewStatsActivity"
-            android:label="@string/title_activity_view_stats" >
-        </activity>
-        <activity
-            android:name="local.stattaker.ContactActivity"
-            android:label="@string/title_activity_contact" >
-        </activity>
-        <activity
-            android:name="local.stattaker.PlayerDB"
-            android:label="@string/title_activity_player_db" >
+            android:name="local.stattaker.FragmentStats"
+            android:label="FragmentStats" >
         </activity>
     </application>
 

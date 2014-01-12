@@ -4,12 +4,22 @@
         android:layout_width="match_parent" android:layout_height="match_parent">
 
     <android.support.v4.view.ViewPager
-            android:id="@+id/pager"
-            android:layout_width="match_parent"
-            android:layout_height="0px"
-            android:layout_weight="1">
+        android:id="@+id/pager"
+        android:layout_width="match_parent"
+        android:layout_height="0px"
+        android:layout_weight="1" >
     </android.support.v4.view.ViewPager>
+
+    <fragment
+        android:id="@+id/player_list"
+        android:name="local.stattaker.FragmentPlayerList"
+        android:layout_width="match_parent"
+        android:layout_height="209dp" />
     
-    
+    <fragment
+        android:id="@+id/stats"
+        android:name="local.stattaker.FragmentStats"
+        android:layout_width="match_parent"
+        android:layout_height="204dp" />
     
 </LinearLayout>

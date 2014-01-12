@@ -1,17 +1,12 @@
 package local.stattaker;
 
-import android.app.ActionBar;
-import android.app.ActionBar.Tab;
-import android.app.ActionBar.TabListener;
 import android.app.Activity;
-import android.app.FragmentTransaction;
+import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.app.FragmentActivity;
-import android.support.v4.view.ViewPager;
 import android.view.Menu;
-
-import com.parse.Parse;
-import com.parse.ParseAnalytics;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.Button;
 
 public class MainActivity extends Activity
 {
@@ -29,6 +24,16 @@ public class MainActivity extends Activity
         testObject.put("foo", "bar");
         testObject.saveInBackground();
         */
+        Button b = (Button) findViewById(R.id.existing_team_1);
+        b.setOnClickListener(new OnClickListener()
+        {
+        	@Override
+        	public void onClick(View v)
+        	{
+        		Intent i = new Intent(getApplicationContext(), FragmentMain.class);
+        		startActivity(i);
+        	}
+        });
         
     }
     

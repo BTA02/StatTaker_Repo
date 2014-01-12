@@ -1,5 +1,6 @@
 package local.stattaker;
 
+import local.stattaker.helper.DatabaseHelper;
 import android.app.ActionBar;
 import android.app.ActionBar.Tab;
 import android.app.ActionBar.TabListener;
@@ -13,7 +14,8 @@ public class FragmentMain extends FragmentActivity implements TabListener
   MyAdapter mAdapter;
   ViewPager mPager;
   ActionBar mActionBar;
-  
+  DatabaseHelper db;
+    
   @Override
   protected void onCreate(Bundle savedInstanceState)
   {
@@ -36,18 +38,17 @@ public class FragmentMain extends FragmentActivity implements TabListener
 	  mActionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
 	  mActionBar.setDisplayShowTitleEnabled(false);
 	  mActionBar.setHomeButtonEnabled(false);
-	  mActionBar.addTab(mActionBar.newTab().setText("Account").setTabListener(this) );
-	  mActionBar.addTab(mActionBar.newTab().setText("Market").setTabListener(this) );
-	  mActionBar.addTab(mActionBar.newTab().setText("Holdings").setTabListener(this) );
-	  mActionBar.addTab(mActionBar.newTab().setText("Research").setTabListener(this) );
+	  mActionBar.addTab(mActionBar.newTab().setText("Players").setTabListener(this) );
+	  mActionBar.addTab(mActionBar.newTab().setText("Stats").setTabListener(this) );
 	  mPager.setCurrentItem(0);
 	  mActionBar.setDisplayShowHomeEnabled(false);
 	  mActionBar.setDisplayShowTitleEnabled(false);
 	  //------END FRAGMENT STUFF--------------
+	  
+	  db = new DatabaseHelper(getApplicationContext());
+	  
   }
   
-  
-  //------END FRAG STUFF---------
 	@Override
 	public void onTabReselected(Tab tab, FragmentTransaction ft) 
 	{
@@ -57,7 +58,6 @@ public class FragmentMain extends FragmentActivity implements TabListener
 	public void onTabSelected(Tab tab, FragmentTransaction ft) 
 	{
 		mPager.setCurrentItem(tab.getPosition());
-		
 	}
 	@Override
 	public void onTabUnselected(Tab tab, FragmentTransaction ft) 
