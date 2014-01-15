@@ -1,8 +1,5 @@
 package local.stattaker;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import local.stattaker.helper.DatabaseHelper;
 import android.database.Cursor;
 import android.os.Bundle;
@@ -14,15 +11,19 @@ import android.widget.ArrayAdapter;
 
 public class FragmentPlayerList extends ListFragment
 {
+	DatabaseHelper db;
+	
 	View rootView;
+	
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) 
 	{
 		FragmentMain fm = (FragmentMain) getActivity();
-		DatabaseHelper db = fm.db;
+		db = db.getHelper(fm.getApplicationContext());
+		Cursor test = db.getAllPlayers("Ano", 0); //points at first person, right?
+		String blah = test.getString(1);
 		
-		
-		String[] playersInString = new String[50];
+		//String[] playersInString = new String[50];
 		/*
 		Cursor cursor = db.getAllPlayers("University_Of_Michigan", 1);
 		String str;
@@ -32,8 +33,8 @@ public class FragmentPlayerList extends ListFragment
 			playersInString[i] = str;
 		}
 		*/
-		playersInString[0] = "Andrew";
-		playersInString[1] = "Phuc";
+		//playersInString[0] = "Andrew";
+		//playersInString[1] = "Phuc";
 		/*
 		Cursor cursor = db.getAllPlayers("University_Of_Michigan", 1);
 		String[] columns = {"number", "fname", "lname"};
@@ -41,7 +42,7 @@ public class FragmentPlayerList extends ListFragment
 		SimpleCursorAdapter scAdapter = new SimpleCursorAdapter(this, android.R.layout.simple_list_item_1, 
 																						cursor, columns, tViews, FLAG_REGISTER_CONTENT_OBSERVER);
 		*/
-		
+		String[] playersInString = {blah};
 		ArrayAdapter<String> adapter = new ArrayAdapter<String>(inflater.getContext(), 
 				android.R.layout.simple_list_item_1, playersInString);
 		setListAdapter(adapter);

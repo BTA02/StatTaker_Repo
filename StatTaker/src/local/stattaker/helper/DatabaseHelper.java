@@ -14,6 +14,17 @@ import android.util.Log;
 
 public class DatabaseHelper extends SQLiteOpenHelper
 {
+	private static DatabaseHelper instance;
+	
+	public static DatabaseHelper getHelper(Context context)
+	{
+		if (instance == null)
+		{
+			instance = new DatabaseHelper(context);
+		}
+		return instance;
+	}
+	
   // Logcat tag
   private static final String LOG = "DatabaseHelper";
 
@@ -55,8 +66,8 @@ public class DatabaseHelper extends SQLiteOpenHelper
   private static final String CREATE_TABLE_GAME = "CREATE TABLE "
           + TABLE_GAME + "(" + COL_GAMEID + " INTEGER PRIMARY KEY," + COL_TEAMNAME
           + " TEXT," + COL_OPPONENT + " TEXT," + COL_PLAYERID + " INTEGER," + COL_SHOTS
-          + " INTEGER," + COL_GOALS + " INTEGER," + COL_GOALS
-          + " INTEGER," + COL_ASSISTS + " INTEGER," + COL_STEALS
+          + " INTEGER," + COL_GOALS + " INTEGER," 
+          + COL_ASSISTS + " INTEGER," + COL_STEALS
           + " INTEGER," + COL_TURNOVERS +  " INTEGER," + COL_SAVES
           + " INTEGER," + COL_SNITCHES + " INTEGER," + COL_PLUSSES
           + " INTEGER," + COL_MINUSES + " INTEGER" + ")";
@@ -73,6 +84,8 @@ public class DatabaseHelper extends SQLiteOpenHelper
   {
       super(context, DATABASE_NAME, null, DATABASE_VERSION);
   }
+  
+  
 
   @Override
   public void onCreate(SQLiteDatabase db) 
@@ -356,10 +369,14 @@ public class DatabaseHelper extends SQLiteOpenHelper
   	SQLiteDatabase db = this.getWritableDatabase();
   	
   	SQLiteDatabase readDb = this.getReadableDatabase();
-  	
-  	Cursor c = readDb.query(TABLE_PLAYER, null, null, null, null, null, COL_PLAYERID, "LIMIT 1");
+  	//BUG
+  	String[] selectionArgs = {COL_PLAYERID, TABLE_PLAYER};
+  	String maxQuery = "SELECT MAX(" + COL_PLAYERID + ") FROM " + TABLE_PLAYER;
+  	Cursor c = readDb.rawQuery(maxQuery, null);
+  	c.moveToFirst();
   	int maxPID = c.getInt(0);
-  	
+  	Log.i("Test", "maxQuery: "+ maxQuery);
+  	Log.i("Test", "maxPID: " + maxPID);
   	ContentValues values = new ContentValues();
 
     values.put(COL_TEAMNAME, p.getTeamName());
@@ -371,7 +388,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
     
     // insert row
     long player_insert_id = db.insert(TABLE_PLAYER, null, values);
- 
+
     return player_insert_id; //I didn't know we got a return id from this
   	
   }
@@ -521,6 +538,30 @@ public class DatabaseHelper extends SQLiteOpenHelper
       return db.update(TABLE_PLAYER, values, COL_TEAMNAME + " = ? AND "
       				+ COL_PLAYERID + " = ?", arguments);
       //should hopefully return 1
+  }
+  
+  //untested
+  //R: nothing
+  //M: nothing
+  //E: returns all of the current team names
+  public List<String> getCurrentTeams()
+  {
+  	List<String> ret = new ArrayList<String>();
+  	SQLiteDatabase db = this.getReadableDatabase();
+  	String teamsQuery = "SELECT DISTINCT " + COL_TEAMNAME + " FROM " + TABLE_PLAYER;
+  	Cursor c = db.rawQuery(teamsQuery, null);
+  	if(c.moveToFirst())
+  	{
+  		do
+  		{
+  			ret.add(c.getString(c.getColumnIndex(COL_TEAMNAME)));
+  			Log.i("Test", "teamName?: " + c.getString(c.getColumnIndex(COL_TEAMNAME)) );
+  		}
+  		while (c.moveToNext() );
+  	}
+  	
+  	
+  	return ret;
   }
   
   //untested

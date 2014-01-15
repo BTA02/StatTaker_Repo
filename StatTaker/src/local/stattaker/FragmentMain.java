@@ -14,7 +14,7 @@ public class FragmentMain extends FragmentActivity implements TabListener
   MyAdapter mAdapter;
   ViewPager mPager;
   ActionBar mActionBar;
-  DatabaseHelper db;
+  
     
   @Override
   protected void onCreate(Bundle savedInstanceState)
@@ -45,7 +45,7 @@ public class FragmentMain extends FragmentActivity implements TabListener
 	  mActionBar.setDisplayShowTitleEnabled(false);
 	  //------END FRAGMENT STUFF--------------
 	  
-	  db = new DatabaseHelper(getApplicationContext());
+	  
 	  
   }
   

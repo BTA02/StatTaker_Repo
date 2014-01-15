@@ -11,5 +11,6 @@
     <string name="title_activity_view_stats">ViewStatsActivity</string>
     <string name="title_activity_contact">ContactActivity</string>
     <string name="title_activity_player_db">PlayerDB</string>
+    <string name="title_activity_create_team">CreateTeam</string>
 
 </resources>

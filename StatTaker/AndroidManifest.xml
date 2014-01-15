@@ -31,11 +31,15 @@
         </activity>
         <activity
             android:name="local.stattaker.FragmentPlayerList"
-            android:label="FragmentPlayerList">
+            android:label="FragmentPlayerList" >
         </activity>
         <activity
             android:name="local.stattaker.FragmentStats"
             android:label="FragmentStats" >
+        </activity>
+        <activity
+            android:name="local.stattaker.CreateTeam"
+            android:label="@string/title_activity_create_team" >
         </activity>
     </application>
 
