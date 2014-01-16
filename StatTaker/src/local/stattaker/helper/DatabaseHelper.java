@@ -435,26 +435,24 @@ public class DatabaseHelper extends SQLiteOpenHelper
   //M: nothing
   //E: returns all the players on a team (or just the active ones, if the variable is set)
   //public List<PlayerDb> was the old return type
-  public Cursor getAllPlayers(String tN, int activeFlag)
+  public List<PlayerDb> getAllPlayers(String tN, int activeFlag)
   {
   	List<PlayerDb> playerList = new ArrayList<PlayerDb>();
   	String selectWhichPlayers;
   	if (activeFlag == 0)
   	{
   		selectWhichPlayers = "SELECT * FROM " + TABLE_PLAYER + " WHERE "
-    			+ COL_TEAMNAME + " = " + tN;
+    			+ COL_TEAMNAME + " = " + "\"" + tN + "\"";
   	}
   	else
   	{
   		selectWhichPlayers = "SELECT * FROM " + TABLE_PLAYER + " WHERE "
-    			+ COL_TEAMNAME + " = " + tN + " AND " + COL_ACTIVE + " = 1";
+    			+ COL_TEAMNAME + " = " + "\"" + tN + "\"" + " AND " + COL_ACTIVE + " = 1";
   	}
   	
   	Log.i(LOG, selectWhichPlayers);
   	SQLiteDatabase db = this.getReadableDatabase();
   	Cursor c = db.rawQuery(selectWhichPlayers, null);
-  	return c;
-  	/*
     if (c.moveToFirst()) 
     {
         do 
@@ -471,8 +469,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
         } 
         while (c.moveToNext()); //I hate do-while loops
     }
-  	*/
-  	//return playerList;
+  	return playerList;
   }
   
   public int updatePlayerInfo(PlayerDb p, String column, String strVal, int intVal ) 
@@ -554,8 +551,11 @@ public class DatabaseHelper extends SQLiteOpenHelper
   	{
   		do
   		{
-  			ret.add(c.getString(c.getColumnIndex(COL_TEAMNAME)));
-  			Log.i("Test", "teamName?: " + c.getString(c.getColumnIndex(COL_TEAMNAME)) );
+  			if (c.getString(c.getColumnIndex(COL_TEAMNAME)) != null)
+  			{
+  				ret.add(c.getString(c.getColumnIndex(COL_TEAMNAME)));
+  				//Log.i("Test", "teamName?: " + c.getString(c.getColumnIndex(COL_TEAMNAME)) );
+  			}
   		}
   		while (c.moveToNext() );
   	}

@@ -89,6 +89,7 @@ public class CreateTeam extends Activity
 				nEdit.setText(null);
 				fEdit.setText(null);
 				lEdit.setText(null);
+				active.setChecked(false);
 				CharSequence toastMsg = fname + " " + lname + " added to " + newName;
 				Toast toast = Toast.makeText(getApplicationContext(), toastMsg, Toast.LENGTH_SHORT);
 				toast.show();

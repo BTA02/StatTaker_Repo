@@ -12,5 +12,6 @@
     <string name="title_activity_contact">ContactActivity</string>
     <string name="title_activity_player_db">PlayerDB</string>
     <string name="title_activity_create_team">CreateTeam</string>
+    <string name="title_activity_edit">EditActivity</string>
 
 </resources>

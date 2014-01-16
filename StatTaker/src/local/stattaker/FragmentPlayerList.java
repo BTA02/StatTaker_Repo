@@ -20,8 +20,8 @@ public class FragmentPlayerList extends ListFragment
 	{
 		FragmentMain fm = (FragmentMain) getActivity();
 		db = db.getHelper(fm.getApplicationContext());
-		Cursor test = db.getAllPlayers("Ano", 0); //points at first person, right?
-		String blah = test.getString(1);
+		//Cursor test = db.getAllPlayers("Ano", 0); //points at first person, right?
+		//String blah = test.getString(1);
 		
 		//String[] playersInString = new String[50];
 		/*
@@ -42,11 +42,12 @@ public class FragmentPlayerList extends ListFragment
 		SimpleCursorAdapter scAdapter = new SimpleCursorAdapter(this, android.R.layout.simple_list_item_1, 
 																						cursor, columns, tViews, FLAG_REGISTER_CONTENT_OBSERVER);
 		*/
+		/*
 		String[] playersInString = {blah};
 		ArrayAdapter<String> adapter = new ArrayAdapter<String>(inflater.getContext(), 
 				android.R.layout.simple_list_item_1, playersInString);
 		setListAdapter(adapter);
-		
+		*/
 		
 		
 		

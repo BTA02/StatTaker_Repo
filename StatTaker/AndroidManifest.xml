@@ -41,6 +41,10 @@
             android:name="local.stattaker.CreateTeam"
             android:label="@string/title_activity_create_team" >
         </activity>
+        <activity
+            android:name="local.stattaker.EditTeam"
+            android:label="@string/title_activity_edit" >
+        </activity>
     </application>
 
 </manifest>
