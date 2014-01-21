@@ -9,6 +9,9 @@ import android.app.Activity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.ListAdapter;
 import android.widget.ListView;
@@ -45,6 +48,7 @@ public class EditTeam extends Activity
 		teamTitle = (TextView) findViewById(R.id.edit_team_title);
 		teamTitle.setText(teamName);
 		populatePlayerList(teamName);
+		//When you click on a player, their info pops up. Retype everything, update player info function, golden
 		
 	}
 	
@@ -57,27 +61,21 @@ public class EditTeam extends Activity
   	currentPlayers = (ListView) findViewById(R.id.edit_player_list);
   	List<PlayerDb> playerList = new ArrayList<PlayerDb>();
   	playerList = db.getAllPlayers(tN, 0);
-  	//convert to strings
-  	//String[] str = new String[100];
-  	ArrayList<String> str1 = new ArrayList<String>();
-  	for (int i = 0; i < playerList.size(); i++)
-  	{
-  		String blah = "";
-  		blah = playerList.get(i).getNumber();
-  		blah = blah + " " + playerList.get(i).getFname();
-  		blah = blah + " " + playerList.get(i).getLname();
-  		blah = blah + " " + playerList.get(i).getActive();
-  		if (!blah.isEmpty() && blah != null)
-  		{
-  			//str[i] = blah;
-  			str1.add(blah);
-  		}
-  	}
-  	ListAdapter listAdapter = new ArrayAdapter(this, R.layout.custom_player_list, str1);
+  	ListAdapter listAdapter = new ArrayAdapter(this, R.layout.custom_player_list, playerList);
   	currentPlayers.setAdapter(listAdapter);
-  	//each row is an edit text with the data in it already
-  	//change everything you want and hit "Save"
-    
+
+    currentPlayers.setOnItemClickListener(new OnItemClickListener()
+    {
+
+			@Override
+			public void onItemClick(AdapterView<?> parent, View arg1, int position,
+					long rowId) 
+			{
+				PlayerDb clickedPlayer = (PlayerDb) currentPlayers.getItemAtPosition(position);
+				
+			}
+    	
+    });
 	}
 
 	@Override

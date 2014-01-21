@@ -9,6 +9,7 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -25,8 +26,6 @@ public class MainActivity extends Activity implements OnClickListener
 		DatabaseHelper db;
 		
 		Button create_team;
-		Button edit_team;
-		Button test_button;
 		ListView currentTeams;
 		
 		ArrayAdapter<String> listAdapter;
@@ -48,11 +47,7 @@ public class MainActivity extends Activity implements OnClickListener
         testObject.saveInBackground();
         */
         create_team = (Button) findViewById(R.id.create_button);
-        edit_team = (Button) findViewById(R.id.edit_button);
-        test_button = (Button) findViewById(R.id.existing_team_1);
         create_team.setOnClickListener(this);
-        edit_team.setOnClickListener(this);
-        test_button.setOnClickListener(this);
         
         populateTeamsList();
         
@@ -76,11 +71,10 @@ public class MainActivity extends Activity implements OnClickListener
 	  				{
 	  					public void onClick(DialogInterface dialog, int whichButton) 
 	  					{
-	  						//This needs to take you to the FragmentMain screen
-	  						///Log.i("Test", "input: " + input.getText().toString());
-	  						//Intent i = new Intent(getApplicationContext(), CreateTeam.class);
-	  						//i.putExtra("teamName", teamClicked);
-	  	          //startActivity(i);
+	  						Log.i("Test", "team clicked: " + teamClicked);
+	  						Intent i = new Intent(getApplicationContext(), FragmentMain.class);
+	  						i.putExtra("teamName", teamClicked);
+	  	          startActivity(i);
 	  				  }
 	  				});
 	  				alert.setNegativeButton("Cancel", new DialogInterface.OnClickListener() 
@@ -172,15 +166,7 @@ public class MainActivity extends Activity implements OnClickListener
   				alert.show();
   				break;
   			}
-  			case(R.id.edit_button):
-  			{
-  				break;
-  			}
-  			case(R.id.existing_team_1):
-  			{
-  				//this is just something to use
-  				break;
-  			}
+
   		}
 			
 		}

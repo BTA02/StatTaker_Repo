@@ -92,4 +92,19 @@ public class PlayerDb //row in the player table
   	this.active = i;
   }
   
+  @Override
+  public String toString()
+  {
+  	String activeOrNot;
+  	if (this.active == 0)
+  	{
+  		activeOrNot = "Not Active";
+  	}
+  	else
+  	{
+  		activeOrNot = "Active";
+  	}
+  	return this.number + " " + this.fname + " " + this.lname + " " + activeOrNot;
+  }
+  
 }

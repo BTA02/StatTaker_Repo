@@ -177,6 +177,17 @@ public class DatabaseHelper extends SQLiteOpenHelper
       return gameRow;
   }
   
+  public int getMaxGameId()
+  {
+  	SQLiteDatabase readDb = this.getReadableDatabase();
+  	int maxPID = 0;
+  	String maxQuery = "SELECT MAX(" + COL_GAMEID + ") FROM " + TABLE_GAME;
+  	Cursor c = readDb.rawQuery(maxQuery, null);
+  	c.moveToFirst();
+  	maxPID = c.getInt(0);
+  	return maxPID;
+  }
+  
   //untested
   //R: a valid gID and pID
   //M: a row in the table

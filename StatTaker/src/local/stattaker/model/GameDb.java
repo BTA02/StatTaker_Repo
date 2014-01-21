@@ -27,12 +27,21 @@ public class GameDb //row data for a game table
   }
   
   // constructor
-  public GameDb(int gid, String t, String o)
+  public GameDb(int gid, String t, String o, int pID)
   {
     this.gameId = gid;
     this.teamName = t;
     this.opponent = o;
-    
+    this.playerId = pID;
+    this.shots = 0;
+    this.goals = 0;
+    this.assists = 0;
+    this.steals = 0;
+    this.turnovers = 0;
+    this.saves = 0;
+    this.snitches = 0;
+    this.plusses = 0;
+    this.minuses = 0;
   }
   
   // gets

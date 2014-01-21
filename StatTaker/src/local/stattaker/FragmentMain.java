@@ -1,6 +1,10 @@
 package local.stattaker;
 
+import java.util.List;
+
 import local.stattaker.helper.DatabaseHelper;
+import local.stattaker.model.GameDb;
+import local.stattaker.model.PlayerDb;
 import android.app.ActionBar;
 import android.app.ActionBar.Tab;
 import android.app.ActionBar.TabListener;
@@ -11,10 +15,14 @@ import android.support.v4.view.ViewPager;
 
 public class FragmentMain extends FragmentActivity implements TabListener 
 {
+	DatabaseHelper db;
+	
   MyAdapter mAdapter;
   ViewPager mPager;
   ActionBar mActionBar;
-  
+  String teamName;
+  String opponent;
+  int gameId;
     
   @Override
   protected void onCreate(Bundle savedInstanceState)
@@ -44,9 +52,26 @@ public class FragmentMain extends FragmentActivity implements TabListener
 	  mActionBar.setDisplayShowHomeEnabled(false);
 	  mActionBar.setDisplayShowTitleEnabled(false);
 	  //------END FRAGMENT STUFF--------------
+	  db = db.getHelper(getApplicationContext());
+	  Bundle b = getIntent().getExtras();
+	  teamName = b.getString("teamName");
+	  //opponent = b.getString("opponent");
+	  opponent = "test";
+	  gameId = db.getMaxGameId();
+	  createNewGame(teamName, opponent, gameId);
 	  
-	  
-	  
+  }
+  
+  public void createNewGame(String teamName, String opponent, int gID)
+  {
+  	db = db.getHelper(getApplicationContext());
+  	List<PlayerDb> playerList = db.getAllPlayers(teamName, 1);
+  	for (int i = 0; i < playerList.size(); i++)
+  	{
+  		GameDb g = new GameDb(gID, teamName, opponent, playerList.get(i).getPlayerId());
+  		db.insertGameRow(g);
+  	}
+  	//insert a new row for every player. nice
   }
   
 	@Override
