@@ -53,7 +53,6 @@ public class CreateTeam extends Activity
 		if (extras != null) //something was input
 		{
 			newName = extras.getString("teamName");
-			
 		}
 		else //nothing found
 		{
@@ -84,6 +83,15 @@ public class CreateTeam extends Activity
 				else
 				{
 					p.setActive(0);
+				}
+				if (db.onFieldPlayers(newName) < 7 && active.isChecked() )
+				{
+					Log.i("Test", "put them on field");
+					p.setOnField(1);
+				}
+				else
+				{
+					p.setOnField(0);
 				}
 				db.addPlayer(p);
 				nEdit.setText(null);

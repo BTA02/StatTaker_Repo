@@ -52,6 +52,7 @@ public class FragmentMain extends FragmentActivity implements TabListener
 	  mActionBar.setDisplayShowHomeEnabled(false);
 	  mActionBar.setDisplayShowTitleEnabled(false);
 	  //------END FRAGMENT STUFF--------------
+	  
 	  db = db.getHelper(getApplicationContext());
 	  Bundle b = getIntent().getExtras();
 	  teamName = b.getString("teamName");

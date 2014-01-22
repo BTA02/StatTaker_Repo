@@ -44,7 +44,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Active" />
-
+    
     <Button
         android:id="@+id/create_add_player"
         android:layout_width="wrap_content"

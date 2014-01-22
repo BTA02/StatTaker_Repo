@@ -32,7 +32,7 @@ public class FragmentPlayerList extends ListFragment
 		
 		db = db.getHelper(fm.getApplicationContext());
 		
-		List<PlayerDb> playerList = db.getAllPlayers(fm.teamName, 1);
+		List<PlayerDb> playerList = db.getOnFieldPlayers(fm.teamName);
     Collections.sort(playerList, new Comparator()
     {
       public int compare(Object o1, Object o2) {

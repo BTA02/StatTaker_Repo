@@ -9,6 +9,7 @@ public class PlayerDb //row in the player table
   String number;
   String fname;
   String lname;
+  int onField;
   int active; //0 is not active, obviously
   
    
@@ -19,13 +20,14 @@ public class PlayerDb //row in the player table
   }
   
   // constructor
-  public PlayerDb(String t, int p, String n, String f, String l, int a)
+  public PlayerDb(String t, int p, String n, String f, String l, int oF, int a)
   {
     this.teamName = t;
     this.playerId = p;
     this.number = n;
     this.fname = f;
     this.lname = l;
+    this.onField = oF;
     this.active = a;
     
   }
@@ -54,6 +56,11 @@ public class PlayerDb //row in the player table
   public String getLname()
   {
   	return this.lname;
+  }
+  
+  public int getOnField()
+  {
+  	return this.onField;
   }
   
   public int getActive()
@@ -85,6 +92,11 @@ public class PlayerDb //row in the player table
   public void setLname(String str)
   {
   	this.lname = str;
+  }
+  
+  public void setOnField(int i)
+  {
+  	this.onField = i;
   }
   
   public void setActive(int i)

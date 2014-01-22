@@ -23,7 +23,7 @@ public class GameDb //row data for a game table
   // Empty constructor
   public GameDb()
   {
-       
+  	
   }
   
   // constructor
