@@ -3,16 +3,24 @@ package local.stattaker;
 import java.util.ArrayList;
 import java.util.List;
 
+import umich.imlc.mydeskse.R;
+
 import local.stattaker.helper.DatabaseHelper;
 import local.stattaker.model.PlayerDb;
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.AlertDialog.Builder;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
+import android.widget.EditText;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -26,12 +34,13 @@ public class EditTeam extends Activity
 	
 	String teamName;
 	
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) 
 	{
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_edit);
-		
+		final Context context = this;
 		db = db.getHelper(this);
 		
 		Bundle extras = getIntent().getExtras();
@@ -49,6 +58,22 @@ public class EditTeam extends Activity
 		teamTitle.setText(teamName);
 		populatePlayerList(teamName);
 		//When you click on a player, their info pops up. Retype everything, update player info function, golden
+		
+		currentPlayers = (ListView) findViewById(R.id.edit_player_list);
+		currentPlayers.setOnItemClickListener(new OnItemClickListener()
+		{
+
+			@Override
+			public void onItemClick(AdapterView<?> arg0, View arg1, int position,
+					long arg3) 
+			{
+				//call the builder here
+				
+				
+				
+			}
+			
+		});
 		
 	}
 	
@@ -84,6 +109,16 @@ public class EditTeam extends Activity
 		// Inflate the menu; this adds items to the action bar if it is present.
 		getMenuInflater().inflate(R.menu.edit, menu);
 		return true;
+	}
+	
+	Builder editDialog
+	{
+		LayoutInflater dialogFactory = LayoutInflater.from(this);
+		final View editDialogView = dialogFactory.inflate(
+        R.layout.custom_edit_player_alert, null);
+		final AlertDialog.Builder editEventBuilder = new AlertDialog.Builder(this);
+		
+		return;
 	}
 
 }
