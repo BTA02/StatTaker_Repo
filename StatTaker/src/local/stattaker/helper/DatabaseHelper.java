@@ -488,7 +488,24 @@ public class DatabaseHelper extends SQLiteOpenHelper
     }
   	return playerList;
   }
-  
+  public int updatePlayerInfo(PlayerDb p)
+  {
+  	SQLiteDatabase db = this.getWritableDatabase();
+  	
+  	ContentValues values = new ContentValues();
+  	
+    values.put(COL_TEAMNAME, p.getTeamName());
+    values.put(COL_PLAYERID, p.getPlayerId() );
+    values.put(COL_NUMBER, p.getNumber());
+    values.put(COL_FNAME, p.getFname());
+    values.put(COL_LNAME, p.getLname());
+    values.put(COL_ONFIELD, p.getOnField());
+    values.put(COL_ACTIVE, p.getActive());
+    
+    return db.update(TABLE_PLAYER, values, COL_PLAYERID + " = ?",
+    		new String[] { String.valueOf(p.getPlayerId()) });
+  }
+  /*
   public int updatePlayerInfo(PlayerDb p, String column, String strVal, int intVal ) 
   {
   		List<PlayerDb> pDb = getOnePlayerRow(p.getTeamName(), p.getPlayerId() );
@@ -568,6 +585,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
       				+ COL_PLAYERID + " = ?", arguments);
       //should hopefully return 1
   }
+  */
   
   //untested
   //R: nothing
