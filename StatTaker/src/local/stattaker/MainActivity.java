@@ -1,15 +1,19 @@
 package local.stattaker;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import local.stattaker.helper.DatabaseHelper;
+import local.stattaker.model.GameDb;
+import local.stattaker.model.PlayerDb;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -18,6 +22,7 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -29,6 +34,8 @@ public class MainActivity extends Activity implements OnClickListener
 		ListView currentTeams;
 		
 		ArrayAdapter<String> listAdapter;
+		
+		Context context = this;
 		
     @Override
     protected void onCreate(Bundle savedInstanceState) 
@@ -61,19 +68,69 @@ public class MainActivity extends Activity implements OnClickListener
 					{
 						//now this is what happens when you click
 						final String teamClicked = (String)((TextView) arg1).getText();
+						LayoutInflater dialogFactory = LayoutInflater.from(context);
+						final View newGameView = dialogFactory.inflate(
+				        R.layout.custom_new_game_alert, null);
 						AlertDialog.Builder alert = new AlertDialog.Builder(MainActivity.this);
-
+						
+						alert.setView(newGameView);
 	  				alert.setTitle("Options");
-	  				alert.setMessage("Choose One of the Following:");
+	  				alert.setMessage("Resume Old Game:");
+	  				
+	  				final EditText oppo = (EditText) newGameView
+	  						.findViewById(R.id.new_game_opponent_name);
+	  				
+	  				ListView oldGames = (ListView) newGameView
+	  						.findViewById(R.id.new_game_list);
+	  				List<GameDb> gameList = new ArrayList<GameDb>();
+	  				
+	  				
+	  		  	gameList = db.getAllGames(teamClicked);
+	  		  	
+	  		  	ListAdapter listAdapter = new ArrayAdapter(context, R.layout.custom_player_list, gameList);
+	  		  	oldGames.setAdapter(listAdapter);
+	  		  	/*
+	  				oldGames.setOnItemClickListener(new OnItemClickListener()
+	  				{
 
-	  				// Set an EditText view to get user input 
+							@Override
+							public void onItemClick(AdapterView<?> arg0, View arg1, int arg2,
+									long arg3) 
+							{
+								GameDb g = (GameDb) arg0.getItemAtPosition(arg2);
+								String t = (String)((TextView) arg1).getText();
+								Intent i = new Intent(getApplicationContext(), FragmentMain.class);
+	  						i.putExtra("teamName", teamClicked );
+	  						i.putExtra("gId", g.getGameId() );
+	  						i.putExtra("old", 1);
+	  	          startActivity(i);
+								
+							}
+	  					
+	  				});
+	  				*/
+	  				
 	  				alert.setPositiveButton("Create New Game", new DialogInterface.OnClickListener() 
 	  				{
 	  					public void onClick(DialogInterface dialog, int whichButton) 
 	  					{
-	  						Log.i("Test", "team clicked: " + teamClicked);
+	  						int newGameId = db.getMaxGameRow() + 1;
+	  						List<PlayerDb> newList = db.getAllPlayers(teamClicked, 1);
+	  						Iterator<PlayerDb> it = newList.iterator();
+	  						while (it.hasNext())
+	  						{
+	  							String newOpponentString = oppo.getText().toString();
+	  							if (newOpponentString.matches(""))
+	  							{
+	  								newOpponentString = "name left blank";
+	  							}
+	  							GameDb g = new GameDb(newGameId, teamClicked, newOpponentString, 
+	  									it.next().getPlayerId());
+	  							db.insertGameRow(g);
+	  						}
 	  						Intent i = new Intent(getApplicationContext(), FragmentMain.class);
 	  						i.putExtra("teamName", teamClicked);
+	  						i.putExtra("gId", newGameId);
 	  	          startActivity(i);
 	  				  }
 	  				});

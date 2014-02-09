@@ -108,6 +108,7 @@ public class PlayerDb //row in the player table
   public String toString()
   {
   	String activeOrNot;
+  	String oF;
   	if (this.active == 0)
   	{
   		activeOrNot = "Not Active";
@@ -116,7 +117,15 @@ public class PlayerDb //row in the player table
   	{
   		activeOrNot = "Active";
   	}
-  	return this.number + " " + this.fname + " " + this.lname + " " + activeOrNot;
+  	if (this.onField == 0)
+  	{
+  		oF = "Bench";
+  	}
+  	else
+  	{
+  		oF = "Field";
+  	}
+  	return this.number + " " + this.fname + " " + this.lname + " " + activeOrNot + " " + oF;
   }
   
 }

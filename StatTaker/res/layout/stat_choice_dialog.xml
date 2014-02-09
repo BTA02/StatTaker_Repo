@@ -4,46 +4,5 @@
     android:layout_height="match_parent"
     android:orientation="vertical" >
 
-    <Button
-        android:id="@+id/dialog_shot"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Shot" />
-
-    <Button
-        android:id="@+id/dialog_goal"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Goal (auto adds shot)" />
-
-    <Button
-        android:id="@+id/dialog_assist"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Assist" />
-
-    <Button
-        android:id="@+id/dialog_steal"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Steals" />
-
-    <Button
-        android:id="@+id/dialog_turnover"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Turnover" />
-
-    <Button
-        android:id="@+id/dialog_save"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Save" />
-
-    <Button
-        android:id="@+id/dialog_snitch"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Snitch Catch" />
 
 </LinearLayout>

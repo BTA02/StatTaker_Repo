@@ -6,12 +6,20 @@ import local.stattaker.helper.DatabaseHelper;
 import local.stattaker.model.GameDb;
 import local.stattaker.model.PlayerDb;
 import android.app.ActionBar;
+import android.app.AlertDialog;
 import android.app.ActionBar.Tab;
 import android.app.ActionBar.TabListener;
+import android.app.AlertDialog.Builder;
 import android.app.FragmentTransaction;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.view.ViewPager;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.widget.CheckBox;
+import android.widget.EditText;
 
 public class FragmentMain extends FragmentActivity implements TabListener 
 {
@@ -22,7 +30,7 @@ public class FragmentMain extends FragmentActivity implements TabListener
   ActionBar mActionBar;
   String teamName;
   String opponent;
-  int gameId;
+  int gId;
     
   @Override
   protected void onCreate(Bundle savedInstanceState)
@@ -54,19 +62,19 @@ public class FragmentMain extends FragmentActivity implements TabListener
 	  //------END FRAGMENT STUFF--------------
 	  
 	  db = db.getHelper(getApplicationContext());
+	  
 	  Bundle b = getIntent().getExtras();
 	  teamName = b.getString("teamName");
-	  //opponent = b.getString("opponent");
-	  opponent = "test";
-	  gameId = db.getMaxGameId();
-	  createNewGame(teamName, opponent, gameId);
-	  
+	  gId = b.getInt("gId");
+	  //still need opponent name
+	  //createNewGame(teamName, opponent);
   }
   
-  public void createNewGame(String teamName, String opponent, int gID)
+  public void createNewGame(String teamName, String opponent)
   {
   	db = db.getHelper(getApplicationContext());
   	List<PlayerDb> playerList = db.getAllPlayers(teamName, 1);
+  	int gID = -1;
   	for (int i = 0; i < playerList.size(); i++)
   	{
   		GameDb g = new GameDb(gID, teamName, opponent, playerList.get(i).getPlayerId());

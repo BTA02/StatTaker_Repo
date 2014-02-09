@@ -3,6 +3,41 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical" >
-
-
+    
+	<ListView android:id="@id/android:list"
+		android:layout_width="match_parent"
+		android:layout_height="match_parent"
+		android:layout_weight=".75" />
+	
+	<TextView 
+	    android:id="@+id/score"
+	    android:layout_width="fill_parent"
+	    android:layout_height="wrap_content"
+	    android:gravity="center"
+	    android:text="...." />
+	
+    <Button
+        android:id="@+id/opponent_goal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Opponent Goal" />
+    
+    <Button
+        android:id="@+id/opponent_snitch"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Opponent Snitch" />
+    
+	<Button
+        android:id="@+id/undo_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Undo" />
+	
+	<Button
+        android:id="@+id/redo_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Redo" />
+	
 </LinearLayout>

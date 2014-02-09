@@ -175,5 +175,11 @@ public class GameDb //row data for a game table
   {
   	this.minuses = i;
   }
+  
+  @Override
+  public String toString()
+  {
+  	return this.opponent;
+  }
    
 }

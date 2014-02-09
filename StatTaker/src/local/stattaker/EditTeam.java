@@ -15,9 +15,11 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ListAdapter;
@@ -30,6 +32,7 @@ public class EditTeam extends Activity
 	
 	ListView currentPlayers;
 	TextView teamTitle;
+	Button addPlayerButton;
 	
 	String teamName;
 	
@@ -69,8 +72,19 @@ public class EditTeam extends Activity
 				PlayerDb clickedPlayer = (PlayerDb) currentPlayers.getItemAtPosition(position);
 				AlertDialog.Builder editRosterBuilder = editDialog(clickedPlayer);
         editRosterBuilder.show();
-				
-				
+			}
+			
+		});
+		
+		addPlayerButton = (Button) findViewById(R.id.edit_add_player_button);
+		addPlayerButton.setOnClickListener(new OnClickListener()
+		{
+
+			@Override
+			public void onClick(View v)
+			{
+				AlertDialog.Builder addRosterBuilder = addDialog(teamName);
+				addRosterBuilder.show();
 				
 			}
 			
@@ -89,8 +103,6 @@ public class EditTeam extends Activity
   	playerList = db.getAllPlayers(tN, 0);
   	ListAdapter listAdapter = new ArrayAdapter(this, R.layout.custom_player_list, playerList);
   	currentPlayers.setAdapter(listAdapter);
-
-
 	}
 
 	@Override
@@ -153,6 +165,11 @@ public class EditTeam extends Activity
 						{
 							updatedPlayer.setActive(0);
 						}
+						if (db.onFieldPlayers(teamName) < 7 && activeBox.isChecked() )
+						{
+							Log.i("Test", "put them on field2");
+							updatedPlayer.setOnField(1);
+						}
 						db.updatePlayerInfo(updatedPlayer);
 						populatePlayerList(currentPlayer.getTeamName());
 					}
@@ -171,6 +188,74 @@ public class EditTeam extends Activity
 		});
 		
 		return editRosterBuilder;
+	}
+	
+	Builder addDialog(final String teamName)
+	{
+		LayoutInflater dialogFactory = LayoutInflater.from(this);
+		final View addDialogView = dialogFactory.inflate(
+        R.layout.custom_edit_player_alert, null);
+		final AlertDialog.Builder addRosterBuilder = new AlertDialog.Builder(this);
+		
+		addRosterBuilder.setTitle("Edit Current Player");
+		addRosterBuilder.setView(addDialogView);
+		
+		final EditText number = (EditText) addDialogView
+				.findViewById(R.id.edit_custom_number);
+		final EditText firstName = (EditText) addDialogView
+				.findViewById(R.id.edit_custom_fname);
+		final EditText lastName = (EditText) addDialogView
+				.findViewById(R.id.edit_custom_lname);
+		final CheckBox activeBox = (CheckBox) addDialogView
+				.findViewById(R.id.edit_custom_box);
+		
+		
+		addRosterBuilder.setPositiveButton("Save", 
+				new DialogInterface.OnClickListener() 
+		{
+					@Override
+					public void onClick(DialogInterface dialog, int which) 
+					{
+						PlayerDb newPlayer = new PlayerDb();
+						newPlayer.setNumber(number.getText().toString());
+						newPlayer.setFname(firstName.getText().toString());
+						newPlayer.setLname(lastName.getText().toString());
+						newPlayer.setTeamName(teamName);
+						if (activeBox.isChecked())
+						{
+							newPlayer.setActive(1);
+						}
+						else
+						{
+							newPlayer.setActive(0);
+						}
+						if (db.onFieldPlayers(teamName) < 7 && activeBox.isChecked() )
+						{
+							Log.i("Test", "put them on field2");
+							newPlayer.setOnField(1);
+						}
+						else
+						{
+							newPlayer.setOnField(0);
+						}
+						db.addPlayer(newPlayer);
+						populatePlayerList(teamName);
+					}
+					
+		});
+		
+		addRosterBuilder.setNegativeButton("Cancel", new DialogInterface.OnClickListener()
+		{
+
+			@Override
+			public void onClick(DialogInterface dialog, int which) 
+			{
+				//exit, so do nothing
+			}
+			
+		});
+		
+		return addRosterBuilder;
 	}
 	
 }

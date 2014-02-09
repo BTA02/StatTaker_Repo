@@ -22,7 +22,7 @@
         android:layout_height="250dp"/>
     
     <Button
-        android:id="@+id/edit_add_player"
+        android:id="@+id/edit_add_player_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" 
         android:text="Add New Player" />

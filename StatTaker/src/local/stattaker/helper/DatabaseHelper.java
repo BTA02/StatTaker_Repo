@@ -30,7 +30,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
   private static final String LOG = "DatabaseHelper";
 
   // Database Version
-  private static final int DATABASE_VERSION = 4;
+  private static final int DATABASE_VERSION = 11;
 
   // Database Name
   private static final String DATABASE_NAME = "quidditchGames";
@@ -65,19 +65,26 @@ public class DatabaseHelper extends SQLiteOpenHelper
 
   // Table Create Statements
   // GAME table create statement
+  // I also need to make sure I can add the proper gameId to each player
+  //I think this will work
   private static final String CREATE_TABLE_GAME = "CREATE TABLE "
-          + TABLE_GAME + "(" + COL_GAMEID + " INTEGER PRIMARY KEY," + COL_TEAMNAME
+          + TABLE_GAME + "(" + COL_GAMEID + " INTEGER," + COL_TEAMNAME
           + " TEXT," + COL_OPPONENT + " TEXT," + COL_PLAYERID + " INTEGER," + COL_SHOTS
           + " INTEGER," + COL_GOALS + " INTEGER," 
           + COL_ASSISTS + " INTEGER," + COL_STEALS
           + " INTEGER," + COL_TURNOVERS +  " INTEGER," + COL_SAVES
           + " INTEGER," + COL_SNITCHES + " INTEGER," + COL_PLUSSES
-          + " INTEGER," + COL_MINUSES + " INTEGER" + ")";
+          + " INTEGER," + COL_MINUSES + " INTEGER, "
+          + "PRIMARY KEY (" + COL_GAMEID + ", " + COL_PLAYERID + "), "
+          + "FOREIGN KEY(" + COL_PLAYERID + ") REFERENCES "
+          + TABLE_PLAYER + "(" + COL_PLAYERID + ")"
+          + ")";
 
   // PLAYER table create statement
+  //actually good
   private static final String CREATE_TABLE_PLAYER = "CREATE TABLE " + TABLE_PLAYER
           + "(" + COL_TEAMNAME + " TEXT," + COL_PLAYERID 
-          + " INTEGER PRIMARY KEY," + COL_NUMBER + " TEXT,"
+          + " INTEGER PRIMARY KEY AUTOINCREMENT," + COL_NUMBER + " TEXT,"
           + COL_FNAME + " TEXT," + COL_LNAME + " TEXT,"
           + COL_ONFIELD + " INTEGER,"
           + COL_ACTIVE + " INTEGER" + ")";
@@ -136,6 +143,33 @@ public class DatabaseHelper extends SQLiteOpenHelper
   }
   
   //untested
+  //this just returns a list of the old games team has played
+  //only returns a list of opponents
+  public List<GameDb> getAllGames(String team)
+  {
+  	List<GameDb> oldGames = new ArrayList<GameDb>();
+  	SQLiteDatabase db = this.getReadableDatabase();
+  	String selectGames = "SELECT DISTINCT " + COL_OPPONENT + ", "
+  			+ COL_GAMEID + " FROM " + TABLE_GAME 
+  			+" WHERE " + COL_TEAMNAME + " = \"" + team + "\"";
+  	
+  	Cursor c = db.rawQuery(selectGames, null);
+  	
+  	if (c.moveToFirst())
+  	{
+  		do
+  		{
+	      GameDb g = new GameDb();
+	      g.setId((c.getInt(c.getColumnIndex(COL_GAMEID))));
+	      g.setOpponent(c.getString(c.getColumnIndex(COL_OPPONENT)));
+	      oldGames.add(g);
+  		}
+  		while (c.moveToNext());
+    }
+  	return oldGames;
+  }
+  
+  //untested
   //R
   //M
   //E
@@ -179,19 +213,43 @@ public class DatabaseHelper extends SQLiteOpenHelper
       return gameRow;
   }
   
-  public int getMaxGameId()
+  public Cursor getGameStats(int gameId)
   {
-  	SQLiteDatabase readDb = this.getReadableDatabase();
-  	int maxPID = 0;
-  	String maxQuery = "SELECT MAX(" + COL_GAMEID + ") FROM " + TABLE_GAME;
-  	Cursor c = readDb.rawQuery(maxQuery, null);
-  	c.moveToFirst();
-  	maxPID = c.getInt(0);
-  	return maxPID;
+  	String query = "SELECT * FROM "
+				+ TABLE_PLAYER + " p, " + TABLE_GAME + " g"
+				+ " WHERE " + "g." + COL_GAMEID + " = " + gameId
+				+ " AND " + "p." + COL_PLAYERID + " = "
+				+ "g." + COL_PLAYERID;
+  	SQLiteDatabase db = this.getReadableDatabase();
+  	Cursor c = db.rawQuery(query, null);
+  	return c;
   }
   
+  
+  //R: nothing
+  //M: nothing
+  //E: returns the max game id, so I can add 1 to it and use that going forward
+  public int getMaxGameRow()
+  {
+  	int retVal;
+  	String maxQuery = "SELECT MAX(" + COL_GAMEID + ") FROM " + TABLE_GAME;
+  	SQLiteDatabase db = this.getReadableDatabase();
+  	Cursor c = db.rawQuery(maxQuery, null);
+  	if(c.moveToFirst())
+  	{
+  		c.moveToFirst();
+  	}
+  	else
+  	{
+  		return 0;
+  	}
+  	retVal = c.getInt(0);
+  	return retVal;
+  }
+  
+  
   //untested
-  //R: a valid gID and pID
+  //R: a valid gID and pID, a stat to update and a value to add
   //M: a row in the table
   //E: changes the value of "column" to "column" + "valToAdd"
   public int updateStat(int gID, int pID, String column, int valToAdd) 
@@ -373,7 +431,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
   				+ COL_PLAYERID + " = ?", arguments);
   }
   
-  //untested
+  //tested
   //R: valid values for each category
   //M: the players database
   //E: adds a new player to the db with a unique pID
@@ -383,17 +441,10 @@ public class DatabaseHelper extends SQLiteOpenHelper
   	
   	SQLiteDatabase readDb = this.getReadableDatabase();
   	String[] selectionArgs = {COL_PLAYERID, TABLE_PLAYER};
-  	String maxQuery = "SELECT MAX(" + COL_PLAYERID + ") FROM " + TABLE_PLAYER;
-  	Cursor c = readDb.rawQuery(maxQuery, null);
-  	c.moveToFirst();
-  	int maxPID = c.getInt(0);
-  	Log.i("Test", "maxQuery: "+ maxQuery);
-  	Log.i("Test", "maxPID: " + maxPID);
   	
   	ContentValues values = new ContentValues();
 
     values.put(COL_TEAMNAME, p.getTeamName());
-    values.put(COL_PLAYERID, (maxPID + 1) );
     values.put(COL_NUMBER, p.getNumber());
     values.put(COL_FNAME, p.getFname());
     values.put(COL_LNAME, p.getLname());
@@ -412,11 +463,11 @@ public class DatabaseHelper extends SQLiteOpenHelper
   //R
   //M
   //E
-  public List<PlayerDb> getOnePlayerRow(String teamName, int pID)
+  public PlayerDb getOnePlayerRow(String teamName, int pID)
   {
-      List<PlayerDb> playerRow = new ArrayList<PlayerDb>();
+      PlayerDb playerRow = new PlayerDb();
       String selectQuery = "SELECT  * FROM " + TABLE_PLAYER + " WHERE "
-              + COL_TEAMNAME + " = " + teamName +  " AND " + COL_PLAYERID
+              + COL_TEAMNAME + " = \"" + teamName +  "\" AND " + COL_PLAYERID
               + " = " + pID;
    
       Log.e(LOG, selectQuery);
@@ -438,7 +489,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
               p.setOnField(c.getInt((c.getColumnIndex(COL_ONFIELD))));
               p.setActive(c.getInt((c.getColumnIndex(COL_ACTIVE))));
               //adding to the list
-              playerRow.add(p);
+              playerRow = p;
           } 
           while (c.moveToNext()); //I hate do-while loops
       }
@@ -619,6 +670,71 @@ public class DatabaseHelper extends SQLiteOpenHelper
 		SQLiteDatabase db = this.getReadableDatabase();
 		String onFieldPlayersQuery = "SELECT * FROM " + TABLE_PLAYER + " WHERE "
 				+ COL_TEAMNAME + " = \"" + teamName + "\" AND " + COL_ONFIELD + " = 1";
+		
+		Cursor c = db.rawQuery(onFieldPlayersQuery, null);
+  	if (c.moveToFirst())
+  	{
+  		do
+  		{
+	      PlayerDb p = new PlayerDb(); //just a db row
+	      p.setTeamName((c.getString(c.getColumnIndex(COL_TEAMNAME)))); //
+	      p.setPlayerId(c.getInt((c.getColumnIndex(COL_PLAYERID))));
+	      p.setNumber(c.getString((c.getColumnIndex(COL_NUMBER))));
+	      p.setFname(c.getString((c.getColumnIndex(COL_FNAME))));
+	      p.setLname(c.getString((c.getColumnIndex(COL_LNAME))));
+	      p.setOnField(c.getInt((c.getColumnIndex(COL_ONFIELD))));
+	      p.setActive(c.getInt((c.getColumnIndex(COL_ACTIVE))));
+	      playerList.add(p);
+  		}
+  		while (c.moveToNext());
+    }
+  	return playerList;
+	}
+	public List<PlayerDb> getOnFieldPlayersFromGame(String teamName, int gID) 
+	{
+		List<PlayerDb> playerList = new ArrayList<PlayerDb>();
+		SQLiteDatabase db = this.getReadableDatabase();
+		
+		String onFieldPlayersQuery = "SELECT * FROM "
+				+ TABLE_PLAYER + " p, " + TABLE_GAME + " g"
+				+ " WHERE " + "g." + COL_GAMEID + " = " + gID
+				+ " AND " + "p." + COL_ONFIELD + " =  1"
+				+ " AND " + "p." + COL_PLAYERID + " = "
+				+ "g." + COL_PLAYERID;
+		
+		Cursor c = db.rawQuery(onFieldPlayersQuery, null);
+  	if (c.moveToFirst())
+  	{
+  		do
+  		{
+	      PlayerDb p = new PlayerDb(); //just a db row
+	      p.setTeamName((c.getString(c.getColumnIndex(COL_TEAMNAME)))); //
+	      p.setPlayerId(c.getInt((c.getColumnIndex(COL_PLAYERID))));
+	      p.setNumber(c.getString((c.getColumnIndex(COL_NUMBER))));
+	      p.setFname(c.getString((c.getColumnIndex(COL_FNAME))));
+	      p.setLname(c.getString((c.getColumnIndex(COL_LNAME))));
+	      p.setOnField(c.getInt((c.getColumnIndex(COL_ONFIELD))));
+	      p.setActive(c.getInt((c.getColumnIndex(COL_ACTIVE))));
+	      playerList.add(p);
+  		}
+  		while (c.moveToNext());
+    }
+  	return playerList;
+	}
+	
+	//only active players are added, so that's okay
+	//now just get the offField ones
+	public List<PlayerDb> getOffFieldPlayersFromGame(String teamName, int gID) 
+	{
+		List<PlayerDb> playerList = new ArrayList<PlayerDb>();
+		SQLiteDatabase db = this.getReadableDatabase();
+		
+		String onFieldPlayersQuery = "SELECT * FROM "
+				+ TABLE_PLAYER + " p, " + TABLE_GAME + " g"
+				+ " WHERE " + "g." + COL_GAMEID + " = " + gID
+				+ " AND " + "p." + COL_ONFIELD + " =  0"
+				+ " AND " + "p." + COL_PLAYERID + " = "
+				+ "g." + COL_PLAYERID;
 		
 		Cursor c = db.rawQuery(onFieldPlayersQuery, null);
   	if (c.moveToFirst())
