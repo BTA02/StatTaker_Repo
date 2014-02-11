@@ -1,6 +1,7 @@
 package local.stattaker;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import local.stattaker.helper.DatabaseHelper;
@@ -60,7 +61,6 @@ public class EditTeam extends Activity
 		teamTitle.setText(teamName);
 		populatePlayerList(teamName);
 		//When you click on a player, their info pops up. Retype everything, update player info function, golden
-		
 		currentPlayers = (ListView) findViewById(R.id.edit_player_list);
 		currentPlayers.setOnItemClickListener(new OnItemClickListener()
 		{
@@ -101,6 +101,7 @@ public class EditTeam extends Activity
   	currentPlayers = (ListView) findViewById(R.id.edit_player_list);
   	List<PlayerDb> playerList = new ArrayList<PlayerDb>();
   	playerList = db.getAllPlayers(tN, 0);
+  	Collections.sort(playerList, new PlayerDb.OrderByActive());
   	ListAdapter listAdapter = new ArrayAdapter(this, R.layout.custom_player_list, playerList);
   	currentPlayers.setAdapter(listAdapter);
 	}

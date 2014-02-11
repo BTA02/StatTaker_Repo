@@ -1,5 +1,7 @@
 package local.stattaker.model;
 
+import java.util.Comparator;
+
  
 public class PlayerDb //row in the player table
 {
@@ -31,7 +33,25 @@ public class PlayerDb //row in the player table
     this.active = a;
     
   }
+  public static class OrderByOnField implements Comparator<PlayerDb> 
+  {
+		@Override
+		public int compare(PlayerDb lhs, PlayerDb rhs) 
+		{
+			return lhs.onField > rhs.onField ? 1 : (lhs.onField < rhs.onField ? -1 : 0);
+		}
+  }	
   
+  //doesn't work
+  public static class OrderByActive implements Comparator<PlayerDb>
+  {
+		@Override
+		public int compare(PlayerDb lhs, PlayerDb rhs) 
+		{
+			return lhs.active < rhs.active ? 1 : (lhs.active > rhs.active ? -1 : 0);
+		}
+  	
+  }
   // gets
   public String getTeamName()
   {
@@ -125,7 +145,7 @@ public class PlayerDb //row in the player table
   	{
   		oF = "Field";
   	}
-  	return this.number + " " + this.fname + " " + this.lname + " " + activeOrNot + " " + oF;
+  	return this.number + "	" + this.fname + "	" + this.lname + "	" + activeOrNot;
   }
   
 }

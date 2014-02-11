@@ -7,6 +7,7 @@ import java.util.List;
 import local.stattaker.helper.DatabaseHelper;
 import local.stattaker.model.GameDb;
 import local.stattaker.model.PlayerDb;
+import local.stattaker.util.AddTeams;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
@@ -89,7 +90,7 @@ public class MainActivity extends Activity implements OnClickListener
 	  		  	
 	  		  	ListAdapter listAdapter = new ArrayAdapter(context, R.layout.custom_player_list, gameList);
 	  		  	oldGames.setAdapter(listAdapter);
-	  		  	/*
+	  		  	
 	  				oldGames.setOnItemClickListener(new OnItemClickListener()
 	  				{
 
@@ -108,7 +109,7 @@ public class MainActivity extends Activity implements OnClickListener
 							}
 	  					
 	  				});
-	  				*/
+	  				
 	  				
 	  				alert.setPositiveButton("Create New Game", new DialogInterface.OnClickListener() 
 	  				{

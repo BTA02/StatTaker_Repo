@@ -102,6 +102,12 @@ public class FragmentPlayerList extends ListFragment
 			public void onClick(View v) 
 			{
 				//update everyone with a minus
+				List<PlayerDb> p = db.getOnFieldPlayersFromGame(fm.teamName, fm.gId);
+				for (int i = 0; i < p.size(); i++)
+				{
+					int pid = p.get(i).getPlayerId();
+					db.updateStat(fm.gId, pid, "minuses", 1);
+				}
 				awayScore += 10;
 				score.setText(homeScore + " - " + awayScore);
 				showMessage("Opponent", "Goal");
@@ -141,6 +147,12 @@ public class FragmentPlayerList extends ListFragment
 					{
 						if (a.getCategory().equals("oGoal")) //they scored
 						{
+							List<PlayerDb> p = db.getOnFieldPlayersFromGame(fm.teamName, fm.gId);
+							for (int i = 0; i < p.size(); i++)
+							{
+								int pid = p.get(i).getPlayerId();
+								db.updateStat(fm.gId, pid, "minuses", -1);
+							}
 							awayScore -= 10;
 							score.setText(homeScore + " - " + awayScore);
 							showMessage("Opponent", "Remove Goal");
@@ -161,6 +173,12 @@ public class FragmentPlayerList extends ListFragment
 						}
 						else if (a.getCategory().equals("goals"))
 						{
+							List<PlayerDb> p = db.getOnFieldPlayersFromGame(fm.teamName, fm.gId);
+							for (int i = 0; i < p.size(); i++)
+							{
+								int pid = p.get(i).getPlayerId();
+								db.updateStat(fm.gId, pid, "plusses", -1);
+							}
 							db.updateStat(a.getgId(), a.getpId(), "goals", -1);
 							db.updateStat(a.getgId(), a.getpId(), "shots", -1);
 							//plus / minus stuff here
@@ -197,8 +215,10 @@ public class FragmentPlayerList extends ListFragment
 						{
 							PlayerDb wentIn = db.getOnePlayerRow(fm.teamName, a.getpId());
 							PlayerDb wentOut = db.getOnePlayerRow(fm.teamName, a.getpIdOut());
-							wentIn.setOnField(0);
-							wentOut.setOnField(1);
+							int wentInNum = wentIn.getOnField();
+							int wentOutNum = wentOut.getOnField();
+							wentIn.setOnField(wentOutNum);
+							wentOut.setOnField(wentInNum);
 							db.updatePlayerInfo(wentIn);
 							db.updatePlayerInfo(wentOut);
 							showMessage(wentOut.getLname(), "Undo sub");
@@ -228,6 +248,12 @@ public class FragmentPlayerList extends ListFragment
 					{
 						if (a.getCategory().equals("oGoal")) //they scored
 						{
+							List<PlayerDb> p = db.getOnFieldPlayersFromGame(fm.teamName, fm.gId);
+							for (int i = 0; i < p.size(); i++)
+							{
+								int pid = p.get(i).getPlayerId();
+								db.updateStat(fm.gId, pid, "minuses", 1);
+							}
 							awayScore += 10;
 							score.setText(homeScore + " - " + awayScore);
 							showMessage("Opponent", "Redo Goal");
@@ -249,6 +275,12 @@ public class FragmentPlayerList extends ListFragment
 						}
 						else if (a.getCategory().equals("goals"))
 						{
+							List<PlayerDb> p = db.getOnFieldPlayersFromGame(fm.teamName, fm.gId);
+							for (int i = 0; i < p.size(); i++)
+							{
+								int pid = p.get(i).getPlayerId();
+								db.updateStat(fm.gId, pid, "plusses", 1);
+							}
 							db.updateStat(a.getgId(), a.getpId(), "goals", 1);
 							db.updateStat(a.getgId(), a.getpId(), "shots", 1);
 							//plus / minus stuff here
@@ -283,10 +315,13 @@ public class FragmentPlayerList extends ListFragment
 						}
 						else if (a.getCategory().equals("sub"))
 						{
+							
 							PlayerDb wentIn = db.getOnePlayerRow(fm.teamName, a.getpId());
 							PlayerDb wentOut = db.getOnePlayerRow(fm.teamName, a.getpIdOut());
-							wentIn.setOnField(1);
-							wentOut.setOnField(0);
+							int wentInNum = wentIn.getOnField();
+							int wentOutNum = wentOut.getOnField();
+							wentIn.setOnField(wentOutNum);
+							wentOut.setOnField(wentInNum);
 							db.updatePlayerInfo(wentIn);
 							db.updatePlayerInfo(wentOut);
 							showMessage(wentIn.getLname(), "Put back in");
@@ -343,6 +378,12 @@ public class FragmentPlayerList extends ListFragment
 				}
 				else if (which == 1)
 				{
+					List<PlayerDb> p = db.getOnFieldPlayersFromGame(fm.teamName, fm.gId);
+					for (int i = 0; i < p.size(); i++)
+					{
+						int pid = p.get(i).getPlayerId();
+						db.updateStat(fm.gId, pid, "plusses", 1);
+					}
 					db.updateStat(gID, player.getPlayerId(), "goals", 1);
 					db.updateStat(gID, player.getPlayerId(), "shots", 1);
 					//db.updateStat(gID, player.getPlayerId(), "plusses", 1);
@@ -428,9 +469,10 @@ public class FragmentPlayerList extends ListFragment
 				@Override
 				public void onClick(DialogInterface dialog, int which) 
 				{
+					int loc = player.getOnField();
 					player.setOnField(0);
 					db.updatePlayerInfo(player);
-					list.get(which).setOnField(1);
+					list.get(which).setOnField(loc);
 					db.updatePlayerInfo(list.get(which));
 					Action toAdd = new Action(fm.gId, list.get(which).getPlayerId(), 
 							player.getPlayerId(), "sub", list.get(which).getLname(), 1);
@@ -442,18 +484,31 @@ public class FragmentPlayerList extends ListFragment
 			return subBuilder;
 	}
 	
-	public void populateList()
+	
+	public void populateList() //which list is this?
 	{
+		//I don't want to sort this, I want this in the same order it always is in. Or something
 		List<PlayerDb> playerList = db.getOnFieldPlayersFromGame(fm.teamName, fm.gId);
-    Collections.sort(playerList, new Comparator()
+		/*
+    Collections.sort(playerList, new Comparator<PlayerDb>()
     {
-      public int compare(Object o1, Object o2) {
-          PlayerDb p1 = (PlayerDb) o1;
-          PlayerDb p2 = (PlayerDb) o2;
-         return p1.getFname().compareToIgnoreCase(p2.getFname());
+      public int compare(PlayerDb o1, PlayerDb o2) 
+      {
+      		Log.i("Test", "comp");
+          if (o1.getOnField() <= o2.getOnField())
+          {
+          	Log.i("Test", "ret 0");
+          	return 1;
+          }
+          else
+          {
+          	Log.i("Test", "ret 1");
+          	return 0;
+          }
       }
-
-  });
+		});
+		*/
+		Collections.sort(playerList, new PlayerDb.OrderByOnField());
 		listAdapter = new ArrayAdapter<PlayerDb>(getActivity(), R.layout.custom_player_list, playerList);
 		setListAdapter(listAdapter);
 	}

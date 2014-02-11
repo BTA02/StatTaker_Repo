@@ -30,7 +30,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
   private static final String LOG = "DatabaseHelper";
 
   // Database Version
-  private static final int DATABASE_VERSION = 11;
+  private static final int DATABASE_VERSION = 12;
 
   // Database Name
   private static final String DATABASE_NAME = "quidditchGames";
@@ -669,7 +669,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 		List<PlayerDb> playerList = new ArrayList<PlayerDb>();
 		SQLiteDatabase db = this.getReadableDatabase();
 		String onFieldPlayersQuery = "SELECT * FROM " + TABLE_PLAYER + " WHERE "
-				+ COL_TEAMNAME + " = \"" + teamName + "\" AND " + COL_ONFIELD + " = 1";
+				+ COL_TEAMNAME + " = \"" + teamName + "\" AND " + COL_ONFIELD + " != 0";
 		
 		Cursor c = db.rawQuery(onFieldPlayersQuery, null);
   	if (c.moveToFirst())
@@ -698,7 +698,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 		String onFieldPlayersQuery = "SELECT * FROM "
 				+ TABLE_PLAYER + " p, " + TABLE_GAME + " g"
 				+ " WHERE " + "g." + COL_GAMEID + " = " + gID
-				+ " AND " + "p." + COL_ONFIELD + " =  1"
+				+ " AND " + "p." + COL_ONFIELD + " !=  0"
 				+ " AND " + "p." + COL_PLAYERID + " = "
 				+ "g." + COL_PLAYERID;
 		
@@ -760,7 +760,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 	{
 		SQLiteDatabase db = this.getReadableDatabase();
 		String countQuery = "SELECT * FROM " + TABLE_PLAYER + " WHERE " + 
-				COL_TEAMNAME + " = \"" + tN + "\" AND " + COL_ONFIELD + " = 1";
+				COL_TEAMNAME + " = \"" + tN + "\" AND " + COL_ONFIELD + " != 0";
 		Cursor c = db.rawQuery(countQuery, null);
 		return c.getCount();
 	}

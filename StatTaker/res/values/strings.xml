@@ -13,5 +13,6 @@
     <string name="title_activity_player_db">PlayerDB</string>
     <string name="title_activity_create_team">CreateTeam</string>
     <string name="title_activity_edit">EditActivity</string>
+    <string name="title_activity_add_teams">AddTeams</string>
 
 </resources>
