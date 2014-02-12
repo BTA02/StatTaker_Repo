@@ -43,8 +43,26 @@ public class MainActivity extends Activity implements OnClickListener
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        
         db = new DatabaseHelper(this);
+        
+        Button michiganButton = (Button) findViewById(R.id.michigan_button);
+        michiganButton.setOnClickListener(new OnClickListener()
+        {
+
+					@Override
+					public void onClick(View v) 
+					{
+						AddTeams a = new AddTeams(db);
+						a.addMichigan();
+						
+					}
+        	
+        });
+        List<PlayerDb> p = db.getAllPlayers("University of Michigan", 0);
+        if (p.size() != 0)
+        {
+        	michiganButton.setEnabled(false);
+        }
         
         /*
          * This is for parse for later

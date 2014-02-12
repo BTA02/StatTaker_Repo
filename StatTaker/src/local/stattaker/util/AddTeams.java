@@ -10,12 +10,13 @@ public class AddTeams extends Activity
 {
 	DatabaseHelper db;
 	
-	@Override
-  protected void onCreate(Bundle savedInstanceState) 
-  {
-      super.onCreate(savedInstanceState);
-      addMichigan();
-  }
+	int a;
+	
+	public AddTeams(DatabaseHelper db)
+	{
+		a = 1;
+		this.db = db;
+	}
 	public void addMichigan()
 	{
 		String t = "University Of Michigan";
