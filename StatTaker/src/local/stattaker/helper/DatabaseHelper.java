@@ -30,7 +30,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
   private static final String LOG = "DatabaseHelper";
 
   // Database Version
-  private static final int DATABASE_VERSION = 12;
+  private static final int DATABASE_VERSION = 13;
 
   // Database Name
   private static final String DATABASE_NAME = "quidditchGames";
@@ -55,12 +55,12 @@ public class DatabaseHelper extends SQLiteOpenHelper
   private static final String COL_SNITCHES = "snitches";
   private static final String COL_PLUSSES = "plusses";
   private static final String COL_MINUSES = "minuses";
+  private static final String COL_ONFIELD = "onField";
 
   // PLAYER Table - column names
   private static final String COL_NUMBER = "number";
   private static final String COL_FNAME = "fname";
   private static final String COL_LNAME = "lname";
-  private static final String COL_ONFIELD = "onField";
   private static final String COL_ACTIVE = "active";
 
   // Table Create Statements
@@ -75,6 +75,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
           + " INTEGER," + COL_TURNOVERS +  " INTEGER," + COL_SAVES
           + " INTEGER," + COL_SNITCHES + " INTEGER," + COL_PLUSSES
           + " INTEGER," + COL_MINUSES + " INTEGER, "
+          + COL_ONFIELD + " INTEGER, "
           + "PRIMARY KEY (" + COL_GAMEID + ", " + COL_PLAYERID + "), "
           + "FOREIGN KEY(" + COL_PLAYERID + ") REFERENCES "
           + TABLE_PLAYER + "(" + COL_PLAYERID + ")"
@@ -86,7 +87,6 @@ public class DatabaseHelper extends SQLiteOpenHelper
           + "(" + COL_TEAMNAME + " TEXT," + COL_PLAYERID 
           + " INTEGER PRIMARY KEY AUTOINCREMENT," + COL_NUMBER + " TEXT,"
           + COL_FNAME + " TEXT," + COL_LNAME + " TEXT,"
-          + COL_ONFIELD + " INTEGER,"
           + COL_ACTIVE + " INTEGER" + ")";
 
   public DatabaseHelper(Context context) 
@@ -115,8 +115,9 @@ public class DatabaseHelper extends SQLiteOpenHelper
   
   /*
    * Insert a row in GAME Table
+   * set onField in the createGame code
    */
-  public long insertGameRow(GameDb g) 
+  public long insertGameRow(GameDb g)
   {
       SQLiteDatabase db = this.getWritableDatabase();
    
@@ -134,7 +135,8 @@ public class DatabaseHelper extends SQLiteOpenHelper
       values.put(COL_SNITCHES, g.getSnitches());
       values.put(COL_PLUSSES, g.getPlusses());
       values.put(COL_MINUSES, g.getMinuses());
-      //these should start at 0 for everything
+      values.put(COL_ONFIELD, g.getOnField());
+      //these should start at 0 for everything except onField
    
       // insert row
       long game_id = db.insert(TABLE_GAME, null, values);
@@ -142,7 +144,6 @@ public class DatabaseHelper extends SQLiteOpenHelper
       return game_id; //I didn't know we got a return id from this
   }
   
-  //untested
   //this just returns a list of the old games team has played
   //only returns a list of opponents
   public List<GameDb> getAllGames(String team)
@@ -448,7 +449,6 @@ public class DatabaseHelper extends SQLiteOpenHelper
     values.put(COL_NUMBER, p.getNumber());
     values.put(COL_FNAME, p.getFname());
     values.put(COL_LNAME, p.getLname());
-    values.put(COL_ONFIELD, p.getOnField());
     values.put(COL_ACTIVE, p.getActive());
     
     // insert row
@@ -486,7 +486,6 @@ public class DatabaseHelper extends SQLiteOpenHelper
               p.setNumber(c.getString((c.getColumnIndex(COL_NUMBER))));
               p.setFname(c.getString((c.getColumnIndex(COL_FNAME))));
               p.setLname(c.getString((c.getColumnIndex(COL_LNAME))));
-              p.setOnField(c.getInt((c.getColumnIndex(COL_ONFIELD))));
               p.setActive(c.getInt((c.getColumnIndex(COL_ACTIVE))));
               //adding to the list
               playerRow = p;
@@ -531,7 +530,6 @@ public class DatabaseHelper extends SQLiteOpenHelper
 	      p.setNumber(c.getString((c.getColumnIndex(COL_NUMBER))));
 	      p.setFname(c.getString((c.getColumnIndex(COL_FNAME))));
 	      p.setLname(c.getString((c.getColumnIndex(COL_LNAME))));
-	      p.setOnField(c.getInt((c.getColumnIndex(COL_ONFIELD))));
 	      p.setActive(c.getInt((c.getColumnIndex(COL_ACTIVE))));
 	      playerList.add(p);
   		}
@@ -550,93 +548,11 @@ public class DatabaseHelper extends SQLiteOpenHelper
     values.put(COL_NUMBER, p.getNumber());
     values.put(COL_FNAME, p.getFname());
     values.put(COL_LNAME, p.getLname());
-    values.put(COL_ONFIELD, p.getOnField());
     values.put(COL_ACTIVE, p.getActive());
     
     return db.update(TABLE_PLAYER, values, COL_PLAYERID + " = ?",
     		new String[] { String.valueOf(p.getPlayerId()) });
   }
-  /*
-  public int updatePlayerInfo(PlayerDb p, String column, String strVal, int intVal ) 
-  {
-  		List<PlayerDb> pDb = getOnePlayerRow(p.getTeamName(), p.getPlayerId() );
-  		PlayerDb playerRow = pDb.get(0);
-  		String[] arguments = {p.getTeamName(), String.valueOf(p.getPlayerId())};
-  		
-      SQLiteDatabase db = this.getWritableDatabase();
-      ContentValues values = new ContentValues();
-      
-  		if (column.equals("teamName"))
-  		{
-  			values.put(COL_TEAMNAME, strVal);
-  			values.put(COL_PLAYERID, playerRow.getPlayerId());
-  			values.put(COL_NUMBER, playerRow.getNumber() );
-  			values.put(COL_FNAME, playerRow.getFname());
-  			values.put(COL_LNAME, playerRow.getLname());
-  			values.put(COL_ONFIELD, playerRow.getOnField());
-  			values.put(COL_ACTIVE, playerRow.getActive());
-  		}
-  		else if (column.equals("number"))
-  		{
-  			values.put(COL_TEAMNAME, playerRow.getTeamName());
-  			values.put(COL_PLAYERID, playerRow.getPlayerId());
-  			values.put(COL_NUMBER, strVal );
-  			values.put(COL_FNAME, playerRow.getFname());
-  			values.put(COL_LNAME, playerRow.getLname());
-  			values.put(COL_ONFIELD, playerRow.getOnField());
-  			values.put(COL_ACTIVE, playerRow.getActive());
-  		}
-  		else if (column.equals("fname"))
-  		{
-  			values.put(COL_TEAMNAME, playerRow.getTeamName());
-  			values.put(COL_PLAYERID, playerRow.getPlayerId());
-  			values.put(COL_NUMBER, playerRow.getNumber() );
-  			values.put(COL_FNAME, strVal);
-  			values.put(COL_LNAME, playerRow.getLname());
-  			values.put(COL_ONFIELD, playerRow.getOnField());
-  			values.put(COL_ACTIVE, playerRow.getActive());
-  		}
-  		else if (column.equals("lname"))
-  		{
-  			values.put(COL_TEAMNAME, playerRow.getTeamName());
-  			values.put(COL_PLAYERID, playerRow.getPlayerId());
-  			values.put(COL_NUMBER, playerRow.getNumber() );
-  			values.put(COL_FNAME, playerRow.getFname());
-  			values.put(COL_LNAME, strVal);
-  			values.put(COL_ONFIELD, playerRow.getOnField());
-  			values.put(COL_ACTIVE, playerRow.getActive());
-  		}
-  		else if (column.equals("onField"))
-  		{
-  			values.put(COL_TEAMNAME, playerRow.getTeamName());
-  			values.put(COL_PLAYERID, playerRow.getPlayerId());
-  			values.put(COL_NUMBER, playerRow.getNumber() );
-  			values.put(COL_FNAME, playerRow.getFname());
-  			values.put(COL_LNAME, playerRow.getLname());
-  			values.put(COL_ONFIELD, intVal);
-  			values.put(COL_ACTIVE, playerRow.getActive());
-  		}
-  		else if (column.equals("active"))
-  		{
-  			values.put(COL_TEAMNAME, playerRow.getTeamName());
-  			values.put(COL_PLAYERID, playerRow.getPlayerId());
-  			values.put(COL_NUMBER, playerRow.getNumber() );
-  			values.put(COL_FNAME, playerRow.getFname());
-  			values.put(COL_LNAME, playerRow.getLname());
-  			values.put(COL_ONFIELD, playerRow.getOnField());
-  			values.put(COL_ACTIVE, intVal);
-  		}
-  		else
-  		{
-  			Log.i(LOG, "couldn't find column in update 2: " + column);
-  		}
-  		
-      // updating row
-      return db.update(TABLE_PLAYER, values, COL_TEAMNAME + " = ? AND "
-      				+ COL_PLAYERID + " = ?", arguments);
-      //should hopefully return 1
-  }
-  */
   
   //untested
   //R: nothing
@@ -682,7 +598,6 @@ public class DatabaseHelper extends SQLiteOpenHelper
 	      p.setNumber(c.getString((c.getColumnIndex(COL_NUMBER))));
 	      p.setFname(c.getString((c.getColumnIndex(COL_FNAME))));
 	      p.setLname(c.getString((c.getColumnIndex(COL_LNAME))));
-	      p.setOnField(c.getInt((c.getColumnIndex(COL_ONFIELD))));
 	      p.setActive(c.getInt((c.getColumnIndex(COL_ACTIVE))));
 	      playerList.add(p);
   		}
@@ -690,6 +605,101 @@ public class DatabaseHelper extends SQLiteOpenHelper
     }
   	return playerList;
 	}
+	
+	//this doesn't work anymore, because onField comes from the game
+	public List<PlayerDb> getOnFieldPlayersFromGame(String teamName, int gID) 
+	{
+		List<PlayerDb> playerList = new ArrayList<PlayerDb>();
+		SQLiteDatabase db = this.getReadableDatabase();
+		
+		String onFieldPlayersQuery = "SELECT * FROM "
+				+ TABLE_PLAYER + " p, " + TABLE_GAME + " g"
+				+ " WHERE " + "g." + COL_GAMEID + " = " + gID
+				+ " AND " + "g." + COL_ONFIELD + " != 0"
+				+ " AND " + "g." + COL_PLAYERID + " = "
+				+ "p." + COL_PLAYERID;
+				
+		Cursor c = db.rawQuery(onFieldPlayersQuery, null);
+  	if (c.moveToFirst())
+  	{
+  		do
+  		{
+	      PlayerDb p = new PlayerDb(); //just a db row
+	      p.setTeamName((c.getString(c.getColumnIndex(COL_TEAMNAME)))); //
+	      p.setPlayerId(c.getInt((c.getColumnIndex(COL_PLAYERID))));
+	      p.setNumber(c.getString((c.getColumnIndex(COL_NUMBER))));
+	      p.setFname(c.getString((c.getColumnIndex(COL_FNAME))));
+	      p.setLname(c.getString((c.getColumnIndex(COL_LNAME))));
+	      p.setActive(c.getInt((c.getColumnIndex(COL_ACTIVE))));
+	      playerList.add(p);
+  		}
+  		while (c.moveToNext());
+    }
+  	return playerList;
+	}
+	
+	public List<PlayerDb> getOffFieldPlayersFromGame(String teamName, int gID) 
+	{
+		List<PlayerDb> playerList = new ArrayList<PlayerDb>();
+		SQLiteDatabase db = this.getReadableDatabase();
+		
+		String onFieldPlayersQuery = "SELECT * FROM "
+				+ TABLE_PLAYER + " p, " + TABLE_GAME + " g"
+				+ " WHERE " + "g." + COL_GAMEID + " = " + gID
+				+ " AND " + "p." + COL_ONFIELD + " = 0"
+				+ " AND " + "p." + COL_PLAYERID + " = "
+				+ "g." + COL_PLAYERID;
+		
+		Cursor c = db.rawQuery(onFieldPlayersQuery, null);
+  	if (c.moveToFirst())
+  	{
+  		do
+  		{
+	      PlayerDb p = new PlayerDb(); //just a db row
+	      p.setTeamName((c.getString(c.getColumnIndex(COL_TEAMNAME)))); //
+	      p.setPlayerId(c.getInt((c.getColumnIndex(COL_PLAYERID))));
+	      p.setNumber(c.getString((c.getColumnIndex(COL_NUMBER))));
+	      p.setFname(c.getString((c.getColumnIndex(COL_FNAME))));
+	      p.setLname(c.getString((c.getColumnIndex(COL_LNAME))));
+	      p.setActive(c.getInt((c.getColumnIndex(COL_ACTIVE))));
+	      playerList.add(p);
+  		}
+  		while (c.moveToNext());
+    }
+  	return playerList;
+	}
+	
+	public List<PlayerDb> getAllPlayersFromGame(String teamName, int gID) 
+	{
+		List<PlayerDb> playerList = new ArrayList<PlayerDb>();
+		SQLiteDatabase db = this.getReadableDatabase();
+		
+		String onFieldPlayersQuery = "SELECT * FROM "
+				+ TABLE_PLAYER + " p, " + TABLE_GAME + " g"
+				+ " WHERE " + "g." + COL_GAMEID + " = " + gID
+				+ " AND " + "p." + COL_PLAYERID + " = "
+				+ "g." + COL_PLAYERID;
+		
+		Cursor c = db.rawQuery(onFieldPlayersQuery, null);
+  	if (c.moveToFirst())
+  	{
+  		do
+  		{
+	      PlayerDb p = new PlayerDb(); //just a db row
+	      p.setTeamName((c.getString(c.getColumnIndex(COL_TEAMNAME)))); //
+	      p.setPlayerId(c.getInt((c.getColumnIndex(COL_PLAYERID))));
+	      p.setNumber(c.getString((c.getColumnIndex(COL_NUMBER))));
+	      p.setFname(c.getString((c.getColumnIndex(COL_FNAME))));
+	      p.setLname(c.getString((c.getColumnIndex(COL_LNAME))));
+	      p.setActive(c.getInt((c.getColumnIndex(COL_ACTIVE))));
+	      playerList.add(p);
+  		}
+  		while (c.moveToNext());
+    }
+  	return playerList;
+	}
+	
+	/*
 	public List<PlayerDb> getOnFieldPlayersFromGame(String teamName, int gID) 
 	{
 		List<PlayerDb> playerList = new ArrayList<PlayerDb>();
@@ -713,7 +723,6 @@ public class DatabaseHelper extends SQLiteOpenHelper
 	      p.setNumber(c.getString((c.getColumnIndex(COL_NUMBER))));
 	      p.setFname(c.getString((c.getColumnIndex(COL_FNAME))));
 	      p.setLname(c.getString((c.getColumnIndex(COL_LNAME))));
-	      p.setOnField(c.getInt((c.getColumnIndex(COL_ONFIELD))));
 	      p.setActive(c.getInt((c.getColumnIndex(COL_ACTIVE))));
 	      playerList.add(p);
   		}
@@ -747,7 +756,6 @@ public class DatabaseHelper extends SQLiteOpenHelper
 	      p.setNumber(c.getString((c.getColumnIndex(COL_NUMBER))));
 	      p.setFname(c.getString((c.getColumnIndex(COL_FNAME))));
 	      p.setLname(c.getString((c.getColumnIndex(COL_LNAME))));
-	      p.setOnField(c.getInt((c.getColumnIndex(COL_ONFIELD))));
 	      p.setActive(c.getInt((c.getColumnIndex(COL_ACTIVE))));
 	      playerList.add(p);
   		}
@@ -755,6 +763,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
     }
   	return playerList;
 	}
+	*/
 	
 	public int onFieldPlayers(String tN)
 	{

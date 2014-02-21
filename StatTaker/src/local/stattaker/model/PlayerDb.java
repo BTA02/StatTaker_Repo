@@ -11,7 +11,6 @@ public class PlayerDb //row in the player table
   String number;
   String fname;
   String lname;
-  int onField;
   int active; //0 is not active, obviously
   
    
@@ -29,10 +28,10 @@ public class PlayerDb //row in the player table
     this.number = n;
     this.fname = f;
     this.lname = l;
-    this.onField = oF;
     this.active = a;
     
   }
+  /*
   public static class OrderByOnField implements Comparator<PlayerDb> 
   {
 		@Override
@@ -41,7 +40,7 @@ public class PlayerDb //row in the player table
 			return lhs.onField > rhs.onField ? 1 : (lhs.onField < rhs.onField ? -1 : 0);
 		}
   }	
-  
+  */
   //doesn't work
   public static class OrderByActive implements Comparator<PlayerDb>
   {
@@ -78,10 +77,6 @@ public class PlayerDb //row in the player table
   	return this.lname;
   }
   
-  public int getOnField()
-  {
-  	return this.onField;
-  }
   
   public int getActive()
   {
@@ -114,11 +109,6 @@ public class PlayerDb //row in the player table
   	this.lname = str;
   }
   
-  public void setOnField(int i)
-  {
-  	this.onField = i;
-  }
-  
   public void setActive(int i)
   {
   	this.active = i;
@@ -128,7 +118,6 @@ public class PlayerDb //row in the player table
   public String toString()
   {
   	String activeOrNot;
-  	String oF;
   	if (this.active == 0)
   	{
   		activeOrNot = "Not Active";
@@ -136,14 +125,6 @@ public class PlayerDb //row in the player table
   	else
   	{
   		activeOrNot = "Active";
-  	}
-  	if (this.onField == 0)
-  	{
-  		oF = "Bench";
-  	}
-  	else
-  	{
-  		oF = "Field";
   	}
   	return this.number + "	" + this.fname + "	" + this.lname + "	" + activeOrNot;
   }

@@ -1,10 +1,12 @@
 package local.stattaker;
 
 import java.util.List;
+import java.util.Vector;
 
 import local.stattaker.helper.DatabaseHelper;
 import local.stattaker.model.GameDb;
 import local.stattaker.model.PlayerDb;
+import local.stattaker.util.Action;
 import android.app.ActionBar;
 import android.app.AlertDialog;
 import android.app.ActionBar.Tab;
@@ -30,8 +32,13 @@ public class FragmentMain extends FragmentActivity implements TabListener
   ActionBar mActionBar;
   String teamName;
   String opponent;
+  int homeScore = 0;
+  int awayScore = 0;
   int gId;
-    
+
+	Vector<Action> undoQueue = new Vector<Action>();
+	Vector<Action> redoQueue = new Vector<Action>();
+	
   @Override
   protected void onCreate(Bundle savedInstanceState)
   {
@@ -66,6 +73,7 @@ public class FragmentMain extends FragmentActivity implements TabListener
 	  Bundle b = getIntent().getExtras();
 	  teamName = b.getString("teamName");
 	  gId = b.getInt("gId");
+
 	  //still need opponent name
 	  //createNewGame(teamName, opponent);
   }

@@ -42,10 +42,9 @@ public class FragmentPlayerList extends ListFragment
 	
 	ListAdapter listAdapter;
 	
-	int homeScore = 0;
-	int awayScore = 0;		
-	Vector<Action> undoQueue = new Vector<Action>();
-	Vector<Action> redoQueue = new Vector<Action>();
+	//int fm.homeScore = 0;
+	//int fm.awayScore = 0;		
+
 	
 	FragmentMain fm;
 	
@@ -69,10 +68,10 @@ public class FragmentPlayerList extends ListFragment
 	public void onActivityCreated(Bundle savedInstanceState)
 	{
 		super.onActivityCreated(savedInstanceState);
-
-		score.setText(homeScore + " - " + awayScore);
 		
 		fm = (FragmentMain) getActivity();
+
+		score.setText(fm.homeScore + " - " + fm.awayScore);
 		
 		db = db.getHelper(fm.getApplicationContext());
 		
@@ -108,11 +107,11 @@ public class FragmentPlayerList extends ListFragment
 					int pid = p.get(i).getPlayerId();
 					db.updateStat(fm.gId, pid, "minuses", 1);
 				}
-				awayScore += 10;
-				score.setText(homeScore + " - " + awayScore);
+				fm.awayScore += 10;
+				score.setText(fm.homeScore + " - " + fm.awayScore);
 				showMessage("Opponent", "Goal");
 				Action toAdd = new Action(fm.gId, -1, -1, "oGoal", "oppo", 1);
-				undoQueue.add(toAdd);
+				fm.undoQueue.add(toAdd);
 			}
 		});
 		
@@ -121,11 +120,11 @@ public class FragmentPlayerList extends ListFragment
 			@Override
 			public void onClick(View v) 
 			{
-				awayScore += 30;
-				score.setText(homeScore + " - " + awayScore);
+				fm.awayScore += 30;
+				score.setText(fm.homeScore + " - " + fm.awayScore);
 				showMessage("Opponent", "Snitch Catch");
 				Action toAdd = new Action(fm.gId, -1, -1, "oSnitch", "oppo", 1);
-				undoQueue.add(toAdd);
+				fm.undoQueue.add(toAdd);
 			}
 		});
 		
@@ -134,15 +133,15 @@ public class FragmentPlayerList extends ListFragment
 			@Override
 			public void onClick(View v) 
 			{
-				if (undoQueue.size() == 0)
+				if (fm.undoQueue.size() == 0)
 				{
 					Toast toast = Toast.makeText(getActivity(), "Nothing to Undo", Toast.LENGTH_SHORT);
 					toast.show();
 				}
 				else
 				{
-					Action a = undoQueue.lastElement();
-					undoQueue.removeElementAt(undoQueue.size()-1);
+					Action a = fm.undoQueue.lastElement();
+					fm.undoQueue.removeElementAt(fm.undoQueue.size()-1);
 					if (a.getpId() == -1) //opponent did it
 					{
 						if (a.getCategory().equals("oGoal")) //they scored
@@ -153,14 +152,14 @@ public class FragmentPlayerList extends ListFragment
 								int pid = p.get(i).getPlayerId();
 								db.updateStat(fm.gId, pid, "minuses", -1);
 							}
-							awayScore -= 10;
-							score.setText(homeScore + " - " + awayScore);
+							fm.awayScore -= 10;
+							score.setText(fm.homeScore + " - " + fm.awayScore);
 							showMessage("Opponent", "Remove Goal");
 						}
 						else
 						{
-							awayScore -= 30;
-							score.setText(homeScore + " - " + awayScore);
+							fm.awayScore -= 30;
+							score.setText(fm.homeScore + " - " + fm.awayScore);
 							showMessage("Opponent", "Remove Snitch Catch");
 						}
 					}
@@ -182,8 +181,8 @@ public class FragmentPlayerList extends ListFragment
 							db.updateStat(a.getgId(), a.getpId(), "goals", -1);
 							db.updateStat(a.getgId(), a.getpId(), "shots", -1);
 							//plus / minus stuff here
-							homeScore -= 10;
-							score.setText(homeScore + " - " + awayScore);
+							fm.homeScore -= 10;
+							score.setText(fm.homeScore + " - " + fm.awayScore);
 							showMessage(a.getName(), "Undo goal");
 						}
 						else if (a.getCategory().equals("assists"))
@@ -209,6 +208,8 @@ public class FragmentPlayerList extends ListFragment
 						else if (a.getCategory().equals("snitches"))
 						{
 							db.updateStat(a.getgId(), a.getpId(), "snitches", -1);
+							fm.homeScore -= 30;
+							score.setText(fm.homeScore + " - " + fm.awayScore);
 							showMessage(a.getName(), "Undo snitch catch");
 						}
 						else if (a.getCategory().equals("sub"))
@@ -225,7 +226,7 @@ public class FragmentPlayerList extends ListFragment
 							populateList();
 						}
 					}
-					redoQueue.add(a);
+					fm.redoQueue.add(a);
 				}
 			}
 		});
@@ -235,15 +236,15 @@ public class FragmentPlayerList extends ListFragment
 			@Override
 			public void onClick(View v) 
 			{
-				if (redoQueue.size() == 0)
+				if (fm.redoQueue.size() == 0)
 				{
 					Toast toast = Toast.makeText(getActivity(), "Nothing to Redo", Toast.LENGTH_SHORT);
 					toast.show();
 				}
 				else
 				{
-					Action a = redoQueue.lastElement();
-					redoQueue.removeElementAt(redoQueue.size()-1);
+					Action a = fm.redoQueue.lastElement();
+					fm.redoQueue.removeElementAt(fm.redoQueue.size()-1);
 					if (a.getpId() == -1) //opponent did it
 					{
 						if (a.getCategory().equals("oGoal")) //they scored
@@ -254,14 +255,14 @@ public class FragmentPlayerList extends ListFragment
 								int pid = p.get(i).getPlayerId();
 								db.updateStat(fm.gId, pid, "minuses", 1);
 							}
-							awayScore += 10;
-							score.setText(homeScore + " - " + awayScore);
+							fm.awayScore += 10;
+							score.setText(fm.homeScore + " - " + fm.awayScore);
 							showMessage("Opponent", "Redo Goal");
 						}
 						else
 						{
-							awayScore += 30;
-							score.setText(homeScore + " - " + awayScore);
+							fm.awayScore += 30;
+							score.setText(fm.homeScore + " - " + fm.awayScore);
 							showMessage("Opponent", "Redo Snitch Catch");
 						}
 					}
@@ -284,8 +285,8 @@ public class FragmentPlayerList extends ListFragment
 							db.updateStat(a.getgId(), a.getpId(), "goals", 1);
 							db.updateStat(a.getgId(), a.getpId(), "shots", 1);
 							//plus / minus stuff here
-							homeScore += 10;
-							score.setText(homeScore + " - " + awayScore);
+							fm.homeScore += 10;
+							score.setText(fm.homeScore + " - " + fm.awayScore);
 							showMessage(a.getName(), "Redo goal");
 						}
 						else if (a.getCategory().equals("assists"))
@@ -311,6 +312,8 @@ public class FragmentPlayerList extends ListFragment
 						else if (a.getCategory().equals("snitches"))
 						{
 							db.updateStat(a.getgId(), a.getpId(), "snitches", 1);
+							fm.homeScore += 30;
+							score.setText(fm.homeScore + " - " + fm.awayScore);
 							showMessage(a.getName(), "Redo snitch catch");
 						}
 						else if (a.getCategory().equals("sub"))
@@ -328,7 +331,7 @@ public class FragmentPlayerList extends ListFragment
 							populateList();
 						}
 					}
-					undoQueue.add(a);
+					fm.undoQueue.add(a);
 				}
 			}
 		});
@@ -374,7 +377,7 @@ public class FragmentPlayerList extends ListFragment
 					db.updateStat(gID, player.getPlayerId(), "shots", 1);
 					showMessage(player.getLname(), "Shot");
 					Action toAdd = new Action(gID, player.getPlayerId(), -1, "shots", player.getLname(), 1);
-					undoQueue.add(toAdd);
+					fm.undoQueue.add(toAdd);
 				}
 				else if (which == 1)
 				{
@@ -388,47 +391,47 @@ public class FragmentPlayerList extends ListFragment
 					db.updateStat(gID, player.getPlayerId(), "shots", 1);
 					//db.updateStat(gID, player.getPlayerId(), "plusses", 1);
 					showMessage(player.getLname(), "Goal");
-					homeScore += 10;
-					score.setText(homeScore + " - " + awayScore);
+					fm.homeScore += 10;
+					score.setText(fm.homeScore + " - " + fm.awayScore);
 					Action toAdd = new Action(gID, player.getPlayerId(), -1, "goals", player.getLname(), 1);
-					undoQueue.add(toAdd);
+					fm.undoQueue.add(toAdd);
 				}
 				else if (which == 2)
 				{
 					db.updateStat(gID, player.getPlayerId(), "assists", 1);
 					showMessage(player.getLname(), "Assist");
 					Action toAdd = new Action(gID, player.getPlayerId(), -1, "assists", player.getLname(), 1);
-					undoQueue.add(toAdd);
+					fm.undoQueue.add(toAdd);
 				}
 				else if (which == 3)
 				{
 					db.updateStat(gID, player.getPlayerId(), "steals", 1);
 					showMessage(player.getLname(), "Steal");
 					Action toAdd = new Action(gID, player.getPlayerId(), -1, "steals", player.getLname(), 1);
-					undoQueue.add(toAdd);
+					fm.undoQueue.add(toAdd);
 				}
 				else if (which == 4)
 				{
 					db.updateStat(gID, player.getPlayerId(), "turnovers", 1);
 					showMessage(player.getLname(), "Turnover");
 					Action toAdd = new Action(gID, player.getPlayerId(), -1, "turnovers", player.getLname(), 1);
-					undoQueue.add(toAdd);
+					fm.undoQueue.add(toAdd);
 				}
 				else if (which == 5)
 				{
 					db.updateStat(gID, player.getPlayerId(), "saves", 1);
 					showMessage(player.getLname(), "Save");
 					Action toAdd = new Action(gID, player.getPlayerId(),-1, "saves", player.getLname(), 1);
-					undoQueue.add(toAdd);
+					fm.undoQueue.add(toAdd);
 				}
 				else if (which == 6)
 				{
 					db.updateStat(gID, player.getPlayerId(), "snitches", 1);
 					showMessage(player.getLname(), "Snitch Catch");
-					homeScore += 30;
-					score.setText(homeScore + " - " + awayScore);
+					fm.homeScore += 30;
+					score.setText(fm.homeScore + " - " + fm.awayScore);
 					Action toAdd = new Action(gID, player.getPlayerId(), -1, "snitches", player.getLname(), 1);
-					undoQueue.add(toAdd);
+					fm.undoQueue.add(toAdd);
 				}
 				else
 				{
@@ -476,7 +479,7 @@ public class FragmentPlayerList extends ListFragment
 					db.updatePlayerInfo(list.get(which));
 					Action toAdd = new Action(fm.gId, list.get(which).getPlayerId(), 
 							player.getPlayerId(), "sub", list.get(which).getLname(), 1);
-					undoQueue.add(toAdd);
+					fm.undoQueue.add(toAdd);
 					populateList();
 					
 				}

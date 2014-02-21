@@ -18,6 +18,7 @@ public class GameDb //row data for a game table
   int snitches;
   int plusses;
   int minuses;
+  int onField;
   
    
   // Empty constructor
@@ -42,6 +43,7 @@ public class GameDb //row data for a game table
     this.snitches = 0;
     this.plusses = 0;
     this.minuses = 0;
+    this.onField = 0;
   }
   
   // gets
@@ -110,6 +112,11 @@ public class GameDb //row data for a game table
   	return this.minuses;
   }
   
+  public int getOnField()
+  {
+  	return this.onField;
+  }
+  
   //sets
   public void setId(int i)
   {
@@ -176,10 +183,19 @@ public class GameDb //row data for a game table
   	this.minuses = i;
   }
   
+  public void setOnField(int i)
+  {
+  	this.onField = i;
+  }
+  
+  
   @Override
   public String toString()
   {
   	return this.opponent;
   }
+  
+
+
    
 }
