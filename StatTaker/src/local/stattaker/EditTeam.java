@@ -166,11 +166,7 @@ public class EditTeam extends Activity
 						{
 							updatedPlayer.setActive(0);
 						}
-						if (db.onFieldPlayers(teamName) < 7 && activeBox.isChecked() )
-						{
-							Log.i("Test", "put them on field2");
-							updatedPlayer.setOnField(1);
-						}
+						
 						db.updatePlayerInfo(updatedPlayer);
 						populatePlayerList(currentPlayer.getTeamName());
 					}
@@ -230,15 +226,7 @@ public class EditTeam extends Activity
 						{
 							newPlayer.setActive(0);
 						}
-						if (db.onFieldPlayers(teamName) < 7 && activeBox.isChecked() )
-						{
-							Log.i("Test", "put them on field2");
-							newPlayer.setOnField(1);
-						}
-						else
-						{
-							newPlayer.setOnField(0);
-						}
+						
 						db.addPlayer(newPlayer);
 						populatePlayerList(teamName);
 					}

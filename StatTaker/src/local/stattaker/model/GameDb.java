@@ -28,7 +28,7 @@ public class GameDb //row data for a game table
   }
   
   // constructor
-  public GameDb(int gid, String t, String o, int pID)
+  public GameDb(int gid, String t, String o, int pID, int oF)
   {
     this.gameId = gid;
     this.teamName = t;
@@ -43,7 +43,7 @@ public class GameDb //row data for a game table
     this.snitches = 0;
     this.plusses = 0;
     this.minuses = 0;
-    this.onField = 0;
+    this.onField = oF;
   }
   
   // gets

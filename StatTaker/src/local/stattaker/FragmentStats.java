@@ -67,15 +67,15 @@ public class FragmentStats extends Fragment
 				//fill in the table here.
 				String number = c.getString(2);
 				String lname = c.getString(4);
-				int shots = c.getInt(11);
-				int goals = c.getInt(12);
-				int assists = c.getInt(13);
-				int steals = c.getInt(14);
-				int turnovers = c.getInt(15);
-				int saves = c.getInt(16);
-				int snitches = c.getInt(17);
-				int plus = c.getInt(18);
-				int minus = c.getInt(19);
+				int shots = c.getInt(10);
+				int goals = c.getInt(11);
+				int assists = c.getInt(12);
+				int steals = c.getInt(13);
+				int turnovers = c.getInt(14);
+				int saves = c.getInt(15);
+				int snitches = c.getInt(16);
+				int plus = c.getInt(17);
+				int minus = c.getInt(18);
 				
 				//Now I have data, load it
 				TableRow row = new TableRow(getActivity());

@@ -35,6 +35,7 @@ public class FragmentMain extends FragmentActivity implements TabListener
   int homeScore = 0;
   int awayScore = 0;
   int gId;
+  //int negGid;
 
 	Vector<Action> undoQueue = new Vector<Action>();
 	Vector<Action> redoQueue = new Vector<Action>();
@@ -73,23 +74,26 @@ public class FragmentMain extends FragmentActivity implements TabListener
 	  Bundle b = getIntent().getExtras();
 	  teamName = b.getString("teamName");
 	  gId = b.getInt("gId");
-
+	  //negGid = gId * -1;
 	  //still need opponent name
 	  //createNewGame(teamName, opponent);
   }
   
-  public void createNewGame(String teamName, String opponent)
-  {
-  	db = db.getHelper(getApplicationContext());
-  	List<PlayerDb> playerList = db.getAllPlayers(teamName, 1);
-  	int gID = -1;
-  	for (int i = 0; i < playerList.size(); i++)
-  	{
-  		GameDb g = new GameDb(gID, teamName, opponent, playerList.get(i).getPlayerId());
-  		db.insertGameRow(g);
-  	}
-  	//insert a new row for every player. nice
-  }
+	@Override
+	public void onSaveInstanceState(Bundle savedInstanceState) {
+	  super.onSaveInstanceState(savedInstanceState);
+	  savedInstanceState.putInt("homeScore", homeScore);
+	  savedInstanceState.putInt("awayScore", awayScore);
+	}
+
+	@Override
+	public void onRestoreInstanceState(Bundle savedInstanceState) {
+	  super.onRestoreInstanceState(savedInstanceState);
+	  homeScore = savedInstanceState.getInt("homeScore");
+	  awayScore = savedInstanceState.getInt("awayScore");
+	  // where mMyCurrentPosition should be a public value in your activity.
+	}
+
   
 	@Override
 	public void onTabReselected(Tab tab, FragmentTransaction ft) 

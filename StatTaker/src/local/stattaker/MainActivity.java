@@ -44,22 +44,29 @@ public class MainActivity extends Activity implements OnClickListener
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         db = new DatabaseHelper(this);
-        
-//        final Button michiganButton = (Button) findViewById(R.id.michigan_button);
-//        michiganButton.setOnClickListener(new OnClickListener()
-//        {
-//
-//					@Override
-//					public void onClick(View v) 
-//					{
-//						AddTeams a = new AddTeams(db);
-//						a.addMichigan();
-//						michiganButton.setClickable(false);
-//						michiganButton.setEnabled(false);
-//						michiganButton.setVisibility(View.GONE);
-//					}
-//        	
-//        });
+
+        final Button michiganButton = (Button) findViewById(R.id.michigan_button);
+        if (db.checkIfTeamExists("University Of Michigan"))
+        {
+        	michiganButton.setClickable(false);
+					michiganButton.setEnabled(false);
+					michiganButton.setVisibility(View.GONE);
+        }
+        michiganButton.setOnClickListener(new OnClickListener()
+        {
+
+					@Override
+					public void onClick(View v) 
+					{
+						AddTeams a = new AddTeams(db);
+						a.addMichigan();
+						michiganButton.setClickable(false);
+						michiganButton.setEnabled(false);
+						michiganButton.setVisibility(View.GONE);
+						populateTeamsList();
+					}
+        	
+        });
         
         /*
          * This is for parse for later
@@ -130,8 +137,11 @@ public class MainActivity extends Activity implements OnClickListener
 	  				{
 	  					public void onClick(DialogInterface dialog, int whichButton) 
 	  					{
+	  						int index = 1;
+	  						int toAdd = 1; //onField value
 	  						int newGameId = db.getMaxGameRow() + 1;
 	  						List<PlayerDb> newList = db.getAllPlayers(teamClicked, 1);
+	  						//gets me a list of players that are active
 	  						Iterator<PlayerDb> it = newList.iterator();
 	  						while (it.hasNext())
 	  						{
@@ -140,10 +150,29 @@ public class MainActivity extends Activity implements OnClickListener
 	  							{
 	  								newOpponentString = "name left blank";
 	  							}
+	  							if (index < 8)
+	  							{
+	  								toAdd = index;
+	  							}
+	  							else
+	  							{
+	  								toAdd = 0;
+	  							}
+	  							if (index == 1) //just do this one time
+	  							{
+	  								GameDb g1 = new GameDb(newGameId, teamClicked, newOpponentString, -1, 0);
+	  								//g1.setShots(-1);
+	  								//GameDb g1 = new GameDb(negGid, teamClicked, newOpponentString, 0, 0);
+	  								//what this does is attempt to give me a player ID over and over again. NOT LEGAL
+	  								db.insertGameRow(g1);
+	  							}
 	  							GameDb g = new GameDb(newGameId, teamClicked, newOpponentString, 
-	  									it.next().getPlayerId());
+	  									it.next().getPlayerId(), toAdd);
+	  							//if ()
 	  							db.insertGameRow(g);
+	  							index++;
 	  						}
+	  						
 	  						Intent i = new Intent(getApplicationContext(), FragmentMain.class);
 	  						i.putExtra("teamName", teamClicked);
 	  						i.putExtra("gId", newGameId);

@@ -1,12 +1,9 @@
 package local.stattaker;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
-import java.util.Vector;
 
 import local.stattaker.helper.DatabaseHelper;
+import local.stattaker.model.GameDb;
 import local.stattaker.model.PlayerDb;
 import local.stattaker.util.Action;
 import android.app.AlertDialog;
@@ -15,7 +12,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -42,8 +38,8 @@ public class FragmentPlayerList extends ListFragment
 	
 	ListAdapter listAdapter;
 	
-	//int fm.homeScore = 0;
-	//int fm.awayScore = 0;		
+	//int db.getHomeScore(fm.gId)() = 0;
+	//int db.getAwayScore(fm.gId)() = 0;		
 
 	
 	FragmentMain fm;
@@ -68,12 +64,16 @@ public class FragmentPlayerList extends ListFragment
 	public void onActivityCreated(Bundle savedInstanceState)
 	{
 		super.onActivityCreated(savedInstanceState);
-		
+		if (savedInstanceState != null)
+		{
+			
+		}
 		fm = (FragmentMain) getActivity();
-
-		score.setText(fm.homeScore + " - " + fm.awayScore);
-		
 		db = db.getHelper(fm.getApplicationContext());
+		
+		score.setText(db.getHomeScore(fm.gId) + " - " + db.getAwayScore(fm.gId));
+		
+		
 		
 		//need to re-run this
 		//made this a function called, "populate list"
@@ -107,8 +107,9 @@ public class FragmentPlayerList extends ListFragment
 					int pid = p.get(i).getPlayerId();
 					db.updateStat(fm.gId, pid, "minuses", 1);
 				}
-				fm.awayScore += 10;
-				score.setText(fm.homeScore + " - " + fm.awayScore);
+				int s = db.getAwayScore(fm.gId) + 10;
+				db.setAwayScore(fm.gId, s);
+				score.setText(db.getHomeScore(fm.gId) + " - " + db.getAwayScore(fm.gId));
 				showMessage("Opponent", "Goal");
 				Action toAdd = new Action(fm.gId, -1, -1, "oGoal", "oppo", 1);
 				fm.undoQueue.add(toAdd);
@@ -120,8 +121,9 @@ public class FragmentPlayerList extends ListFragment
 			@Override
 			public void onClick(View v) 
 			{
-				fm.awayScore += 30;
-				score.setText(fm.homeScore + " - " + fm.awayScore);
+				int s = db.getAwayScore(fm.gId) + 30;
+				db.setAwayScore(fm.gId, s);
+				score.setText(db.getHomeScore(fm.gId) + " - " + db.getAwayScore(fm.gId));
 				showMessage("Opponent", "Snitch Catch");
 				Action toAdd = new Action(fm.gId, -1, -1, "oSnitch", "oppo", 1);
 				fm.undoQueue.add(toAdd);
@@ -152,14 +154,16 @@ public class FragmentPlayerList extends ListFragment
 								int pid = p.get(i).getPlayerId();
 								db.updateStat(fm.gId, pid, "minuses", -1);
 							}
-							fm.awayScore -= 10;
-							score.setText(fm.homeScore + " - " + fm.awayScore);
+							int s = db.getAwayScore(fm.gId) - 10;
+							db.setAwayScore(fm.gId, s);
+							score.setText(db.getHomeScore(fm.gId) + " - " + db.getAwayScore(fm.gId));
 							showMessage("Opponent", "Remove Goal");
 						}
 						else
 						{
-							fm.awayScore -= 30;
-							score.setText(fm.homeScore + " - " + fm.awayScore);
+							int s = db.getAwayScore(fm.gId) - 30;
+							db.setAwayScore(fm.gId, s);
+							score.setText(db.getHomeScore(fm.gId) + " - " + db.getAwayScore(fm.gId));
 							showMessage("Opponent", "Remove Snitch Catch");
 						}
 					}
@@ -181,8 +185,9 @@ public class FragmentPlayerList extends ListFragment
 							db.updateStat(a.getgId(), a.getpId(), "goals", -1);
 							db.updateStat(a.getgId(), a.getpId(), "shots", -1);
 							//plus / minus stuff here
-							fm.homeScore -= 10;
-							score.setText(fm.homeScore + " - " + fm.awayScore);
+							int s = db.getHomeScore(fm.gId) - 10;
+							db.setHomeScore(fm.gId, s);
+							score.setText(db.getHomeScore(fm.gId) + " - " + db.getAwayScore(fm.gId));
 							showMessage(a.getName(), "Undo goal");
 						}
 						else if (a.getCategory().equals("assists"))
@@ -208,21 +213,24 @@ public class FragmentPlayerList extends ListFragment
 						else if (a.getCategory().equals("snitches"))
 						{
 							db.updateStat(a.getgId(), a.getpId(), "snitches", -1);
-							fm.homeScore -= 30;
-							score.setText(fm.homeScore + " - " + fm.awayScore);
+							int s = db.getHomeScore(fm.gId) - 30;
+							db.setHomeScore(fm.gId, s);
+							score.setText(db.getHomeScore(fm.gId) + " - " + db.getAwayScore(fm.gId));
 							showMessage(a.getName(), "Undo snitch catch");
 						}
 						else if (a.getCategory().equals("sub"))
 						{
-							PlayerDb wentIn = db.getOnePlayerRow(fm.teamName, a.getpId());
-							PlayerDb wentOut = db.getOnePlayerRow(fm.teamName, a.getpIdOut());
+							//PlayerDb wentIn = db.getOnePlayerRow(fm.teamName, a.getpId());
+							PlayerDb wentOut1 = db.getOnePlayerRow(fm.teamName, a.getpIdOut());
+							GameDb wentIn = db.getOneRowByIdKeys(fm.gId, a.getpId()).get(0);
+							GameDb wentOut = db.getOneRowByIdKeys(fm.gId, a.getpIdOut()).get(0);
 							int wentInNum = wentIn.getOnField();
 							int wentOutNum = wentOut.getOnField();
 							wentIn.setOnField(wentOutNum);
 							wentOut.setOnField(wentInNum);
-							db.updatePlayerInfo(wentIn);
-							db.updatePlayerInfo(wentOut);
-							showMessage(wentOut.getLname(), "Undo sub");
+							db.updateStat(fm.gId, a.getpId(), "onField", wentOutNum);
+							db.updateStat(fm.gId, a.getpIdOut(), "onField", wentInNum);
+							showMessage(wentOut1.getLname(), "Undo sub");
 							populateList();
 						}
 					}
@@ -255,14 +263,16 @@ public class FragmentPlayerList extends ListFragment
 								int pid = p.get(i).getPlayerId();
 								db.updateStat(fm.gId, pid, "minuses", 1);
 							}
-							fm.awayScore += 10;
-							score.setText(fm.homeScore + " - " + fm.awayScore);
+							int s = db.getAwayScore(fm.gId) + 10;
+							db.setAwayScore(fm.gId, s);
+							score.setText(db.getHomeScore(fm.gId) + " - " + db.getAwayScore(fm.gId));
 							showMessage("Opponent", "Redo Goal");
 						}
 						else
 						{
-							fm.awayScore += 30;
-							score.setText(fm.homeScore + " - " + fm.awayScore);
+							int s = db.getAwayScore(fm.gId) + 30;
+							db.setAwayScore(fm.gId, s);
+							score.setText(db.getHomeScore(fm.gId) + " - " + db.getAwayScore(fm.gId));
 							showMessage("Opponent", "Redo Snitch Catch");
 						}
 					}
@@ -285,8 +295,9 @@ public class FragmentPlayerList extends ListFragment
 							db.updateStat(a.getgId(), a.getpId(), "goals", 1);
 							db.updateStat(a.getgId(), a.getpId(), "shots", 1);
 							//plus / minus stuff here
-							fm.homeScore += 10;
-							score.setText(fm.homeScore + " - " + fm.awayScore);
+							int s = db.getHomeScore(fm.gId) + 10;
+							db.setHomeScore(fm.gId, s);
+							score.setText(db.getHomeScore(fm.gId) + " - " + db.getAwayScore(fm.gId));
 							showMessage(a.getName(), "Redo goal");
 						}
 						else if (a.getCategory().equals("assists"))
@@ -312,22 +323,24 @@ public class FragmentPlayerList extends ListFragment
 						else if (a.getCategory().equals("snitches"))
 						{
 							db.updateStat(a.getgId(), a.getpId(), "snitches", 1);
-							fm.homeScore += 30;
-							score.setText(fm.homeScore + " - " + fm.awayScore);
+							int s = db.getHomeScore(fm.gId) + 30;
+							db.setHomeScore(fm.gId, s);
+							score.setText(db.getHomeScore(fm.gId) + " - " + db.getAwayScore(fm.gId));
 							showMessage(a.getName(), "Redo snitch catch");
 						}
 						else if (a.getCategory().equals("sub"))
 						{
+						  PlayerDb wentIn1 = db.getOnePlayerRow(fm.teamName, a.getpId());
 							
-							PlayerDb wentIn = db.getOnePlayerRow(fm.teamName, a.getpId());
-							PlayerDb wentOut = db.getOnePlayerRow(fm.teamName, a.getpIdOut());
+							GameDb wentIn = db.getOneRowByIdKeys(fm.gId, a.getpId()).get(0);
+							GameDb wentOut = db.getOneRowByIdKeys(fm.gId, a.getpIdOut()).get(0);
 							int wentInNum = wentIn.getOnField();
 							int wentOutNum = wentOut.getOnField();
 							wentIn.setOnField(wentOutNum);
 							wentOut.setOnField(wentInNum);
-							db.updatePlayerInfo(wentIn);
-							db.updatePlayerInfo(wentOut);
-							showMessage(wentIn.getLname(), "Put back in");
+							db.updateStat(fm.gId, a.getpId(), "onField", wentOutNum);
+							db.updateStat(fm.gId, a.getpIdOut(), "onField", wentInNum);
+							showMessage(wentIn1.getLname(), "Put back in");
 							populateList();
 						}
 					}
@@ -391,8 +404,9 @@ public class FragmentPlayerList extends ListFragment
 					db.updateStat(gID, player.getPlayerId(), "shots", 1);
 					//db.updateStat(gID, player.getPlayerId(), "plusses", 1);
 					showMessage(player.getLname(), "Goal");
-					fm.homeScore += 10;
-					score.setText(fm.homeScore + " - " + fm.awayScore);
+					int s = db.getHomeScore(fm.gId) + 10;
+					db.setHomeScore(fm.gId, s);
+					score.setText(db.getHomeScore(fm.gId) + " - " + db.getAwayScore(fm.gId));
 					Action toAdd = new Action(gID, player.getPlayerId(), -1, "goals", player.getLname(), 1);
 					fm.undoQueue.add(toAdd);
 				}
@@ -428,8 +442,11 @@ public class FragmentPlayerList extends ListFragment
 				{
 					db.updateStat(gID, player.getPlayerId(), "snitches", 1);
 					showMessage(player.getLname(), "Snitch Catch");
-					fm.homeScore += 30;
-					score.setText(fm.homeScore + " - " + fm.awayScore);
+					
+					int s = db.getHomeScore(fm.gId) + 30;
+					db.setHomeScore(fm.gId, s);
+					score.setText(db.getHomeScore(fm.gId) + " - " + db.getAwayScore(fm.gId));
+					
 					Action toAdd = new Action(gID, player.getPlayerId(), -1, "snitches", player.getLname(), 1);
 					fm.undoQueue.add(toAdd);
 				}
@@ -472,16 +489,14 @@ public class FragmentPlayerList extends ListFragment
 				@Override
 				public void onClick(DialogInterface dialog, int which) 
 				{
-					int loc = player.getOnField();
-					player.setOnField(0);
-					db.updatePlayerInfo(player);
-					list.get(which).setOnField(loc);
-					db.updatePlayerInfo(list.get(which));
+
+					int loc = db.getOneRowByIdKeys(fm.gId, player.getPlayerId()).get(0).getOnField();
+					db.updateStat(fm.gId, player.getPlayerId(), "onField", 0);
+					db.updateStat(fm.gId, list.get(which).getPlayerId(), "onField", loc);
 					Action toAdd = new Action(fm.gId, list.get(which).getPlayerId(), 
 							player.getPlayerId(), "sub", list.get(which).getLname(), 1);
 					fm.undoQueue.add(toAdd);
 					populateList();
-					
 				}
 			});
 			return subBuilder;
@@ -511,7 +526,7 @@ public class FragmentPlayerList extends ListFragment
       }
 		});
 		*/
-		Collections.sort(playerList, new PlayerDb.OrderByOnField());
+		//Collections.sort(playerList, new PlayerDb.OrderByOnField());
 		listAdapter = new ArrayAdapter<PlayerDb>(getActivity(), R.layout.custom_player_list, playerList);
 		setListAdapter(listAdapter);
 	}

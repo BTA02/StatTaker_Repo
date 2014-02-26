@@ -30,7 +30,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
   private static final String LOG = "DatabaseHelper";
 
   // Database Version
-  private static final int DATABASE_VERSION = 13;
+  private static final int DATABASE_VERSION = 24;
 
   // Database Name
   private static final String DATABASE_NAME = "quidditchGames";
@@ -205,6 +205,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
               g.setSnitches(c.getInt((c.getColumnIndex(COL_SNITCHES))));
               g.setPlusses(c.getInt((c.getColumnIndex(COL_PLUSSES))));
               g.setMinuses(c.getInt((c.getColumnIndex(COL_MINUSES))));
+              g.setOnField(c.getInt(c.getColumnIndex(COL_ONFIELD)));
               // adding to todo list
               gameRow.add(g);
           } 
@@ -224,6 +225,64 @@ public class DatabaseHelper extends SQLiteOpenHelper
   	SQLiteDatabase db = this.getReadableDatabase();
   	Cursor c = db.rawQuery(query, null);
   	return c;
+  }
+  
+  public int getHomeScore(int gameId)
+  {
+  	String query = "SELECT " + COL_ASSISTS + " FROM "
+  			+ TABLE_GAME + " WHERE "
+  			+ COL_PLAYERID + " = -1 AND "
+  			+ COL_GAMEID + " = " + gameId;
+  	SQLiteDatabase db = this.getReadableDatabase();
+  	Cursor c = db.rawQuery(query, null);
+  	c.moveToFirst();
+  	return c.getInt(0);
+  }
+  
+  public int getAwayScore(int gameId)
+  {
+  	
+  	String query = "SELECT " + COL_GOALS + " FROM "
+  			+ TABLE_GAME + " WHERE "
+  			+ COL_PLAYERID + " = -1 AND "
+  			+ COL_GAMEID + " = " + gameId;
+  	SQLiteDatabase db = this.getReadableDatabase();
+  	Cursor c = db.rawQuery(query, null);
+  	c.moveToFirst();
+  	return c.getInt(0);
+  	
+  	/*
+  	int negGid = gameId * -1;
+  	String query = "SELECT " + COL_GOALS + " FROM "
+  			+ TABLE_GAME + " WHERE "
+  			+ COL_GAMEID + " = " + negGid;
+  	SQLiteDatabase db = this.getReadableDatabase();
+  	Cursor c = db.rawQuery(query, null);
+  	c.moveToFirst();
+  	return c.getInt(0);
+  	*/
+  }
+  
+
+  public int setHomeScore(int gameId, int toAdd)
+  {
+		String[] arguments = {String.valueOf(gameId), String.valueOf(-1)};
+    SQLiteDatabase db = this.getWritableDatabase();
+    ContentValues values = new ContentValues();
+    values.put(COL_ASSISTS, toAdd);
+    return db.update(TABLE_GAME, values, COL_GAMEID + " = ? AND "
+				+ COL_PLAYERID + " = ?", arguments);
+  }
+
+  public int setAwayScore(int gameId, int toAdd)
+  {
+  	String[] arguments = {String.valueOf(gameId), String.valueOf(-1)};
+    SQLiteDatabase db = this.getWritableDatabase();
+    ContentValues values = new ContentValues();
+    values.put(COL_GOALS, toAdd);
+    return db.update(TABLE_GAME, values, COL_GAMEID + " = ? AND "
+				+ COL_PLAYERID + " = ?", arguments);
+    
   }
   
   
@@ -248,7 +307,23 @@ public class DatabaseHelper extends SQLiteOpenHelper
   	return retVal;
   }
   
-  
+  public boolean checkIfTeamExists(String teamName)
+  {
+  	SQLiteDatabase db = this.getReadableDatabase();
+  	String query = "SELECT 1 FROM "
+  			+ TABLE_PLAYER + " WHERE "
+  			+ COL_TEAMNAME + " = '" + teamName + "'";
+  	Cursor c = db.rawQuery(query, null);
+  	if (c.moveToFirst()) //if something is there
+  	{
+  		return true;
+  	}
+  	else //nothing is there
+  	{
+  		return false;
+  	}
+  	
+  }
   //untested
   //R: a valid gID and pID, a stat to update and a value to add
   //M: a row in the table
@@ -278,6 +353,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
   			values.put(COL_SNITCHES, gameRow.getSnitches());
   			values.put(COL_PLUSSES, gameRow.getPlusses());
   			values.put(COL_MINUSES, gameRow.getMinuses());
+  			values.put(COL_ONFIELD, gameRow.getOnField());
   			
   		}
   		else if (column.equals("goals"))
@@ -295,6 +371,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
   			values.put(COL_SNITCHES, gameRow.getSnitches());
   			values.put(COL_PLUSSES, gameRow.getPlusses());
   			values.put(COL_MINUSES, gameRow.getMinuses());
+  			values.put(COL_ONFIELD, gameRow.getOnField());
   		}
   		else if (column.equals("assists"))
   		{
@@ -311,6 +388,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
   			values.put(COL_SNITCHES, gameRow.getSnitches());
   			values.put(COL_PLUSSES, gameRow.getPlusses());
   			values.put(COL_MINUSES, gameRow.getMinuses());
+  			values.put(COL_ONFIELD, gameRow.getOnField());
   		}
   		else if (column.equals("steals"))
   		{
@@ -327,6 +405,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
   			values.put(COL_SNITCHES, gameRow.getSnitches());
   			values.put(COL_PLUSSES, gameRow.getPlusses());
   			values.put(COL_MINUSES, gameRow.getMinuses());
+  			values.put(COL_ONFIELD, gameRow.getOnField());
   		}
   		else if (column.equals("turnovers"))
   		{
@@ -343,6 +422,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
   			values.put(COL_SNITCHES, gameRow.getSnitches());
   			values.put(COL_PLUSSES, gameRow.getPlusses());
   			values.put(COL_MINUSES, gameRow.getMinuses());
+  			values.put(COL_ONFIELD, gameRow.getOnField());
   		}
   		else if (column.equals("saves"))
   		{
@@ -359,6 +439,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
   			values.put(COL_SNITCHES, gameRow.getSnitches());
   			values.put(COL_PLUSSES, gameRow.getPlusses());
   			values.put(COL_MINUSES, gameRow.getMinuses());
+  			values.put(COL_ONFIELD, gameRow.getOnField());
   		}
   		else if (column.equals("snitches"))
   		{
@@ -375,6 +456,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
   			values.put(COL_SNITCHES, (gameRow.getSnitches() + valToAdd));
   			values.put(COL_PLUSSES, gameRow.getPlusses());
   			values.put(COL_MINUSES, gameRow.getMinuses());
+  			values.put(COL_ONFIELD, gameRow.getOnField());
   		}
   		else if (column.equals("plusses"))
   		{
@@ -391,6 +473,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
   			values.put(COL_SNITCHES, gameRow.getSnitches());
   			values.put(COL_PLUSSES, (gameRow.getPlusses() + valToAdd));
   			values.put(COL_MINUSES, gameRow.getMinuses());
+  			values.put(COL_ONFIELD, gameRow.getOnField());
   		}
   		else if (column.equals("minuses"))
   		{
@@ -407,6 +490,24 @@ public class DatabaseHelper extends SQLiteOpenHelper
   			values.put(COL_SNITCHES, gameRow.getSnitches());
   			values.put(COL_PLUSSES, gameRow.getPlusses());
   			values.put(COL_MINUSES, (gameRow.getMinuses() + valToAdd));
+  			values.put(COL_ONFIELD, gameRow.getOnField());
+  		}
+  		else if (column.equals("onField"))
+  		{
+  			values.put(COL_GAMEID, gameRow.getGameId());
+  			values.put(COL_TEAMNAME, gameRow.getTeamName());
+  			values.put(COL_OPPONENT, gameRow.getOpponent());
+  			values.put(COL_PLAYERID, gameRow.getPlayerId());
+  			values.put(COL_SHOTS, gameRow.getShots());
+  			values.put(COL_GOALS, gameRow.getGoals());
+  			values.put(COL_ASSISTS, gameRow.getAssists());
+  			values.put(COL_STEALS, gameRow.getSteals());
+  			values.put(COL_TURNOVERS, gameRow.getTurnovers());
+  			values.put(COL_SAVES, gameRow.getSaves());
+  			values.put(COL_SNITCHES, gameRow.getSnitches());
+  			values.put(COL_PLUSSES, gameRow.getPlusses());
+  			values.put(COL_MINUSES, gameRow.getMinuses());
+  			values.put(COL_ONFIELD, valToAdd);
   		}
   		else
   		{
@@ -617,7 +718,8 @@ public class DatabaseHelper extends SQLiteOpenHelper
 				+ " WHERE " + "g." + COL_GAMEID + " = " + gID
 				+ " AND " + "g." + COL_ONFIELD + " != 0"
 				+ " AND " + "g." + COL_PLAYERID + " = "
-				+ "p." + COL_PLAYERID;
+				+ "p." + COL_PLAYERID 
+				+ " ORDER BY " + COL_ONFIELD + " ASC";
 				
 		Cursor c = db.rawQuery(onFieldPlayersQuery, null);
   	if (c.moveToFirst())
@@ -646,7 +748,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 		String onFieldPlayersQuery = "SELECT * FROM "
 				+ TABLE_PLAYER + " p, " + TABLE_GAME + " g"
 				+ " WHERE " + "g." + COL_GAMEID + " = " + gID
-				+ " AND " + "p." + COL_ONFIELD + " = 0"
+				+ " AND " + "g." + COL_ONFIELD + " = 0"
 				+ " AND " + "p." + COL_PLAYERID + " = "
 				+ "g." + COL_PLAYERID;
 		

@@ -84,17 +84,6 @@ public class CreateTeam extends Activity
 				{
 					p.setActive(0);
 				}
-				if (db.onFieldPlayers(newName) < 7 && active.isChecked() )
-				{
-					int i = db.onFieldPlayers(newName);
-					Log.i("Test", "put them on field: " + i);
-					p.setOnField(db.onFieldPlayers(newName)+1);
-					
-				}
-				else
-				{
-					p.setOnField(0);
-				}
 				db.addPlayer(p);
 				nEdit.setText(null);
 				fEdit.setText(null);
