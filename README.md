@@ -30,6 +30,6 @@ If you need more help than that, you can always email me. It's pretty straight f
 
 Using the game clock is not required, nor is tracking your opponents goals. Using the game clock allows you to track minutes for each of your players, if that is important to you. If not, don't worry about the clock.
 
-Recording your opponents goals allows you to track your players' "plus/minus" statistic. A player receieves a "plus" when a goal is scored while they are on the field. A player receives a "minus" if the opposing team scores while they are on the field. This is a useful stat for scrappy players who may not score a lot, and is a key stat for evaluating beaters.
+Recording your opponents goals allows you to track your players' "plus/minus" statistic. A player receieves a "plus" when a goal is scored while they are on the field. A player receives a "minus" if the opposing team scores while they are on the field. This is a useful stat for scrappy players who may not score a lot, and is a key stat for evaluating beaters. Currently, no plusses or minuses are added for snitch catches. I will add a "snitches against" or something in future updates.
 
 Enjoy
