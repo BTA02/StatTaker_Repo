@@ -46,7 +46,7 @@ public class MainActivity extends Activity implements OnClickListener
         db = new DatabaseHelper(this);
 
         final Button michiganButton = (Button) findViewById(R.id.michigan_button);
-        if (db.checkIfTeamExists("University Of Michigan"))
+        if (db.checkIfTeamExists("University Of Michigan") || true)
         {
         	michiganButton.setClickable(false);
 					michiganButton.setEnabled(false);
@@ -161,14 +161,10 @@ public class MainActivity extends Activity implements OnClickListener
 	  							if (index == 1) //just do this one time
 	  							{
 	  								GameDb g1 = new GameDb(newGameId, teamClicked, newOpponentString, -1, 0);
-	  								//g1.setShots(-1);
-	  								//GameDb g1 = new GameDb(negGid, teamClicked, newOpponentString, 0, 0);
-	  								//what this does is attempt to give me a player ID over and over again. NOT LEGAL
 	  								db.insertGameRow(g1);
 	  							}
 	  							GameDb g = new GameDb(newGameId, teamClicked, newOpponentString, 
 	  									it.next().getPlayerId(), toAdd);
-	  							//if ()
 	  							db.insertGameRow(g);
 	  							index++;
 	  						}

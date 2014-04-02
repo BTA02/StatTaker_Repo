@@ -1,6 +1,9 @@
 package local.stattaker;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import local.stattaker.helper.DatabaseHelper;
 import local.stattaker.model.GameDb;
@@ -12,6 +15,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -35,6 +39,10 @@ public class FragmentPlayerList extends ListFragment
 	Button undoButton;
 	Button redoButton;
 	TextView score;
+	TextView time;
+	int curTime;
+	
+	Timer timer = new Timer();
 	
 	ListAdapter listAdapter;
 	
@@ -53,6 +61,7 @@ public class FragmentPlayerList extends ListFragment
 		View rootView = inflater.inflate(R.layout.fragment_player_list, null);
 		
 		score = (TextView) rootView.findViewById(R.id.score);
+		time = (TextView) rootView.findViewById(R.id.time);
 		opponentGoal = (Button) rootView.findViewById(R.id.opponent_goal);
 		opponentSnitch = (Button) rootView.findViewById(R.id.opponent_snitch);
 		undoButton = (Button) rootView.findViewById(R.id.undo_button);
@@ -72,8 +81,34 @@ public class FragmentPlayerList extends ListFragment
 		db = db.getHelper(fm.getApplicationContext());
 		
 		score.setText(db.getHomeScore(fm.gId) + " - " + db.getAwayScore(fm.gId));
+		int totalSeconds = db.getGameTime(fm.gId);
+		curTime = db.getGameTime(fm.gId);
 		
+		for(int i = 0; i < 7; i++)
+		{
+			fm.timeSubbedIn[i] = totalSeconds;
+			fm.sinceRefresh[i] = totalSeconds;
+		}
 		
+		int minutes = totalSeconds/60;
+		int seconds = totalSeconds%60;
+		String gameTime = minutes + ":" + seconds;
+		if (minutes != 0 || seconds != 0)
+		{
+			time.setText(gameTime);
+		}//initial setting of clock
+		
+		fm.running = false;
+		time.setOnClickListener(new OnClickListener()
+		{
+
+			@Override
+			public void onClick(View v) 
+			{
+				switchTime(v);
+			}
+			
+		});
 		
 		//need to re-run this
 		//made this a function called, "populate list"
@@ -220,16 +255,31 @@ public class FragmentPlayerList extends ListFragment
 						}
 						else if (a.getCategory().equals("sub"))
 						{
+							int curTime = db.getGameTime(fm.gId);
 							//PlayerDb wentIn = db.getOnePlayerRow(fm.teamName, a.getpId());
 							PlayerDb wentOut1 = db.getOnePlayerRow(fm.teamName, a.getpIdOut());
 							GameDb wentIn = db.getOneRowByIdKeys(fm.gId, a.getpId()).get(0);
 							GameDb wentOut = db.getOneRowByIdKeys(fm.gId, a.getpIdOut()).get(0);
 							int wentInNum = wentIn.getOnField();
 							int wentOutNum = wentOut.getOnField();
+							Log.i("Test", "went in num: " + wentInNum);
+							Log.i("Test", "went out num: " + wentOutNum);
 							wentIn.setOnField(wentOutNum);
 							wentOut.setOnField(wentInNum);
 							db.updateStat(fm.gId, a.getpId(), "onField", wentOutNum);
 							db.updateStat(fm.gId, a.getpIdOut(), "onField", wentInNum);
+							//That updates where the player is going
+							
+							//I need to get total time for player going in, and player going out.
+							int indexedLoc = wentInNum-1;
+							int valueAdded = curTime - fm.timeSubbedIn[indexedLoc];
+							
+							db.updateStat(fm.gId, a.getpId(), "time", (-1 * valueAdded) );
+							db.updateStat(fm.gId, a.getpIdOut(), "time", valueAdded );
+							int dummy = fm.timeSubbedIn[indexedLoc];
+							fm.timeSubbedIn[indexedLoc] =  a.getValAdded();
+							a.setValAdded(dummy);
+							
 							showMessage(wentOut1.getLname(), "Undo sub");
 							populateList();
 						}
@@ -340,7 +390,19 @@ public class FragmentPlayerList extends ListFragment
 							wentOut.setOnField(wentInNum);
 							db.updateStat(fm.gId, a.getpId(), "onField", wentOutNum);
 							db.updateStat(fm.gId, a.getpIdOut(), "onField", wentInNum);
+							
+							
+							int addedTime = db.getGameTime(fm.gId) - a.getValAdded(); //value to add/subtract
+							int indexedLoc = wentOutNum - 1;
+							db.updateStat(fm.gId, a.getpId(), "time", addedTime);
+							db.updateStat(fm.gId, a.getpIdOut(), "time", (-1 * addedTime) );
+							int dummy = fm.timeSubbedIn[indexedLoc]; //substituion time, currently ?
+							fm.timeSubbedIn[indexedLoc] = a.getValAdded();
+							a.setValAdded(dummy);
+							
+							
 							showMessage(wentIn1.getLname(), "Put back in");
+							
 							populateList();
 						}
 					}
@@ -469,13 +531,13 @@ public class FragmentPlayerList extends ListFragment
 			final Context context = getActivity();
 			LayoutInflater dialogFactory = LayoutInflater.from(getActivity());
 			final View addSubView = dialogFactory.inflate(R.layout.stat_choice_dialog, null);
-			//Im assuminn the layout doesn't matter right now
 			final AlertDialog.Builder subBuilder =  new AlertDialog.Builder(getActivity());
 			subBuilder.setView(addSubView);
 			subBuilder.setTitle("Sub in:");
 			subBuilder.setCancelable(true);
 			
 			final List<PlayerDb> list = db.getOffFieldPlayersFromGame(fm.teamName, gID);
+			Collections.sort(list, new PlayerDb.OrderByFirstName());
 			CharSequence[] items = new String[list.size()];
 			for (int i=0; i < list.size(); i++) 
 			{
@@ -489,13 +551,22 @@ public class FragmentPlayerList extends ListFragment
 				@Override
 				public void onClick(DialogInterface dialog, int which) 
 				{
-
+					int curTime = db.getGameTime(fm.gId);
 					int loc = db.getOneRowByIdKeys(fm.gId, player.getPlayerId()).get(0).getOnField();
+					int indexedLoc = loc -1;
 					db.updateStat(fm.gId, player.getPlayerId(), "onField", 0);
 					db.updateStat(fm.gId, list.get(which).getPlayerId(), "onField", loc);
+					
+					int timeToAdd = curTime - fm.sinceRefresh[indexedLoc];
+					db.updateStat(fm.gId, player.getPlayerId(), "time", timeToAdd); //Here? Is this the problem?
+					
 					Action toAdd = new Action(fm.gId, list.get(which).getPlayerId(), 
-							player.getPlayerId(), "sub", list.get(which).getLname(), 1);
+							player.getPlayerId(), "sub", list.get(which).getLname(), fm.timeSubbedIn[indexedLoc]);
 					fm.undoQueue.add(toAdd);
+					
+					fm.timeSubbedIn[indexedLoc] = curTime;
+					fm.sinceRefresh[indexedLoc] = curTime;
+					
 					populateList();
 				}
 			});
@@ -505,28 +576,7 @@ public class FragmentPlayerList extends ListFragment
 	
 	public void populateList() //which list is this?
 	{
-		//I don't want to sort this, I want this in the same order it always is in. Or something
 		List<PlayerDb> playerList = db.getOnFieldPlayersFromGame(fm.teamName, fm.gId);
-		/*
-    Collections.sort(playerList, new Comparator<PlayerDb>()
-    {
-      public int compare(PlayerDb o1, PlayerDb o2) 
-      {
-      		Log.i("Test", "comp");
-          if (o1.getOnField() <= o2.getOnField())
-          {
-          	Log.i("Test", "ret 0");
-          	return 1;
-          }
-          else
-          {
-          	Log.i("Test", "ret 1");
-          	return 0;
-          }
-      }
-		});
-		*/
-		//Collections.sort(playerList, new PlayerDb.OrderByOnField());
 		listAdapter = new ArrayAdapter<PlayerDb>(getActivity(), R.layout.custom_player_list, playerList);
 		setListAdapter(listAdapter);
 	}
@@ -536,6 +586,56 @@ public class FragmentPlayerList extends ListFragment
 		String str = action + " by " + name;
 		Toast toast = Toast.makeText(getActivity(), str, Toast.LENGTH_SHORT);
 		toast.show();
+	}
+	
+	public void switchTime(final View v)
+	{
+		if (fm.running == false)
+		{
+			timer = new Timer();
+			timer.scheduleAtFixedRate(new TimerTask()
+			{
+				@Override
+				public void run() 
+				{
+					//update the game time, and the view
+					final TextView clock = (TextView) v;
+					db.updateStat(fm.gId, -1, "time", 1); //update every second
+					int totalSeconds = db.getGameTime(fm.gId);
+					int minutes = totalSeconds/60;
+					int seconds = totalSeconds%60;
+					final String gameTime = minutes + ":" + seconds;
+					getActivity().runOnUiThread(new Runnable()
+					{
+						@Override
+						public void run() 
+						{
+							clock.setText(gameTime);
+						}
+					});
+				}
+				
+			}, 0, 1000);
+			fm.running = true;
+		}
+		else
+		{
+			timer.cancel();
+			fm.running = false;
+		}
+	}
+	
+	public void updateTime(int location)
+	{
+		int totalSeconds = db.getGameTime(fm.gId);
+		int timeOnField = totalSeconds - fm.timeSubbedIn[location];
+	}
+	
+	public void onPause()
+	{
+		super.onPause();
+		//stop clock
+		//updateTimeStat
 	}
 	
 	

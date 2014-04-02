@@ -27,15 +27,18 @@
         </activity>
         <activity
             android:name="local.stattaker.FragmentMain"
-            android:label="FragmentMain" >
+            android:label="FragmentMain" 
+            android:screenOrientation="portrait">
         </activity>
         <activity
             android:name="local.stattaker.FragmentPlayerList"
-            android:label="FragmentPlayerList" >
+            android:label="FragmentPlayerList"
+            android:screenOrientation="portrait" >
         </activity>
         <activity
             android:name="local.stattaker.FragmentStats"
-            android:label="FragmentStats" >
+            android:label="FragmentStats" 
+            android:screenOrientation="portrait">
         </activity>
         <activity
             android:name="local.stattaker.CreateTeam"

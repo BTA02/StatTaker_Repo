@@ -27,17 +27,36 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Opponent Snitch" />
-    
-	<Button
-        android:id="@+id/undo_button"
+    <RelativeLayout
+        android:id="@+id/bottomline"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Undo" />
+        android:orientation="horizontal">
+        
+		<Button
+        	android:id="@+id/undo_button"
+        	android:layout_width="wrap_content"
+        	android:layout_height="wrap_content"
+        	android:layout_alignParentLeft="true"
+        	android:text="Undo" />
+		
+		<TextView
+			android:id="@+id/time"
+        	android:layout_width="wrap_content"
+        	android:layout_height="wrap_content"
+        	android:layout_centerInParent="true"
+        	android:paddingRight="40dp"
+        	android:paddingLeft="40dp"
+        	android:paddingTop="20dp"
+        	android:paddingBottom="20dp"
+        	android:text="Press To Start Clock" />
 	
-	<Button
-        android:id="@+id/redo_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Redo" />
-	
+		<Button
+	        android:id="@+id/redo_button"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_alignParentRight="true"
+	        android:text="Redo" />
+		</RelativeLayout>
+		
 </LinearLayout>

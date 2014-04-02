@@ -31,23 +31,29 @@ public class PlayerDb //row in the player table
     this.active = a;
     
   }
-  /*
-  public static class OrderByOnField implements Comparator<PlayerDb> 
-  {
-		@Override
-		public int compare(PlayerDb lhs, PlayerDb rhs) 
-		{
-			return lhs.onField > rhs.onField ? 1 : (lhs.onField < rhs.onField ? -1 : 0);
-		}
-  }	
-  */
-  //doesn't work
+  
   public static class OrderByActive implements Comparator<PlayerDb>
   {
 		@Override
 		public int compare(PlayerDb lhs, PlayerDb rhs) 
 		{
 			return lhs.active < rhs.active ? 1 : (lhs.active > rhs.active ? -1 : 0);
+		}
+  	
+  }
+  
+  public static class OrderByFirstName implements Comparator<PlayerDb>
+  {
+
+		@Override
+		public int compare(PlayerDb lhs, PlayerDb rhs) 
+		{
+			int res = String.CASE_INSENSITIVE_ORDER.compare(lhs.fname, rhs.fname);
+      if (res == 0) 
+      {
+          res = lhs.fname.compareTo(rhs.fname);
+      }
+      return res;
 		}
   	
   }
@@ -126,7 +132,7 @@ public class PlayerDb //row in the player table
   	{
   		activeOrNot = "Active";
   	}
-  	return this.number + "	" + this.fname + "	" + this.lname + "	" + activeOrNot;
+  	return this.number + "\t\t" + this.fname + "\t\t" + this.lname + "\t\t\t" + activeOrNot;
   }
   
 }

@@ -30,7 +30,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
   private static final String LOG = "DatabaseHelper";
 
   // Database Version
-  private static final int DATABASE_VERSION = 24;
+  private static final int DATABASE_VERSION = 31;
 
   // Database Name
   private static final String DATABASE_NAME = "quidditchGames";
@@ -56,6 +56,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
   private static final String COL_PLUSSES = "plusses";
   private static final String COL_MINUSES = "minuses";
   private static final String COL_ONFIELD = "onField";
+  private static final String COL_TIME = "time";
 
   // PLAYER Table - column names
   private static final String COL_NUMBER = "number";
@@ -76,6 +77,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
           + " INTEGER," + COL_SNITCHES + " INTEGER," + COL_PLUSSES
           + " INTEGER," + COL_MINUSES + " INTEGER, "
           + COL_ONFIELD + " INTEGER, "
+          + COL_TIME + " INTEGER, "
           + "PRIMARY KEY (" + COL_GAMEID + ", " + COL_PLAYERID + "), "
           + "FOREIGN KEY(" + COL_PLAYERID + ") REFERENCES "
           + TABLE_PLAYER + "(" + COL_PLAYERID + ")"
@@ -136,6 +138,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
       values.put(COL_PLUSSES, g.getPlusses());
       values.put(COL_MINUSES, g.getMinuses());
       values.put(COL_ONFIELD, g.getOnField());
+      values.put(COL_TIME, g.getTime());
       //these should start at 0 for everything except onField
    
       // insert row
@@ -177,7 +180,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
   public List<GameDb> getOneRowByIdKeys(int gID, int pID)
   {
       List<GameDb> gameRow = new ArrayList<GameDb>();
-      String selectQuery = "SELECT  * FROM " + TABLE_GAME + " WHERE "
+      String selectQuery = "SELECT * FROM " + TABLE_GAME + " WHERE "
               + COL_GAMEID + " = " + gID +  " AND " + COL_PLAYERID
               + " = " + pID;
    
@@ -206,6 +209,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
               g.setPlusses(c.getInt((c.getColumnIndex(COL_PLUSSES))));
               g.setMinuses(c.getInt((c.getColumnIndex(COL_MINUSES))));
               g.setOnField(c.getInt(c.getColumnIndex(COL_ONFIELD)));
+              g.setTime(c.getInt((c.getColumnIndex(COL_TIME))));
               // adding to todo list
               gameRow.add(g);
           } 
@@ -241,7 +245,6 @@ public class DatabaseHelper extends SQLiteOpenHelper
   
   public int getAwayScore(int gameId)
   {
-  	
   	String query = "SELECT " + COL_GOALS + " FROM "
   			+ TABLE_GAME + " WHERE "
   			+ COL_PLAYERID + " = -1 AND "
@@ -250,17 +253,18 @@ public class DatabaseHelper extends SQLiteOpenHelper
   	Cursor c = db.rawQuery(query, null);
   	c.moveToFirst();
   	return c.getInt(0);
-  	
-  	/*
-  	int negGid = gameId * -1;
-  	String query = "SELECT " + COL_GOALS + " FROM "
+  }
+  
+  public int getGameTime(int gameId)
+  {
+  	String query = "SELECT " + COL_TIME + " FROM "
   			+ TABLE_GAME + " WHERE "
-  			+ COL_GAMEID + " = " + negGid;
+  			+ COL_PLAYERID + " = -1 AND "
+  			+ COL_GAMEID + " = " + gameId;
   	SQLiteDatabase db = this.getReadableDatabase();
   	Cursor c = db.rawQuery(query, null);
   	c.moveToFirst();
   	return c.getInt(0);
-  	*/
   }
   
 
@@ -285,6 +289,15 @@ public class DatabaseHelper extends SQLiteOpenHelper
     
   }
   
+  public int setGameTime(int gameId, int totalTime)
+  {
+  	String[] arguments = {String.valueOf(gameId), String.valueOf(-1)};
+    SQLiteDatabase db = this.getWritableDatabase();
+    ContentValues values = new ContentValues();
+    values.put(COL_TIME, totalTime);
+    return db.update(TABLE_GAME, values, COL_GAMEID + " = ? AND "
+				+ COL_PLAYERID + " = ?", arguments);
+  }
   
   //R: nothing
   //M: nothing
@@ -508,6 +521,25 @@ public class DatabaseHelper extends SQLiteOpenHelper
   			values.put(COL_PLUSSES, gameRow.getPlusses());
   			values.put(COL_MINUSES, gameRow.getMinuses());
   			values.put(COL_ONFIELD, valToAdd);
+  		}
+  		else if (column.equals("time"))
+  		{
+  			values.put(COL_GAMEID, gameRow.getGameId());
+  			values.put(COL_TEAMNAME, gameRow.getTeamName());
+  			values.put(COL_OPPONENT, gameRow.getOpponent());
+  			values.put(COL_PLAYERID, gameRow.getPlayerId());
+  			values.put(COL_SHOTS, gameRow.getShots());
+  			values.put(COL_GOALS, gameRow.getGoals());
+  			values.put(COL_ASSISTS, gameRow.getAssists());
+  			values.put(COL_STEALS, gameRow.getSteals());
+  			values.put(COL_TURNOVERS, gameRow.getTurnovers());
+  			values.put(COL_SAVES, gameRow.getSaves());
+  			values.put(COL_SNITCHES, gameRow.getSnitches());
+  			values.put(COL_PLUSSES, gameRow.getPlusses());
+  			values.put(COL_MINUSES, gameRow.getMinuses());
+  			values.put(COL_ONFIELD, gameRow.getOnField());
+  			values.put(COL_TIME, gameRow.getTime() + valToAdd);
+  			//values.put(COL_TIME, valToAdd);
   		}
   		else
   		{
@@ -801,71 +833,6 @@ public class DatabaseHelper extends SQLiteOpenHelper
   	return playerList;
 	}
 	
-	/*
-	public List<PlayerDb> getOnFieldPlayersFromGame(String teamName, int gID) 
-	{
-		List<PlayerDb> playerList = new ArrayList<PlayerDb>();
-		SQLiteDatabase db = this.getReadableDatabase();
-		
-		String onFieldPlayersQuery = "SELECT * FROM "
-				+ TABLE_PLAYER + " p, " + TABLE_GAME + " g"
-				+ " WHERE " + "g." + COL_GAMEID + " = " + gID
-				+ " AND " + "p." + COL_ONFIELD + " !=  0"
-				+ " AND " + "p." + COL_PLAYERID + " = "
-				+ "g." + COL_PLAYERID;
-		
-		Cursor c = db.rawQuery(onFieldPlayersQuery, null);
-  	if (c.moveToFirst())
-  	{
-  		do
-  		{
-	      PlayerDb p = new PlayerDb(); //just a db row
-	      p.setTeamName((c.getString(c.getColumnIndex(COL_TEAMNAME)))); //
-	      p.setPlayerId(c.getInt((c.getColumnIndex(COL_PLAYERID))));
-	      p.setNumber(c.getString((c.getColumnIndex(COL_NUMBER))));
-	      p.setFname(c.getString((c.getColumnIndex(COL_FNAME))));
-	      p.setLname(c.getString((c.getColumnIndex(COL_LNAME))));
-	      p.setActive(c.getInt((c.getColumnIndex(COL_ACTIVE))));
-	      playerList.add(p);
-  		}
-  		while (c.moveToNext());
-    }
-  	return playerList;
-	}
-	
-	//only active players are added, so that's okay
-	//now just get the offField ones
-	public List<PlayerDb> getOffFieldPlayersFromGame(String teamName, int gID) 
-	{
-		List<PlayerDb> playerList = new ArrayList<PlayerDb>();
-		SQLiteDatabase db = this.getReadableDatabase();
-		
-		String onFieldPlayersQuery = "SELECT * FROM "
-				+ TABLE_PLAYER + " p, " + TABLE_GAME + " g"
-				+ " WHERE " + "g." + COL_GAMEID + " = " + gID
-				+ " AND " + "p." + COL_ONFIELD + " =  0"
-				+ " AND " + "p." + COL_PLAYERID + " = "
-				+ "g." + COL_PLAYERID;
-		
-		Cursor c = db.rawQuery(onFieldPlayersQuery, null);
-  	if (c.moveToFirst())
-  	{
-  		do
-  		{
-	      PlayerDb p = new PlayerDb(); //just a db row
-	      p.setTeamName((c.getString(c.getColumnIndex(COL_TEAMNAME)))); //
-	      p.setPlayerId(c.getInt((c.getColumnIndex(COL_PLAYERID))));
-	      p.setNumber(c.getString((c.getColumnIndex(COL_NUMBER))));
-	      p.setFname(c.getString((c.getColumnIndex(COL_FNAME))));
-	      p.setLname(c.getString((c.getColumnIndex(COL_LNAME))));
-	      p.setActive(c.getInt((c.getColumnIndex(COL_ACTIVE))));
-	      playerList.add(p);
-  		}
-  		while (c.moveToNext());
-    }
-  	return playerList;
-	}
-	*/
 	
 	public int onFieldPlayers(String tN)
 	{

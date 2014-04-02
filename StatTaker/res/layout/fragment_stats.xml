@@ -69,7 +69,7 @@
 	                    android:layout_width="wrap_content"
 	                    android:layout_height="wrap_content"
 	                    android:paddingRight="5dp"
-	                    android:text="Turnovers" />
+	                    android:text="TOs" />
 	
 	                <TextView
 	                    android:id="@+id/stats_header_saves"
@@ -98,6 +98,14 @@
 	                    android:layout_height="wrap_content"
 	                    android:paddingRight="5dp"
 	                    android:text="Minus" />
+	                
+	                <TextView
+	                    android:id="@+id/stats_header_minus"
+	                    android:layout_width="wrap_content"
+	                    android:layout_height="wrap_content"
+	                    android:paddingRight="5dp"
+	                    android:text="Minutes" />
+	                
 	            </TableRow>
 	        </TableLayout>
 	    </ScrollView>

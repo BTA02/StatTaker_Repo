@@ -65,6 +65,15 @@ public class Action
 		this.name = name;
 	}
 	
+	public int getValAdded()
+	{
+		return valAdded;
+	}
+	
+	public void setValAdded(int i)
+	{
+		this.valAdded = i;
+	}
 	
 	
 }

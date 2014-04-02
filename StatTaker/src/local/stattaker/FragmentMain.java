@@ -1,27 +1,18 @@
 package local.stattaker;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
 
 import local.stattaker.helper.DatabaseHelper;
-import local.stattaker.model.GameDb;
-import local.stattaker.model.PlayerDb;
 import local.stattaker.util.Action;
 import android.app.ActionBar;
-import android.app.AlertDialog;
 import android.app.ActionBar.Tab;
 import android.app.ActionBar.TabListener;
-import android.app.AlertDialog.Builder;
 import android.app.FragmentTransaction;
-import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.view.ViewPager;
-import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.widget.CheckBox;
-import android.widget.EditText;
 
 public class FragmentMain extends FragmentActivity implements TabListener 
 {
@@ -35,10 +26,13 @@ public class FragmentMain extends FragmentActivity implements TabListener
   int homeScore = 0;
   int awayScore = 0;
   int gId;
-  //int negGid;
+  boolean running;
+  int[] timeSubbedIn = new int[7];
+  int[] sinceRefresh = new int[7];
 
 	Vector<Action> undoQueue = new Vector<Action>();
 	Vector<Action> redoQueue = new Vector<Action>();
+	//Vector<Integer> times = new Vector<Integer>();
 	
   @Override
   protected void onCreate(Bundle savedInstanceState)
@@ -74,9 +68,7 @@ public class FragmentMain extends FragmentActivity implements TabListener
 	  Bundle b = getIntent().getExtras();
 	  teamName = b.getString("teamName");
 	  gId = b.getInt("gId");
-	  //negGid = gId * -1;
-	  //still need opponent name
-	  //createNewGame(teamName, opponent);
+	  running = false;
   }
   
 	@Override

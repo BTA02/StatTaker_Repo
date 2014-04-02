@@ -19,6 +19,7 @@ public class GameDb //row data for a game table
   int plusses;
   int minuses;
   int onField;
+  int time;
   
    
   // Empty constructor
@@ -44,6 +45,7 @@ public class GameDb //row data for a game table
     this.plusses = 0;
     this.minuses = 0;
     this.onField = oF;
+    this.time = 0;
   }
   
   // gets
@@ -117,6 +119,11 @@ public class GameDb //row data for a game table
   	return this.onField;
   }
   
+  public int getTime()
+  {
+  	return this.time;
+  }
+  
   //sets
   public void setId(int i)
   {
@@ -188,12 +195,18 @@ public class GameDb //row data for a game table
   	this.onField = i;
   }
   
+  public void setTime(int i)
+  {
+  	this.time = i;
+  }
+  
   
   @Override
   public String toString()
   {
   	return this.opponent;
   }
+
   
 
 

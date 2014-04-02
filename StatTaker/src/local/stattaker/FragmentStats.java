@@ -1,6 +1,10 @@
 package local.stattaker;
 
+import java.util.List;
+
 import local.stattaker.helper.DatabaseHelper;
+import local.stattaker.model.GameDb;
+import local.stattaker.model.PlayerDb;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -36,6 +40,14 @@ public class FragmentStats extends Fragment
 			@Override
 			public void onClick(View v) 
 			{
+				for (int i = 0; i < 7; i++)
+				{
+					List<PlayerDb> pp = db.getOnFieldPlayersFromGame(fm.teamName, fm.gId);
+					List<GameDb> gg = db.getOneRowByIdKeys(fm.gId, pp.get(i).getPlayerId());
+					int tt = db.getGameTime(fm.gId) - fm.sinceRefresh[i];
+					fm.sinceRefresh[i] = db.getGameTime(fm.gId);
+					db.updateStat(fm.gId, pp.get(i).getPlayerId(), "time", tt);
+				}
 				updateStats();
 			}
 			
@@ -60,10 +72,12 @@ public class FragmentStats extends Fragment
 		table.removeViews(1, size-1);
 		
 		Cursor c = db.getGameStats(fm.gId);
+		int i = 0;
 		if (c.moveToFirst())
 		{
 			do
 			{
+				i++;
 				//fill in the table here.
 				String number = c.getString(2);
 				String lname = c.getString(4);
@@ -76,6 +90,8 @@ public class FragmentStats extends Fragment
 				int snitches = c.getInt(16);
 				int plus = c.getInt(17);
 				int minus = c.getInt(18);
+				int time = c.getInt(20);
+
 				
 				//Now I have data, load it
 				TableRow row = new TableRow(getActivity());
@@ -91,6 +107,12 @@ public class FragmentStats extends Fragment
 				TextView t8 = new TextView(getActivity());
 				TextView t9 = new TextView(getActivity());
 				TextView t10 = new TextView(getActivity());
+				TextView t11 = new TextView(getActivity());
+				
+				int totalSeconds = time;
+				int minutes = totalSeconds/60;
+				int seconds = totalSeconds%60;
+				final String timeStr = minutes + ":" + seconds;
 				
 				t.setText(number);
 				t1.setText(lname);
@@ -103,7 +125,8 @@ public class FragmentStats extends Fragment
 				t8.setText(String.valueOf(snitches));
 				t9.setText(String.valueOf(plus));
 				t10.setText(String.valueOf(minus));
-				
+				t11.setText(timeStr);
+
 				row.addView(t);
 				row.addView(t1);
 				row.addView(t2);
@@ -115,7 +138,12 @@ public class FragmentStats extends Fragment
 				row.addView(t8);
 				row.addView(t9);
 				row.addView(t10);
+				row.addView(t11);
 				
+				if( i%2 == 1)
+				{
+					row.setBackgroundResource(R.color.row_background);
+				}
 				table.addView(row);
 			}
 			while (c.moveToNext());

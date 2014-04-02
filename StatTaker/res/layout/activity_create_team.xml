@@ -43,7 +43,7 @@
         android:id="@+id/create_active_box"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Active" />
+        android:text="On active roster" />
     
     <Button
         android:id="@+id/create_add_player"
