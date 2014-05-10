@@ -7,13 +7,13 @@ import java.util.List;
 import local.stattaker.helper.DatabaseHelper;
 import local.stattaker.model.GameDb;
 import local.stattaker.model.PlayerDb;
-import local.stattaker.util.AddTeams;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.View;
@@ -27,14 +27,26 @@ import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.parse.FindCallback;
+import com.parse.Parse;
+import com.parse.ParseAnalytics;
+import com.parse.ParseException;
+import com.parse.ParseObject;
+import com.parse.ParseQuery;
+
 public class MainActivity extends Activity implements OnClickListener
 {
 		DatabaseHelper db;
 		
+		List<String> teams;
+		List<String> oTeams;
+		
 		Button create_team;
 		ListView currentTeams;
+		ListView onlineTeams;
 		
 		ArrayAdapter<String> listAdapter;
+		ArrayAdapter<String> listAdapter2;
 		
 		Context context = this;
 		
@@ -42,44 +54,18 @@ public class MainActivity extends Activity implements OnClickListener
     protected void onCreate(Bundle savedInstanceState) 
     {
         super.onCreate(savedInstanceState);
+        
         setContentView(R.layout.activity_main);
         db = new DatabaseHelper(this);
 
-        final Button michiganButton = (Button) findViewById(R.id.michigan_button);
-        if (db.checkIfTeamExists("University Of Michigan") || true)
-        {
-        	michiganButton.setClickable(false);
-					michiganButton.setEnabled(false);
-					michiganButton.setVisibility(View.GONE);
-        }
-        michiganButton.setOnClickListener(new OnClickListener()
-        {
-
-					@Override
-					public void onClick(View v) 
-					{
-						AddTeams a = new AddTeams(db);
-						a.addMichigan();
-						michiganButton.setClickable(false);
-						michiganButton.setEnabled(false);
-						michiganButton.setVisibility(View.GONE);
-						populateTeamsList();
-					}
-        	
-        });
-        
-        /*
-         * This is for parse for later
         Parse.initialize(this, "RoDlI2ENBnxSWlPvdG2VEsFPRSt06qHJ78nZop77", "fbuEyPT9Exq141IZfueUO1asOcbAFaBjJvdAFI1A");
         ParseAnalytics.trackAppOpened(getIntent());
-        ParseObject testObject = new ParseObject("TestObject");
-        testObject.put("foo", "bar");
-        testObject.saveInBackground();
-        */
+        
         create_team = (Button) findViewById(R.id.create_button);
         create_team.setOnClickListener(this);
         
         populateTeamsList();
+        populateOnlineTeamList();
         
         currentTeams = (ListView) findViewById(R.id.teams_list);
         currentTeams.setOnItemClickListener(new OnItemClickListener()
@@ -199,7 +185,19 @@ public class MainActivity extends Activity implements OnClickListener
         	
         });
         
-        
+        onlineTeams = (ListView) findViewById(R.id.online_teams_list);
+        onlineTeams.setOnItemClickListener(new OnItemClickListener()
+        {
+
+					@Override
+					public void onItemClick(AdapterView<?> parent, View view,
+							int position, long id) 
+					{
+						final String teamClicked = (String)((TextView) view).getText();
+						loadInTeam(teamClicked);
+					}
+        	
+        });
     }
     
     @Override
@@ -216,10 +214,11 @@ public class MainActivity extends Activity implements OnClickListener
         return true;
     }
 		
+		//still works, shows local teams, which is perfect
     public void populateTeamsList() 
     {      
     	currentTeams = (ListView) findViewById(R.id.teams_list);
-      List<String> teams = new ArrayList<String>();
+      teams = new ArrayList<String>();
       teams = db.getCurrentTeams();
       listAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, teams);
       currentTeams.setAdapter(listAdapter);
@@ -267,6 +266,74 @@ public class MainActivity extends Activity implements OnClickListener
 
   		}
 			
+		}
+		public void populateOnlineTeamList()
+		{
+			onlineTeams = (ListView) findViewById(R.id.online_teams_list);
+			
+			List<ParseObject> objects = new ArrayList<ParseObject>();
+			oTeams = new ArrayList<String>();
+			ParseQuery<ParseObject> query = ParseQuery.getQuery("Player");
+			try 
+			{
+				objects = query.find();
+			} 
+			catch (ParseException e) 
+			{
+				e.printStackTrace();
+				Log.e("Test", "Parse .find didn't work 1");
+			}
+			for (int i = 0; i < objects.size(); i++)
+			{
+				String teamName = objects.get(i).getString("team_name");
+				if (!oTeams.contains(teamName) && !teams.contains(teamName) )
+				{
+					oTeams.add(teamName);
+				}
+			}
+			listAdapter2 = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, oTeams);
+			onlineTeams.setAdapter(listAdapter2);
+			
+		}
+		
+		public void loadInTeam(String teamName)
+		{
+			//build a db object here
+			String num;
+			String fname;
+			String lname;
+			int active;
+			
+			List<ParseObject> objects = new ArrayList<ParseObject>();
+			ParseQuery<ParseObject> query = ParseQuery.getQuery("Player");
+			query.whereEqualTo("team_name", teamName);
+			try 
+			{
+				objects = query.find();
+			} 
+			catch (ParseException e) 
+			{
+				e.printStackTrace();
+				Log.e("Test", "Parse .find didn't work 2");
+			}
+			for (int i = 0; i < objects.size(); i++)
+			{
+				num = objects.get(i).getString("number");
+				fname = objects.get(i).getString("fname");
+				lname = objects.get(i).getString("lname");
+				if (i < 21)
+				{
+					active = 1;
+				}
+				else
+				{
+					active = 0;
+				}
+				PlayerDb p = new PlayerDb(teamName, -1, num, fname, lname, 0, active);
+				db.addPlayer(p);
+			}
+			populateTeamsList();
+			populateOnlineTeamList();
 		}
 
 }

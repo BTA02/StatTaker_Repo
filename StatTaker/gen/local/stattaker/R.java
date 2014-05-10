@@ -81,9 +81,9 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
         public static final int keeper_home_sub_out=0x7f090048;
         public static final int keeper_home_turnover=0x7f090046;
         public static final int listTextView=0x7f090015;
-        public static final int michigan_button=0x7f09000d;
         public static final int new_game_list=0x7f090013;
         public static final int new_game_opponent_name=0x7f090014;
+        public static final int online_teams_list=0x7f09000d;
         public static final int opponent_goal=0x7f09001b;
         public static final int opponent_snitch=0x7f09001c;
         public static final int pager=0x7f090016;

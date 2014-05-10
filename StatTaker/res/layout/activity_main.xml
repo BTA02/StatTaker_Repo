@@ -26,13 +26,11 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Create New Team" />
-
     
-    <Button
-        android:id="@+id/michigan_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Add Michigan's Roster" />
+    <ListView
+        android:id="@+id/online_teams_list"
+        android:layout_width="match_parent"
+        android:layout_height="500dp" />
     
 
 </LinearLayout>
