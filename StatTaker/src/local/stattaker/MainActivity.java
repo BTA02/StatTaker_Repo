@@ -12,6 +12,8 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -27,7 +29,6 @@ import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.parse.FindCallback;
 import com.parse.Parse;
 import com.parse.ParseAnalytics;
 import com.parse.ParseException;
@@ -65,12 +66,15 @@ public class MainActivity extends Activity implements OnClickListener
         create_team.setOnClickListener(this);
         
         populateTeamsList();
-        populateOnlineTeamList();
+        
+        if (isNetworkAvailable())
+        {
+        	populateOnlineTeamList();
+        }
         
         currentTeams = (ListView) findViewById(R.id.teams_list);
         currentTeams.setOnItemClickListener(new OnItemClickListener()
         {
-
 					@Override
 					public void onItemClick(AdapterView<?> arg0, View arg1, int arg2,
 							long arg3) 
@@ -335,5 +339,13 @@ public class MainActivity extends Activity implements OnClickListener
 			populateTeamsList();
 			populateOnlineTeamList();
 		}
+		
+		private boolean isNetworkAvailable() 
+		{
+	    ConnectivityManager connectivityManager 
+	          = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+	    NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+	    return activeNetworkInfo != null && activeNetworkInfo.isConnected();
+	}
 
 }
