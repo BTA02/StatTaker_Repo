@@ -1,7 +1,5 @@
 package local.stattaker;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Vector;
 
 import local.stattaker.helper.DatabaseHelper;
@@ -63,7 +61,7 @@ public class FragmentMain extends FragmentActivity implements TabListener
 	  mActionBar.setDisplayShowTitleEnabled(false);
 	  //------END FRAGMENT STUFF--------------
 	  
-	  db = db.getHelper(getApplicationContext());
+	  db = DatabaseHelper.getHelper(getApplicationContext());
 	  
 	  Bundle b = getIntent().getExtras();
 	  teamName = b.getString("teamName");

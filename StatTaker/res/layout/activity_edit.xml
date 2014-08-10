@@ -20,7 +20,7 @@
         android:id="@+id/edit_player_list"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_weight="80" />
+        android:layout_weight="80"/>
     
     <Button
         android:id="@+id/edit_add_player_button"

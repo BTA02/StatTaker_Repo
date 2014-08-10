@@ -14,5 +14,7 @@
     <string name="title_activity_create_team">CreateTeam</string>
     <string name="title_activity_edit">EditActivity</string>
     <string name="title_activity_add_teams">AddTeams</string>
+    <string name="title_activity_team_page">TeamPage</string>
+    <string name="title_activity_zmain">ZMainActivity</string>
 
 </resources>

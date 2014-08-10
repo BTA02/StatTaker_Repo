@@ -25,6 +25,11 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
     public static final class dimen {
         /**  Default screen margins, per the Android Design guidelines. 
 
+         Example customization of dimensions originally defined in res/values/dimens.xml
+         (such as screen margins) for screens with more than 820dp of available width. This
+         would include 7" and 10" devices in landscape (~960dp and ~1280dp respectively).
+    
+
          Customize dimensions originally defined in res/values/dimens.xml (such as
          screen margins) for sw720dp devices (e.g. 10" tablets) in landscape here.
     
@@ -36,27 +41,28 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
         public static final int ic_launcher=0x7f020000;
     }
     public static final class id {
-        public static final int action_settings=0x7f090043;
+        public static final int action_settings=0x7f09004b;
         public static final int add_title=0x7f09000c;
-        public static final int bottomline=0x7f09001f;
-        public static final int chaser1_home_assist=0x7f090032;
-        public static final int chaser1_home_goal=0x7f090031;
-        public static final int chaser1_home_shot=0x7f090030;
-        public static final int chaser1_home_steal=0x7f090034;
-        public static final int chaser1_home_sub_out=0x7f090035;
-        public static final int chaser1_home_turnover=0x7f090033;
-        public static final int chaser2_home_assist=0x7f090039;
-        public static final int chaser2_home_goal=0x7f090038;
-        public static final int chaser2_home_shot=0x7f090037;
-        public static final int chaser2_home_steal=0x7f09003b;
-        public static final int chaser2_home_sub_out=0x7f09003c;
-        public static final int chaser2_home_turnover=0x7f09003a;
-        public static final int chaser3_home_assist=0x7f09003f;
-        public static final int chaser3_home_goal=0x7f09003e;
-        public static final int chaser3_home_shot=0x7f09003d;
-        public static final int chaser3_home_steal=0x7f090041;
-        public static final int chaser3_home_sub_out=0x7f090042;
-        public static final int chaser3_home_turnover=0x7f090040;
+        public static final int bottomline=0x7f090026;
+        public static final int chaser1_home_assist=0x7f09003a;
+        public static final int chaser1_home_goal=0x7f090039;
+        public static final int chaser1_home_shot=0x7f090038;
+        public static final int chaser1_home_steal=0x7f09003c;
+        public static final int chaser1_home_sub_out=0x7f09003d;
+        public static final int chaser1_home_turnover=0x7f09003b;
+        public static final int chaser2_home_assist=0x7f090041;
+        public static final int chaser2_home_goal=0x7f090040;
+        public static final int chaser2_home_shot=0x7f09003f;
+        public static final int chaser2_home_steal=0x7f090043;
+        public static final int chaser2_home_sub_out=0x7f090044;
+        public static final int chaser2_home_turnover=0x7f090042;
+        public static final int chaser3_home_assist=0x7f090047;
+        public static final int chaser3_home_goal=0x7f090046;
+        public static final int chaser3_home_shot=0x7f090045;
+        public static final int chaser3_home_steal=0x7f090049;
+        public static final int chaser3_home_sub_out=0x7f09004a;
+        public static final int chaser3_home_turnover=0x7f090048;
+        public static final int container=0x7f090016;
         public static final int create_active_box=0x7f090004;
         public static final int create_add_player=0x7f090005;
         public static final int create_button=0x7f09000f;
@@ -64,68 +70,80 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
         public static final int create_lname=0x7f090003;
         public static final int create_number=0x7f090001;
         public static final int create_team_name=0x7f090000;
+        public static final int cursor_adapter_team_name=0x7f090037;
         public static final int edit_add_player_button=0x7f090008;
-        public static final int edit_custom_box=0x7f090014;
-        public static final int edit_custom_fname=0x7f090012;
-        public static final int edit_custom_lname=0x7f090013;
-        public static final int edit_custom_number=0x7f090011;
-        public static final int edit_custom_title=0x7f090010;
+        public static final int edit_custom_box=0x7f09001b;
+        public static final int edit_custom_fname=0x7f090019;
+        public static final int edit_custom_lname=0x7f09001a;
+        public static final int edit_custom_number=0x7f090018;
+        public static final int edit_custom_title=0x7f090017;
         public static final int edit_delete_team=0x7f090009;
         public static final int edit_player_list=0x7f090007;
         public static final int edit_team_title=0x7f090006;
-        public static final int home_bench=0x7f090036;
-        public static final int keeper_home_assist=0x7f090047;
-        public static final int keeper_home_goal=0x7f090046;
-        public static final int keeper_home_save=0x7f090044;
-        public static final int keeper_home_shot=0x7f090045;
-        public static final int keeper_home_steal=0x7f090049;
-        public static final int keeper_home_sub_out=0x7f09004a;
-        public static final int keeper_home_turnover=0x7f090048;
-        public static final int listTextView=0x7f090017;
-        public static final int new_game_list=0x7f090015;
-        public static final int new_game_opponent_name=0x7f090016;
+        public static final int home_bench=0x7f09003e;
+        public static final int keeper_home_assist=0x7f09004f;
+        public static final int keeper_home_goal=0x7f09004e;
+        public static final int keeper_home_save=0x7f09004c;
+        public static final int keeper_home_shot=0x7f09004d;
+        public static final int keeper_home_steal=0x7f090051;
+        public static final int keeper_home_sub_out=0x7f090052;
+        public static final int keeper_home_turnover=0x7f090050;
+        public static final int listTextView=0x7f09001e;
+        public static final int new_game_list=0x7f09001c;
+        public static final int new_game_opponent_name=0x7f09001d;
         public static final int online_teams_list=0x7f09000e;
-        public static final int opponent_goal=0x7f09001d;
-        public static final int opponent_snitch=0x7f09001e;
-        public static final int pager=0x7f090018;
-        public static final int player_list=0x7f090019;
+        public static final int opponent_goal=0x7f090024;
+        public static final int opponent_snitch=0x7f090025;
+        public static final int pager=0x7f09001f;
+        public static final int player_list=0x7f090020;
         public static final int record_title=0x7f09000a;
-        public static final int redo_button=0x7f090022;
+        public static final int redo_button=0x7f090029;
         public static final int refresh_button=0x7f09000d;
-        public static final int score=0x7f09001c;
-        public static final int seeker_home_snitch_catch=0x7f09004b;
-        public static final int seeker_home_sub_out=0x7f09004c;
-        public static final int stats=0x7f09001a;
-        public static final int stats_header=0x7f090023;
-        public static final int stats_header_assists=0x7f090028;
-        public static final int stats_header_goals=0x7f090027;
-        public static final int stats_header_lname=0x7f090025;
-        public static final int stats_header_minus=0x7f09002e;
-        public static final int stats_header_number=0x7f090024;
-        public static final int stats_header_plus=0x7f09002d;
-        public static final int stats_header_saves=0x7f09002b;
-        public static final int stats_header_shots=0x7f090026;
-        public static final int stats_header_snitches=0x7f09002c;
-        public static final int stats_header_steals=0x7f090029;
-        public static final int stats_header_turnovers=0x7f09002a;
-        public static final int stats_refresh_button=0x7f09002f;
+        public static final int score=0x7f090023;
+        public static final int seeker_home_snitch_catch=0x7f090053;
+        public static final int seeker_home_sub_out=0x7f090054;
+        public static final int stats=0x7f090021;
+        public static final int stats_header=0x7f09002a;
+        public static final int stats_header_assists=0x7f09002f;
+        public static final int stats_header_goals=0x7f09002e;
+        public static final int stats_header_lname=0x7f09002c;
+        public static final int stats_header_minus=0x7f090035;
+        public static final int stats_header_number=0x7f09002b;
+        public static final int stats_header_plus=0x7f090034;
+        public static final int stats_header_saves=0x7f090032;
+        public static final int stats_header_shots=0x7f09002d;
+        public static final int stats_header_snitches=0x7f090033;
+        public static final int stats_header_steals=0x7f090030;
+        public static final int stats_header_turnovers=0x7f090031;
+        public static final int stats_refresh_button=0x7f090036;
+        public static final int team_page_add_player_button=0x7f090015;
+        public static final int team_page_add_player_fname=0x7f090013;
+        public static final int team_page_add_player_layout=0x7f090011;
+        public static final int team_page_add_player_lname=0x7f090014;
+        public static final int team_page_add_player_number=0x7f090012;
+        public static final int team_page_team_name=0x7f090010;
         public static final int teams_list=0x7f09000b;
-        public static final int text=0x7f09001b;
-        public static final int time=0x7f090021;
-        public static final int undo_button=0x7f090020;
+        public static final int text=0x7f090022;
+        public static final int time=0x7f090028;
+        public static final int undo_button=0x7f090027;
     }
     public static final class layout {
         public static final int activity_create_team=0x7f030000;
         public static final int activity_edit=0x7f030001;
         public static final int activity_main=0x7f030002;
-        public static final int custom_edit_player_alert=0x7f030003;
-        public static final int custom_new_game_alert=0x7f030004;
-        public static final int custom_player_list=0x7f030005;
-        public static final int fragment_main=0x7f030006;
-        public static final int fragment_pager_list=0x7f030007;
-        public static final int fragment_player_list=0x7f030008;
-        public static final int fragment_stats=0x7f030009;
-        public static final int stat_choice_dialog=0x7f03000a;
+        public static final int activity_team_page=0x7f030003;
+        public static final int activity_zmain=0x7f030004;
+        public static final int custom_edit_player_alert=0x7f030005;
+        public static final int custom_new_game_alert=0x7f030006;
+        public static final int custom_player_list=0x7f030007;
+        public static final int fragment_main=0x7f030008;
+        public static final int fragment_pager_list=0x7f030009;
+        public static final int fragment_player_list=0x7f03000a;
+        public static final int fragment_stats=0x7f03000b;
+        public static final int fragment_team_page=0x7f03000c;
+        public static final int fragment_zmain=0x7f03000d;
+        public static final int stat_choice_dialog=0x7f03000e;
+        public static final int team_list_cursor_adapter=0x7f03000f;
     }
     public static final class menu {
         public static final int chaser1_home_menu=0x7f080000;
@@ -140,7 +158,9 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
         public static final int player_db=0x7f080009;
         public static final int record_game=0x7f08000a;
         public static final int seeker_home_menu=0x7f08000b;
-        public static final int view_stats=0x7f08000c;
+        public static final int team_page=0x7f08000c;
+        public static final int view_stats=0x7f08000d;
+        public static final int zmain=0x7f08000e;
     }
     public static final class string {
         public static final int action_settings=0x7f060001;
@@ -155,7 +175,9 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
         public static final int title_activity_player_db=0x7f060009;
         public static final int title_activity_record_game=0x7f060003;
         public static final int title_activity_record_game2=0x7f060004;
+        public static final int title_activity_team_page=0x7f06000d;
         public static final int title_activity_view_stats=0x7f060007;
+        public static final int title_activity_zmain=0x7f06000e;
     }
     public static final class style {
         /** 

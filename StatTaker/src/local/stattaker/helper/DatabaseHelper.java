@@ -63,6 +63,8 @@ public class DatabaseHelper extends SQLiteOpenHelper
   private static final String COL_FNAME = "fname";
   private static final String COL_LNAME = "lname";
   private static final String COL_ACTIVE = "active";
+  // TODO Update this to have each individual have their own stats associated with them?
+  // Add a "opponent_id" and all the stats columns
 
   // Table Create Statements
   // GAME table create statement
@@ -302,6 +304,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
   //R: nothing
   //M: nothing
   //E: returns the max game id, so I can add 1 to it and use that going forward
+  // TODO Update this function to use UUID
   public int getMaxGameRow()
   {
   	int retVal;
@@ -854,6 +857,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
       db.delete(TABLE_PLAYER, COL_TEAMNAME + " = ? AND "
   				+ COL_PLAYERID + " = ?", arguments);
   }
+  
   
   //closing database
   public void closeDB() 
