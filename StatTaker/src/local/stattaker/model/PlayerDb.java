@@ -6,8 +6,8 @@ import java.util.Comparator;
 public class PlayerDb //row in the player table
 {
      
-  String teamName;
-  int playerId;
+  String teamId;
+  String playerId;
   String number;
   String fname;
   String lname;
@@ -21,9 +21,9 @@ public class PlayerDb //row in the player table
   }
   
   // constructor
-  public PlayerDb(String t, int p, String n, String f, String l, int oF, int a)
+  public PlayerDb(String t, String p, String n, String f, String l, int oF, int a)
   {
-    this.teamName = t;
+    this.teamId = t;
     this.playerId = p;
     this.number = n;
     this.fname = f;
@@ -58,12 +58,12 @@ public class PlayerDb //row in the player table
   	
   }
   // gets
-  public String getTeamName()
+  public String getTeamId()
   {
-    return this.teamName;
+    return this.teamId;
   }
   
-  public int getPlayerId()
+  public String getPlayerId()
   {
   	return this.playerId;
   }
@@ -90,12 +90,12 @@ public class PlayerDb //row in the player table
   }
   
   //sets
-  public void setTeamName(String str)
+  public void setTeamId(String str)
   {
-    this.teamName = str;
+    this.teamId = str;
   }
   
-  public void setPlayerId(int i)
+  public void setPlayerId(String i)
   {
   	this.playerId = i;
   }
