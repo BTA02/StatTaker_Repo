@@ -71,15 +71,12 @@ public class EditTeam extends Activity
 
 	}
 
-	// untested
-	// R: a valid teamName
-	// M: the listView
-	// E: populates the list view with the players on the team
+	
 	public void populatePlayerList(String tN)
 	{
 		currentPlayers = (ListView) findViewById(R.id.edit_player_list);
 		List<PlayerDb> playerList = new ArrayList<PlayerDb>();
-		playerList = db.getAllPlayers(tN, 0);
+		playerList = db.getAllPlayersFromTeam(team.getId(), 0);
 		Collections.sort(playerList, new PlayerDb.OrderByActive());
 		ListAdapter listAdapter = new ArrayAdapter(this,
 				R.layout.custom_player_list, playerList);
@@ -194,6 +191,7 @@ public class EditTeam extends Activity
 					@Override
 					public void onClick(DialogInterface dialog, int which)
 					{
+						/*
 						PlayerDb newPlayer = new PlayerDb();
 						newPlayer.setNumber(number.getText().toString());
 						newPlayer.setFname(firstName.getText().toString());
@@ -210,6 +208,7 @@ public class EditTeam extends Activity
 
 						db.addPlayer(newPlayer);
 						populatePlayerList(teamName);
+						*/
 					}
 
 				});

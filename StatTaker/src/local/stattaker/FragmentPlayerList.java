@@ -31,6 +31,7 @@ import android.widget.Toast;
 
 public class FragmentPlayerList extends ListFragment
 {
+	/*
 	DatabaseHelper db;
 	
 	ListView currentPlayers;
@@ -638,5 +639,5 @@ public class FragmentPlayerList extends ListFragment
 		//updateTimeStat
 	}
 	
-	
+	*/
 }

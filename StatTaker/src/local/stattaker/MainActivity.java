@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import local.stattaker.helper.ZDatabaseHelper;
+import local.stattaker.helper.DatabaseHelper;
 import local.stattaker.model.PlayerDb;
 import local.stattaker.util.CursorAdapterTeamList;
 import android.app.Activity;
@@ -17,7 +17,6 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -37,7 +36,7 @@ import com.parse.ParseQuery;
 
 public class MainActivity extends Activity
 {
-	ZDatabaseHelper db;
+	DatabaseHelper db;
 
 	List<String> teams;
 	List<String> oTeams;
@@ -60,7 +59,7 @@ public class MainActivity extends Activity
 		super.onCreate(savedInstanceState);
 
 		setContentView(R.layout.activity_main);
-		db = new ZDatabaseHelper(this);
+		db = new DatabaseHelper(this);
 		
 		if (isNetworkAvailable())
 		{
@@ -131,7 +130,7 @@ public class MainActivity extends Activity
 			{
 				//do this properly soon
 				final String teamClicked = (String)((TextView) view).getText();
-				loadInTeam(teamClicked);
+				//loadInTeam(teamClicked);
 			}
 
 		});
@@ -230,7 +229,7 @@ public class MainActivity extends Activity
 			{
 				active = 0;
 			}
-			PlayerDb p = new PlayerDb(teamName, -1, num, fname, lname, 0, active);
+			//PlayerDb p = new PlayerDb(teamName, -1, num, fname, lname, 0, active);
 			//db.addPlayer(p);
 		}
 		populateTeamsList();

@@ -5,6 +5,12 @@ public class TeamDb
 	private String id;
 	private String name;
 	
+	public TeamDb()
+	{
+		this.id = "";
+		this.name = "";
+	}
+	
 	public TeamDb(String id_, String name_)
 	{
 		this.id = id_;

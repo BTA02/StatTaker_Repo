@@ -42,11 +42,13 @@ public class FragmentStats extends Fragment
 			{
 				for (int i = 0; i < 7; i++)
 				{
+					/*
 					List<PlayerDb> pp = db.getOnFieldPlayersFromGame(fm.teamName, fm.gId);
 					List<GameDb> gg = db.getOneRowByIdKeys(fm.gId, pp.get(i).getPlayerId());
 					int tt = db.getGameTime(fm.gId) - fm.sinceRefresh[i];
 					fm.sinceRefresh[i] = db.getGameTime(fm.gId);
 					db.updateStat(fm.gId, pp.get(i).getPlayerId(), "time", tt);
+					*/
 				}
 				updateStats();
 			}
@@ -66,12 +68,13 @@ public class FragmentStats extends Fragment
 	public void updateStats()
 	{
 		fm = (FragmentMain) getActivity();
-		db = db.getHelper(fm.getApplicationContext());
+		//db = db.getHelper(fm.getApplicationContext());
 		table = (TableLayout) rootView.findViewById(R.id.stats);
 		int size = table.getChildCount();
 		table.removeViews(1, size-1);
 		
-		Cursor c = db.getGameStats(fm.gId);
+		//Cursor c = db.getGameStats(fm.gId);
+		Cursor c = null;
 		int i = 0;
 		if (c.moveToFirst())
 		{

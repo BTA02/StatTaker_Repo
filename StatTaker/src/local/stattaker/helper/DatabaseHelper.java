@@ -171,7 +171,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 		String query = "SELECT " + COL_TEAM_NAME + " FROM " + TABLE_TEAM
 				+ " WHERE " + COL_TEAMID + " = ?";
 		Cursor c = db.rawQuery(query, new String[]{ id });
-		TeamDb ret = null;
+		TeamDb ret = new TeamDb();
 		if (c.moveToFirst())
 		{
 			ret.setName( c.getString(c.getColumnIndex(COL_TEAM_NAME)) );
