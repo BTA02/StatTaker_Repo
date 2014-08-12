@@ -36,6 +36,8 @@ import com.parse.ParseQuery;
 
 public class MainActivity extends Activity
 {
+	private String TAG = "MainActivity";
+	
 	DatabaseHelper db;
 
 	List<String> teams;
@@ -159,10 +161,24 @@ public class MainActivity extends Activity
 	{      
 		currentTeams = (ListView) findViewById(R.id.teams_list);
 		Cursor c = db.getAllTeamsCursor();
-		//so... use the strings? okay, I can do that, but what I really want is the ID
-		CursorAdapterTeamList adapter = 
-				new CursorAdapterTeamList(this, R.layout.team_list_cursor_adapter, c, 0);
+		final CursorAdapterTeamList adapter = new CursorAdapterTeamList(this, c, 0);
 		currentTeams.setAdapter(adapter);
+		
+		currentTeams.setOnItemClickListener(new OnItemClickListener()
+		{
+
+			@Override
+			public void onItemClick(AdapterView<?> arg0, View arg1, int arg2,
+					long arg3)
+			{
+				Cursor c = (Cursor) currentTeams.getItemAtPosition(arg2);
+				String id = c.getString(c.getColumnIndex(DatabaseHelper.COL_ID));
+				Intent i = new Intent(getApplicationContext(), EditTeam.class);
+				i.putExtra("teamId", id);
+				startActivity(i);
+			}
+		
+		});
 		
 	}
 	

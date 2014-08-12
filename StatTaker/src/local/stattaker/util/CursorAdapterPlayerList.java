@@ -1,5 +1,6 @@
 package local.stattaker.util;
 
+
 import local.stattaker.R;
 import local.stattaker.helper.DatabaseHelper;
 import android.content.Context;
@@ -10,7 +11,7 @@ import android.view.ViewGroup;
 import android.widget.CursorAdapter;
 import android.widget.TextView;
 
-public class CursorAdapterTeamList extends CursorAdapter
+public class CursorAdapterPlayerList extends CursorAdapter
 {
   private LayoutInflater mInflater;
   private Context context;
@@ -18,7 +19,7 @@ public class CursorAdapterTeamList extends CursorAdapter
   // ---------------------------------------------------------------------------
   // ---------------------------------------------------------------------------
 
-  public CursorAdapterTeamList(Context context_, Cursor c, int flags)
+  public CursorAdapterPlayerList(Context context_, Cursor c, int flags)
   {
     super(context_, c, flags);
     context = context_;
@@ -31,8 +32,8 @@ public class CursorAdapterTeamList extends CursorAdapter
   @Override
   public void bindView(View view, Context context, Cursor cursor)
   {
-    TextView fileNameTV = (TextView) view.findViewById(R.id.cursor_adapter_team_name);
-    fileNameTV.setText(cursor.getString(cursor.getColumnIndex(DatabaseHelper.COL_TEAM_NAME)));
+    TextView numberTV = (TextView) view.findViewById(R.id.cursor_adapter_team_name);
+    numberTV.setText(cursor.getString(cursor.getColumnIndex(DatabaseHelper.COL_TEAM_NAME)));
     
   }// bindView
 
@@ -41,7 +42,7 @@ public class CursorAdapterTeamList extends CursorAdapter
   @Override
   public View newView(Context context, Cursor cursor, ViewGroup vgroup)
   {
-    View view = mInflater.inflate(R.layout.team_list_cursor_adapter, null);
+    View view = mInflater.inflate(R.layout.player_list_cursor_adapter, null);
     bindView(view, context, cursor);
     return view;
   }// newView

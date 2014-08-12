@@ -37,46 +37,46 @@ public class DatabaseHelper extends SQLiteOpenHelper
 	}
 
 	//Shared strings
-	private static final String COL_ID = "_id";
+	public static final String COL_ID = "_id";
 
 	// Table Names
-	private static final String TABLE_PLAYER = "playerTable";
-	private static final String TABLE_GAME = "gameTable";
-	private static final String TABLE_TEAM = "teamTable";
-	private static final String TABLE_STATS = "statsTable";
+	public static final String TABLE_PLAYER = "playerTable";
+	public static final String TABLE_GAME = "gameTable";
+	public static final String TABLE_TEAM = "teamTable";
+	public static final String TABLE_STATS = "statsTable";
 
 	// GAME Table - column names
-	private static final String COL_GAMEID = "g_id";
-	private static final String COL_HOME_TEAM = "homeTeamId";
-	private static final String COL_AWAY_TEAM = "awayTeamId";
-	private static final String COL_GAME_TIME = "gameTime";
-	private static final String COL_HOME_SCORE = "homeScore";
-	private static final String COL_AWAY_SCORE = "awayScore";
+	public static final String COL_GAMEID = "g_id";
+	public static final String COL_HOME_TEAM = "homeTeamId";
+	public static final String COL_AWAY_TEAM = "awayTeamId";
+	public static final String COL_GAME_TIME = "gameTime";
+	public static final String COL_HOME_SCORE = "homeScore";
+	public static final String COL_AWAY_SCORE = "awayScore";
 
 	// TEAM Table = column names
-	private static final String COL_TEAMID = "t_id";
-	private static final String COL_TEAM_NAME = "teamName";
+	public static final String COL_TEAMID = "t_id";
+	public static final String COL_TEAM_NAME = "teamName";
 
 	// STAT Table = column names
-	private static final String COL_STATID = "s_id";
-	private static final String COL_SHOTS = "shots";
-	private static final String COL_GOALS = "goals";
-	private static final String COL_ASSISTS = "assists";
-	private static final String COL_STEALS = "steals";
-	private static final String COL_TURNOVERS = "turnovers";
-	private static final String COL_SAVES = "saves";
-	private static final String COL_SNITCHES = "snitches";
-	private static final String COL_PLUSSES = "plusses";
-	private static final String COL_MINUSES = "minuses";
-	private static final String COL_TIME = "time";
-	private static final String COL_ONFIELD = "onField";
+	public static final String COL_STATID = "s_id";
+	public static final String COL_SHOTS = "shots";
+	public static final String COL_GOALS = "goals";
+	public static final String COL_ASSISTS = "assists";
+	public static final String COL_STEALS = "steals";
+	public static final String COL_TURNOVERS = "turnovers";
+	public static final String COL_SAVES = "saves";
+	public static final String COL_SNITCHES = "snitches";
+	public static final String COL_PLUSSES = "plusses";
+	public static final String COL_MINUSES = "minuses";
+	public static final String COL_TIME = "time";
+	public static final String COL_ONFIELD = "onField";
 
 	// PLAYER Table - column names
-	private static final String COL_PLAYERID = "p_id";
-	private static final String COL_NUMBER = "number";
-	private static final String COL_FNAME = "fname";
-	private static final String COL_LNAME = "lname";
-	private static final String COL_ACTIVE = "active";
+	public static final String COL_PLAYERID = "p_id";
+	public static final String COL_NUMBER = "number";
+	public static final String COL_FNAME = "fname";
+	public static final String COL_LNAME = "lname";
+	public static final String COL_ACTIVE = "active";
 
 	// Table Create Statements
 	// GAME table create statement
@@ -169,7 +169,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 	{
 		SQLiteDatabase db = this.getReadableDatabase();
 		String query = "SELECT " + COL_TEAM_NAME + " FROM " + TABLE_TEAM
-				+ " WHERE " + COL_TEAMID + " = ?";
+				+ " WHERE " + COL_ID + " = ?";
 		Cursor c = db.rawQuery(query, new String[]{ id });
 		TeamDb ret = new TeamDb();
 		if (c.moveToFirst())
@@ -231,7 +231,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 		SQLiteDatabase db = this.getWritableDatabase();
 
 		ContentValues values = new ContentValues();
-		values.put(COL_TEAMID, teamId);
+		values.put(COL_ID, teamId);
 		//Don't really need this
 		values.put(COL_TEAM_NAME, getTeamFromId(teamId).getName());
 		values.put(COL_PLAYERID, playerId);
@@ -248,24 +248,23 @@ public class DatabaseHelper extends SQLiteOpenHelper
 		String query;
 		if (activeFlag == 0)
 		{
-			//Need to select players based on the team table,
-			//not this. 
-			//Maybe write the query somewhere else
-			//SELECT * FROM TABLE_PLAYER WHERE PLAYER_ID
-			//This is a bit trick for tonight
-			//AXTELL HERE
-			//Fix the query to give me a roster
-			query = "SELECT * FROM " + TABLE_PLAYER + " WHERE "
-					+ COL_TEAMID + " = '" + teamId + "'";
+			//this might actually be working
+			query = "SELECT * FROM " + TABLE_TEAM + ", " + TABLE_PLAYER
+					+ " WHERE "
+					+ TABLE_TEAM + "." + COL_PLAYERID + " = "
+					+ TABLE_PLAYER + "." + COL_ID;
+			
 		}
-		else //active players only
+		else //active players only, not done
 		{
-			query = "SELECT * FROM " + TABLE_PLAYER + " WHERE "
-					+ COL_TEAMID + " = '" + teamId + "'"
-					+ " AND " + COL_ACTIVE + " = 1" ;
+			query = "SELECT * FROM " + TABLE_TEAM + ", " + TABLE_PLAYER
+					+ " WHERE "
+					+ TABLE_TEAM + "." + COL_PLAYERID + " = "
+					+ TABLE_PLAYER + "." + COL_ID
+					+ " AND " + TABLE_PLAYER + "." + COL_ACTIVE + " = 1";
 		}
 
-		Cursor c = db.rawQuery(query, null );
+		Cursor c = db.rawQuery(query, null);
 
 		if (c.moveToFirst())
 		{
