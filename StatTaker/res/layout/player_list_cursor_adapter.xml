@@ -8,28 +8,29 @@
         android:id="@+id/cursor_adapter_player_num"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:gravity=".1"
+
         android:textSize="15sp"/>
     
     <TextView
         android:id="@+id/cursor_adapter_player_fname"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:gravity=".5"
+
         android:textSize="15sp"/>
     
     <TextView
         android:id="@+id/cursor_adapter_player_lname"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:gravity=".5"
+
         android:textSize="15sp"/>
     
+    <!-- I think I want this to be a checkbox in the end -->
     <TextView
         android:id="@+id/cursor_adapter_player_active"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:gravity=".1"
+
         android:textSize="15sp"/>
 
 </LinearLayout>

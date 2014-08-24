@@ -3,6 +3,7 @@ package local.stattaker;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
 
 import local.stattaker.helper.DatabaseHelper;
 import local.stattaker.model.PlayerDb;
@@ -17,6 +18,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -39,6 +41,7 @@ public class EditTeam extends Activity
 	Button			addPlayerButton;
 
 	TeamDb			team;
+	String 			teamId;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
@@ -49,15 +52,14 @@ public class EditTeam extends Activity
 		context = this;
 		activity = this;
 		db = new DatabaseHelper(this);
-		String teamId = null;
+		teamId = null;
 		Bundle extras = getIntent().getExtras();
 		if (extras != null) // something was input
 		{
 			teamId = extras.getString("teamId");
-
 		}
 		else
-		// nothing found
+			// nothing found
 		{
 			Log.e(TAG, "no team selected");
 			this.finish();
@@ -66,18 +68,92 @@ public class EditTeam extends Activity
 
 		teamTitle = (TextView) findViewById(R.id.edit_team_title);
 		teamTitle.setText(team.getName());
-		
-		populatePlayerList(team.getId());
+
+		populatePlayerList();
+
+		//-------add new player button----------------
+		Button addPlayerButton = (Button) findViewById(R.id.edit_add_player_button);
+		addPlayerButton.setOnClickListener(new OnClickListener()
+		{
+			@Override
+			public void onClick(View v)
+			{
+				//Add existing player
+				//Create new player
+				AlertDialog.Builder newPlayerDialog = new AlertDialog.Builder(context);
+				newPlayerDialog.setTitle("Add Player");
+				newPlayerDialog.setPositiveButton("Add Existing Player", new DialogInterface.OnClickListener()
+				{
+					@Override
+					public void onClick(DialogInterface dialog, int which)
+					{
+						//Launch a list of existing players
+						//and then add anyone they want, should be easy enough
+						//SHOULD be easy enough...
+						//so, what do what do?
+						//launch a list of players, obviously
+						
+						
+					}
+				});
+				newPlayerDialog.setNeutralButton("Create New Player", new DialogInterface.OnClickListener()
+				{
+
+					@Override
+					public void onClick(DialogInterface dialog, int which)
+					{
+						//Launch an editor
+						View customLayout = View.inflate(context, R.layout.create_player_dialog_layout, null);
+						AlertDialog.Builder createNewPlayerDialog = new AlertDialog.Builder(context);
+						createNewPlayerDialog.setView(customLayout);
+						createNewPlayerDialog.setTitle("Create New Player");
+						
+						final EditText number = (EditText) customLayout.findViewById(R.id.edit_dialog_number);
+						final EditText fname = (EditText) customLayout.findViewById(R.id.edit_dialog_fname);
+						final EditText lname = (EditText) customLayout.findViewById(R.id.edit_dialog_lname);
+						
+						createNewPlayerDialog.setPositiveButton("Create", new DialogInterface.OnClickListener()
+						{
+
+							@Override
+							public void onClick(DialogInterface dialog, int which)
+							{
+								//add player to database AND team
+								String playerId = UUID.randomUUID().toString();
+								
+								db.addPlayer(playerId, number.getText().toString(), fname.getText().toString(),
+										lname.getText().toString(), 0);
+								db.addPlayerToTeam(playerId, teamId);
+								populatePlayerList();
+							}
+						});
+						createNewPlayerDialog.setNegativeButton("Cancel", new DialogInterface.OnClickListener()
+						{
+
+							@Override
+							public void onClick(DialogInterface dialog, int which)
+							{
+								dialog.dismiss();
+								
+							}
+						});
+						createNewPlayerDialog.show();
+					}
+				});
+				newPlayerDialog.show();
+			}
+
+		});
 
 	}
 
-	
-	public void populatePlayerList(String tN)
+
+	public void populatePlayerList()
 	{
 		currentPlayers = (ListView) findViewById(R.id.edit_player_list);
 		List<PlayerDb> playerList = new ArrayList<PlayerDb>();
 		playerList = db.getAllPlayersFromTeam(team.getId(), 0);
-		Collections.sort(playerList, new PlayerDb.OrderByActive());
+		Collections.sort(playerList, new PlayerDb.OrderByLastName());
 		ListAdapter listAdapter = new ArrayAdapter(this,
 				R.layout.custom_player_list, playerList);
 		currentPlayers.setAdapter(listAdapter);
@@ -125,42 +201,42 @@ public class EditTeam extends Activity
 
 		editRosterBuilder.setPositiveButton("Save",
 				new DialogInterface.OnClickListener()
+		{
+			@Override
+			public void onClick(DialogInterface dialog, int which)
+			{
+				PlayerDb updatedPlayer = new PlayerDb();
+				updatedPlayer.setNumber(number.getText().toString());
+				updatedPlayer.setFname(firstName.getText().toString());
+				updatedPlayer.setLname(lastName.getText().toString());
+				updatedPlayer.setPlayerId(currentPlayer.getPlayerId());
+				updatedPlayer.setTeamId(currentPlayer.getTeamId());
+				if (activeBox.isChecked())
 				{
-					@Override
-					public void onClick(DialogInterface dialog, int which)
-					{
-						PlayerDb updatedPlayer = new PlayerDb();
-						updatedPlayer.setNumber(number.getText().toString());
-						updatedPlayer.setFname(firstName.getText().toString());
-						updatedPlayer.setLname(lastName.getText().toString());
-						updatedPlayer.setPlayerId(currentPlayer.getPlayerId());
-						updatedPlayer.setTeamId(currentPlayer.getTeamId());
-						if (activeBox.isChecked())
-						{
-							updatedPlayer.setActive(1);
-						}
-						else
-						{
-							updatedPlayer.setActive(0);
-						}
+					updatedPlayer.setActive(1);
+				}
+				else
+				{
+					updatedPlayer.setActive(0);
+				}
 
-						db.updatePlayerInfo(updatedPlayer);
-						populatePlayerList(currentPlayer.getTeamId());
-					}
+				db.updatePlayerInfo(updatedPlayer);
+				populatePlayerList();
+			}
 
-				});
+		});
 
 		editRosterBuilder.setNegativeButton("Cancel",
 				new DialogInterface.OnClickListener()
-				{
+		{
 
-					@Override
-					public void onClick(DialogInterface dialog, int which)
-					{
-						// exit, so do nothing
-					}
+			@Override
+			public void onClick(DialogInterface dialog, int which)
+			{
+				// exit, so do nothing
+			}
 
-				});
+		});
 
 		return editRosterBuilder;
 	}
@@ -187,11 +263,11 @@ public class EditTeam extends Activity
 
 		addRosterBuilder.setPositiveButton("Save",
 				new DialogInterface.OnClickListener()
-				{
-					@Override
-					public void onClick(DialogInterface dialog, int which)
-					{
-						/*
+		{
+			@Override
+			public void onClick(DialogInterface dialog, int which)
+			{
+				/*
 						PlayerDb newPlayer = new PlayerDb();
 						newPlayer.setNumber(number.getText().toString());
 						newPlayer.setFname(firstName.getText().toString());
@@ -208,24 +284,25 @@ public class EditTeam extends Activity
 
 						db.addPlayer(newPlayer);
 						populatePlayerList(teamName);
-						*/
-					}
+				 */
+			}
 
-				});
+		});
 
 		addRosterBuilder.setNegativeButton("Cancel",
 				new DialogInterface.OnClickListener()
-				{
+		{
 
-					@Override
-					public void onClick(DialogInterface dialog, int which)
-					{
-						// exit, so do nothing
-					}
+			@Override
+			public void onClick(DialogInterface dialog, int which)
+			{
+				// exit, so do nothing
+			}
 
-				});
+		});
 
 		return addRosterBuilder;
 	}
+
 
 }

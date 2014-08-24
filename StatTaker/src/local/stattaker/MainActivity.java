@@ -1,11 +1,13 @@
 package local.stattaker;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
 import local.stattaker.helper.DatabaseHelper;
 import local.stattaker.model.PlayerDb;
+import local.stattaker.model.TeamDb;
 import local.stattaker.util.CursorAdapterTeamList;
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -25,6 +27,7 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -87,7 +90,7 @@ public class MainActivity extends Activity
 				alertBuilder.setTitle("Create New Team");
 				alertBuilder.setMessage("Enter Name of Team:");
 
-				// Set an EditText view to get user input 
+				// Set an EditText view to get user input
 				final EditText input = new EditText(context);
 				alertBuilder.setView(input);
 
@@ -161,8 +164,17 @@ public class MainActivity extends Activity
 	{      
 		currentTeams = (ListView) findViewById(R.id.teams_list);
 		Cursor c = db.getAllTeamsCursor();
-		final CursorAdapterTeamList adapter = new CursorAdapterTeamList(this, c, 0);
-		currentTeams.setAdapter(adapter);
+		
+		List<TeamDb> teamList = new ArrayList<TeamDb>();
+		teamList = db.getAllTeamsList();
+		Collections.sort(teamList, new TeamDb.OrderByTeamName());
+		ListAdapter listAdapter = new ArrayAdapter(this,
+				R.layout.custom_player_list, teamList);
+		currentTeams.setAdapter(listAdapter);
+		
+		
+		//final CursorAdapterTeamList adapter = new CursorAdapterTeamList(this, c, 0);
+		//currentTeams.setAdapter(adapter);
 		
 		currentTeams.setOnItemClickListener(new OnItemClickListener()
 		{

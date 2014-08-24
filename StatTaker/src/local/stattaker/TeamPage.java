@@ -22,7 +22,7 @@ public class TeamPage extends Activity {
 		//things I need to do
 		//1. Hook up the add player button
 		//2. Hook up the delete player button
-		//3. Populate the special list with a checkbox in it (that will probably require internet
+		//3. Populate the special list with a checkbox in it (that will probably require internet)
 
 		
 		

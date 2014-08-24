@@ -1,7 +1,9 @@
 package local.stattaker.helper;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import local.stattaker.model.PlayerDb;
@@ -20,7 +22,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 	private static final String TAG = "DatabaseHelper";
 
 	// Database Version
-	private static final int DATABASE_VERSION = 36;
+	private static final int DATABASE_VERSION = 38;
 
 	// Database Name
 	private static final String DATABASE_NAME = "quidditchGames";
@@ -117,7 +119,10 @@ public class DatabaseHelper extends SQLiteOpenHelper
 			+ "(" + COL_ID + " TEXT, "
 			+ COL_TEAM_NAME + " TEXT, "
 			+ COL_PLAYERID + " TEXT)";//each row is just an entry in a roster
-
+			//row looks like:
+			//"892-3011-df9a902", "University of Michigan, "582-2811-pa8f123"
+			//"892-3011-df9a902", "University of Michigan, "113-9301-jk8b553"
+			//...
 
 
 
@@ -152,17 +157,57 @@ public class DatabaseHelper extends SQLiteOpenHelper
 	{
 		SQLiteDatabase db = this.getReadableDatabase();
 
+		//this is a problem because I need to select DISTINCT
+		
 		String query = "SELECT * FROM " + TABLE_TEAM;
 		Cursor c = db.rawQuery(query, null);
-
 		if (c.moveToFirst())
 		{
+			db.close();
 			return c;
 		}
 		else
 		{
+			db.close();
 			return null;
 		}
+		
+		
+	}
+	
+	public List<TeamDb> getAllTeamsList()
+	{
+		SQLiteDatabase db = this.getReadableDatabase();
+		
+		String query = "SELECT * FROM " + TABLE_TEAM;
+		Cursor c = db.rawQuery(query, null);
+		
+		List<TeamDb> teamList = new ArrayList<TeamDb>();
+		Map<String, Integer> ids = new HashMap<String, Integer>();
+		
+		if (c.moveToFirst())
+		{
+			do
+			{
+				TeamDb t= new TeamDb(); //just a db row
+				t.setId(c.getString((c.getColumnIndex(COL_ID))));
+				t.setName(c.getString(c.getColumnIndex(COL_TEAM_NAME)));
+				
+				if (ids.size() != 0 && ids.get(t.getId()) == 1) //already been found
+				{
+					//don't do stuff
+				}
+				else
+				{
+					ids.put(t.getId(), 1);
+					teamList.add(t);
+				}
+			}
+			while (c.moveToNext());
+		}
+		db.close();
+		
+		return teamList;
 	}
 
 	public TeamDb getTeamFromId(String id)
@@ -206,7 +251,8 @@ public class DatabaseHelper extends SQLiteOpenHelper
 	//-----------------------------------------------------------
 
 	//FIXME Doesn't work yet
-	public void createNewPlayer(String teamId, String num, String fname, String lname)
+	//This shouldn't have a "teamId" value, i don't think
+	public void createNewPlayerOld(String teamId, String num, String fname, String lname)
 	{
 		//don't forget to link up a new stat table for the kid
 		//and add him to a team
@@ -226,20 +272,25 @@ public class DatabaseHelper extends SQLiteOpenHelper
 	}// createNewPlayer
 
 	//FIXME Doesn't work yet
+	//Should I have the team name as well here?
 	public void addPlayerToTeam(String playerId, String teamId)
 	{
+		TeamDb team = getTeamFromId(teamId);
+		
 		SQLiteDatabase db = this.getWritableDatabase();
-
+		
 		ContentValues values = new ContentValues();
 		values.put(COL_ID, teamId);
-		//Don't really need this
-		values.put(COL_TEAM_NAME, getTeamFromId(teamId).getName());
+		values.put(COL_TEAM_NAME, team.getName());
 		values.put(COL_PLAYERID, playerId);
+		
 		db.insert(TABLE_TEAM, null, values);
+		
+		db.close();
 
 	}// addPlayerToTeam
 
-	//FIXME Doesn't work yet
+	//works
 	public List<PlayerDb> getAllPlayersFromTeam(String teamId, int activeFlag)
 	{
 		SQLiteDatabase db = this.getReadableDatabase();
@@ -249,7 +300,13 @@ public class DatabaseHelper extends SQLiteOpenHelper
 		if (activeFlag == 0)
 		{
 			//this might actually be working
-			query = "SELECT * FROM " + TABLE_TEAM + ", " + TABLE_PLAYER
+			query = "SELECT "
+					+ TABLE_PLAYER + "." + COL_ID + ", "
+					+ TABLE_PLAYER + "." + COL_NUMBER + ", "
+					+ TABLE_PLAYER + "." + COL_FNAME + ", "
+					+ TABLE_PLAYER + "." + COL_LNAME + ", "
+					+ TABLE_PLAYER + "." + COL_ACTIVE
+					+ " FROM " + TABLE_TEAM + ", " + TABLE_PLAYER
 					+ " WHERE "
 					+ TABLE_TEAM + "." + COL_PLAYERID + " = "
 					+ TABLE_PLAYER + "." + COL_ID;
@@ -257,13 +314,18 @@ public class DatabaseHelper extends SQLiteOpenHelper
 		}
 		else //active players only, not done
 		{
-			query = "SELECT * FROM " + TABLE_TEAM + ", " + TABLE_PLAYER
+			query = "SELECT "
+					+ TABLE_PLAYER + "." + COL_ID + ", "
+					+ TABLE_PLAYER + "." + COL_NUMBER + ", "
+					+ TABLE_PLAYER + "." + COL_FNAME + ", "
+					+ TABLE_PLAYER + "." + COL_LNAME + ", "
+					+ TABLE_PLAYER + "." + COL_ACTIVE
+					+ " FROM " + TABLE_TEAM + ", " + TABLE_PLAYER
 					+ " WHERE "
 					+ TABLE_TEAM + "." + COL_PLAYERID + " = "
 					+ TABLE_PLAYER + "." + COL_ID
 					+ " AND " + TABLE_PLAYER + "." + COL_ACTIVE + " = 1";
 		}
-
 		Cursor c = db.rawQuery(query, null);
 
 		if (c.moveToFirst())
@@ -271,8 +333,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 			do
 			{
 				PlayerDb p = new PlayerDb(); //just a db row
-				p.setTeamId((c.getString(c.getColumnIndex(COL_TEAMID)))); //
-				p.setPlayerId(c.getString((c.getColumnIndex(COL_PLAYERID))));
+				p.setPlayerId(c.getString((c.getColumnIndex(COL_ID))));
 				p.setNumber(c.getString((c.getColumnIndex(COL_NUMBER))));
 				p.setFname(c.getString((c.getColumnIndex(COL_FNAME))));
 				p.setLname(c.getString((c.getColumnIndex(COL_LNAME))));
@@ -281,7 +342,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 			}
 			while (c.moveToNext());
 		}
-
+		db.close();
 		return playerList;
 
 	}// getAllPlayers
@@ -301,10 +362,30 @@ public class DatabaseHelper extends SQLiteOpenHelper
 		values.put(COL_ACTIVE, updatedPlayer.getActive());
 		
 		db.update(TABLE_PLAYER, values, COL_ID + " = ?", new String[] {playerId} );
+		
+		db.close();
 	}
 
+	public void addPlayer(String id, String number, String fname, String lname, int active)
+	{
+		SQLiteDatabase db = this.getWritableDatabase();
+		
+		ContentValues values = new ContentValues();
+		values.put(COL_ID, id);
+		values.put(COL_NUMBER, number);
+		values.put(COL_FNAME, fname);
+		values.put(COL_LNAME, lname);
+		values.put(COL_ACTIVE, 0);
+		
+		db.insert(TABLE_PLAYER, null, values);
+		
+		db.close();
+	}
 
-
+	public void getAllPlayers()
+	{
+		
+	}
 	/*
 	public long insertGameRow(GameDb g)
 	{
@@ -489,7 +570,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 	//R: nothing
 	//M: nothing
 	//E: returns the max game id, so I can add 1 to it and use that going forward
-	// TODO Update this function to use UUID
+
 	public int getMaxGameRow()
 	{
 		int retVal;

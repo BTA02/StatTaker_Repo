@@ -1,5 +1,7 @@
 package local.stattaker.model;
 
+import java.util.Comparator;
+
 public class TeamDb
 {
 	private String id;
@@ -32,6 +34,22 @@ public class TeamDb
 	public void setName(String name)
 	{
 		this.name = name;
+	}
+	
+	public static class OrderByTeamName implements Comparator<TeamDb>
+	{
+
+		@Override
+		public int compare(TeamDb lhs, TeamDb rhs) 
+		{
+			int res = String.CASE_INSENSITIVE_ORDER.compare(lhs.name, rhs.name);
+			if (res == 0) 
+			{
+				res = lhs.name.compareTo(rhs.name);
+			}
+			return res;
+		}
+
 	}
 	
 }
