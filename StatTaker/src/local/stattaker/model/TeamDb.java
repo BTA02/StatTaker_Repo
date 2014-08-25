@@ -52,4 +52,10 @@ public class TeamDb
 
 	}
 	
+	@Override
+	public String toString()
+	{
+		return this.name;
+	}
+	
 }

@@ -8,11 +8,13 @@ import java.util.UUID;
 import local.stattaker.helper.DatabaseHelper;
 import local.stattaker.model.PlayerDb;
 import local.stattaker.model.TeamDb;
+import local.stattaker.util.CursorAdapterPlayerList;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -26,6 +28,7 @@ import android.widget.EditText;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class EditTeam extends Activity
 {
@@ -88,17 +91,42 @@ public class EditTeam extends Activity
 					public void onClick(DialogInterface dialog, int which)
 					{
 						//Launch a list of existing players
-						//and then add anyone they want, should be easy enough
-						//SHOULD be easy enough...
-						//so, what do what do?
-						//launch a list of players, obviously
-						
-						
+						AlertDialog.Builder existingPlayerDialog = new AlertDialog.Builder(context);
+						existingPlayerDialog.setTitle("Exisiting Players");
+
+
+						Cursor c = db.getAllPlayersCursor();
+						//Collections.sort(playerList, new PlayerDb.OrderByLastName());
+						final CursorAdapterPlayerList listAdapter = new CursorAdapterPlayerList(context, c, 0);
+
+						existingPlayerDialog.setAdapter(listAdapter, new DialogInterface.OnClickListener()
+						{
+
+							@Override
+							public void onClick(DialogInterface dialog, int which)
+							{
+								// TODO Auto-generated method stub
+								//check if player is on the team, if NOT, then add them
+								Cursor c = (Cursor) listAdapter.getItem(which);
+								String id = c.getString(c.getColumnIndex(DatabaseHelper.COL_ID));
+								if (db.playerExistsOnTeam(id, team.getId()))
+								{
+									Toast toast = Toast.makeText(context, "Player is already on team", Toast.LENGTH_SHORT);
+									toast.show();
+								}
+								else
+								{
+									//PlayerDb pickedPlayer = (PlayerDb) listAdapter.getItem(which);
+									db.addPlayerToTeam(id, team.getId());
+									populatePlayerList();
+								}
+							}
+						});
+						existingPlayerDialog.show();
 					}
 				});
 				newPlayerDialog.setNeutralButton("Create New Player", new DialogInterface.OnClickListener()
 				{
-
 					@Override
 					public void onClick(DialogInterface dialog, int which)
 					{
@@ -107,11 +135,11 @@ public class EditTeam extends Activity
 						AlertDialog.Builder createNewPlayerDialog = new AlertDialog.Builder(context);
 						createNewPlayerDialog.setView(customLayout);
 						createNewPlayerDialog.setTitle("Create New Player");
-						
+
 						final EditText number = (EditText) customLayout.findViewById(R.id.edit_dialog_number);
 						final EditText fname = (EditText) customLayout.findViewById(R.id.edit_dialog_fname);
 						final EditText lname = (EditText) customLayout.findViewById(R.id.edit_dialog_lname);
-						
+
 						createNewPlayerDialog.setPositiveButton("Create", new DialogInterface.OnClickListener()
 						{
 
@@ -120,7 +148,7 @@ public class EditTeam extends Activity
 							{
 								//add player to database AND team
 								String playerId = UUID.randomUUID().toString();
-								
+
 								db.addPlayer(playerId, number.getText().toString(), fname.getText().toString(),
 										lname.getText().toString(), 0);
 								db.addPlayerToTeam(playerId, teamId);
@@ -134,7 +162,7 @@ public class EditTeam extends Activity
 							public void onClick(DialogInterface dialog, int which)
 							{
 								dialog.dismiss();
-								
+
 							}
 						});
 						createNewPlayerDialog.show();

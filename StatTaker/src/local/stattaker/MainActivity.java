@@ -183,8 +183,10 @@ public class MainActivity extends Activity
 			public void onItemClick(AdapterView<?> arg0, View arg1, int arg2,
 					long arg3)
 			{
-				Cursor c = (Cursor) currentTeams.getItemAtPosition(arg2);
-				String id = c.getString(c.getColumnIndex(DatabaseHelper.COL_ID));
+				//Cursor c = (Cursor) currentTeams.getItemAtPosition(arg2);
+				//String id = c.getString(c.getColumnIndex(DatabaseHelper.COL_ID));
+				TeamDb team = (TeamDb) currentTeams.getItemAtPosition(arg2);
+				String id = team.getId();
 				Intent i = new Intent(getApplicationContext(), EditTeam.class);
 				i.putExtra("teamId", id);
 				startActivity(i);

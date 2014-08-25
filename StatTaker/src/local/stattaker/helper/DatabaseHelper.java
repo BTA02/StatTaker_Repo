@@ -22,17 +22,17 @@ public class DatabaseHelper extends SQLiteOpenHelper
 	private static final String TAG = "DatabaseHelper";
 
 	// Database Version
-	private static final int DATABASE_VERSION = 38;
+	private static final int DATABASE_VERSION = 40;
 
 	// Database Name
 	private static final String DATABASE_NAME = "quidditchGames";
-	
+
 	public DatabaseHelper(Context context, String name, CursorFactory factory,
 			int version)
 	{
 		super(context, DATABASE_NAME, null, DATABASE_VERSION);
 	}
-	
+
 	public DatabaseHelper(Context context) 
 	{
 		super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -119,10 +119,10 @@ public class DatabaseHelper extends SQLiteOpenHelper
 			+ "(" + COL_ID + " TEXT, "
 			+ COL_TEAM_NAME + " TEXT, "
 			+ COL_PLAYERID + " TEXT)";//each row is just an entry in a roster
-			//row looks like:
-			//"892-3011-df9a902", "University of Michigan, "582-2811-pa8f123"
-			//"892-3011-df9a902", "University of Michigan, "113-9301-jk8b553"
-			//...
+	//row looks like:
+	//"892-3011-df9a902", "University of Michigan, "582-2811-pa8f123"
+	//"892-3011-df9a902", "University of Michigan, "113-9301-jk8b553"
+	//...
 
 
 
@@ -158,7 +158,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 		SQLiteDatabase db = this.getReadableDatabase();
 
 		//this is a problem because I need to select DISTINCT
-		
+
 		String query = "SELECT * FROM " + TABLE_TEAM;
 		Cursor c = db.rawQuery(query, null);
 		if (c.moveToFirst())
@@ -171,29 +171,29 @@ public class DatabaseHelper extends SQLiteOpenHelper
 			db.close();
 			return null;
 		}
-		
-		
+
+
 	}
-	
+
 	public List<TeamDb> getAllTeamsList()
 	{
 		SQLiteDatabase db = this.getReadableDatabase();
-		
+
 		String query = "SELECT * FROM " + TABLE_TEAM;
 		Cursor c = db.rawQuery(query, null);
-		
+
 		List<TeamDb> teamList = new ArrayList<TeamDb>();
 		Map<String, Integer> ids = new HashMap<String, Integer>();
-		
+
 		if (c.moveToFirst())
 		{
 			do
 			{
-				TeamDb t= new TeamDb(); //just a db row
+				TeamDb t = new TeamDb(); //just a db row
 				t.setId(c.getString((c.getColumnIndex(COL_ID))));
 				t.setName(c.getString(c.getColumnIndex(COL_TEAM_NAME)));
-				
-				if (ids.size() != 0 && ids.get(t.getId()) == 1) //already been found
+
+				if (ids.size() != 0 && ids.get(t.getId()) != null && ids.get(t.getId()) == 1) //already been found
 				{
 					//don't do stuff
 				}
@@ -206,7 +206,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 			while (c.moveToNext());
 		}
 		db.close();
-		
+
 		return teamList;
 	}
 
@@ -276,16 +276,16 @@ public class DatabaseHelper extends SQLiteOpenHelper
 	public void addPlayerToTeam(String playerId, String teamId)
 	{
 		TeamDb team = getTeamFromId(teamId);
-		
+
 		SQLiteDatabase db = this.getWritableDatabase();
-		
+
 		ContentValues values = new ContentValues();
 		values.put(COL_ID, teamId);
 		values.put(COL_TEAM_NAME, team.getName());
 		values.put(COL_PLAYERID, playerId);
-		
+
 		db.insert(TABLE_TEAM, null, values);
-		
+
 		db.close();
 
 	}// addPlayerToTeam
@@ -309,8 +309,10 @@ public class DatabaseHelper extends SQLiteOpenHelper
 					+ " FROM " + TABLE_TEAM + ", " + TABLE_PLAYER
 					+ " WHERE "
 					+ TABLE_TEAM + "." + COL_PLAYERID + " = "
-					+ TABLE_PLAYER + "." + COL_ID;
-			
+					+ TABLE_PLAYER + "." + COL_ID
+					+ " AND " + TABLE_TEAM + "." + COL_ID + " = '"
+					+ teamId + "'";
+
 		}
 		else //active players only, not done
 		{
@@ -324,7 +326,9 @@ public class DatabaseHelper extends SQLiteOpenHelper
 					+ " WHERE "
 					+ TABLE_TEAM + "." + COL_PLAYERID + " = "
 					+ TABLE_PLAYER + "." + COL_ID
-					+ " AND " + TABLE_PLAYER + "." + COL_ACTIVE + " = 1";
+					+ " AND " + TABLE_PLAYER + "." + COL_ACTIVE + " = 1"
+					+ " AND " + TABLE_TEAM + "." + COL_ID + " = '"
+					+ teamId + "'";
 		}
 		Cursor c = db.rawQuery(query, null);
 
@@ -345,47 +349,116 @@ public class DatabaseHelper extends SQLiteOpenHelper
 		db.close();
 		return playerList;
 
-	}// getAllPlayers
-	
+	}// getAllPlayersFromTeam
+
 	public void updatePlayerInfo(PlayerDb updatedPlayer)
 	{
 		SQLiteDatabase db =  this.getWritableDatabase();
-		
+
 		String playerId = updatedPlayer.getPlayerId();
-		
+
 		ContentValues values = new ContentValues();
 		values.put(COL_TEAMID, updatedPlayer.getTeamId());
-		
+
 		values.put(COL_FNAME, updatedPlayer.getFname());
 		values.put(COL_LNAME, updatedPlayer.getLname());
 		values.put(COL_NUMBER, updatedPlayer.getNumber());
 		values.put(COL_ACTIVE, updatedPlayer.getActive());
-		
+
 		db.update(TABLE_PLAYER, values, COL_ID + " = ?", new String[] {playerId} );
-		
+
 		db.close();
 	}
 
 	public void addPlayer(String id, String number, String fname, String lname, int active)
 	{
 		SQLiteDatabase db = this.getWritableDatabase();
-		
+
 		ContentValues values = new ContentValues();
 		values.put(COL_ID, id);
 		values.put(COL_NUMBER, number);
 		values.put(COL_FNAME, fname);
 		values.put(COL_LNAME, lname);
 		values.put(COL_ACTIVE, 0);
-		
+
 		db.insert(TABLE_PLAYER, null, values);
-		
+
 		db.close();
 	}
 
-	public void getAllPlayers()
+	public List<PlayerDb> getAllPlayersList()
 	{
-		
+		SQLiteDatabase db = this.getReadableDatabase();
+
+		List<PlayerDb> playerList = new ArrayList<PlayerDb>();
+		String query;
+
+		//this might actually be working
+		query = "SELECT * FROM " + TABLE_PLAYER;
+
+
+		Cursor c = db.rawQuery(query, null);
+
+		if (c.moveToFirst())
+		{
+			do
+			{
+				PlayerDb p = new PlayerDb(); //just a db row
+				p.setPlayerId(c.getString((c.getColumnIndex(COL_ID))));
+				p.setNumber(c.getString((c.getColumnIndex(COL_NUMBER))));
+				p.setFname(c.getString((c.getColumnIndex(COL_FNAME))));
+				p.setLname(c.getString((c.getColumnIndex(COL_LNAME))));
+				p.setActive(c.getInt((c.getColumnIndex(COL_ACTIVE))));
+				playerList.add(p);
+			}
+			while (c.moveToNext());
+		}
+		db.close();
+		return playerList;
 	}
+	
+	public Cursor getAllPlayersCursor()
+	{
+		SQLiteDatabase db = this.getReadableDatabase();
+
+		//this is a problem because I need to select DISTINCT
+
+		String query = "SELECT * FROM " + TABLE_PLAYER + " ORDER BY " + COL_LNAME + " ASC";
+		//String query = "SELECT * FROM " + TABLE_PLAYER;
+		Cursor c = db.rawQuery(query, null);
+		if (c.moveToFirst())
+		{
+			db.close();
+			return c;
+		}
+		else
+		{
+			db.close();
+			return null;
+		}
+
+
+	}
+	
+	public boolean playerExistsOnTeam(String playerId, String teamId)
+	{
+		SQLiteDatabase db = this.getReadableDatabase();
+		
+		String query = "SELECT 1 FROM " + TABLE_TEAM + ", " + TABLE_PLAYER
+					+ " WHERE "
+					+ TABLE_TEAM + "." + COL_PLAYERID + " = "
+					+ TABLE_PLAYER + "." + COL_ID
+					+ " AND " + TABLE_TEAM + "." + COL_ID + " = '"
+					+ teamId + "' AND " + TABLE_PLAYER + "." + COL_ID
+					+ " = '" + playerId + "'";
+		Cursor c = db.rawQuery(query, null);
+		if (c.moveToFirst())
+		{
+			return true;
+		}
+		return false;
+	}
+	
 	/*
 	public long insertGameRow(GameDb g)
 	{
