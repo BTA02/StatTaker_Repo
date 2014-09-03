@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import local.stattaker.model.GameDb;
 import local.stattaker.model.PlayerDb;
 import local.stattaker.model.TeamDb;
 import android.content.ContentValues;
@@ -244,10 +245,20 @@ public class DatabaseHelper extends SQLiteOpenHelper
 
 		db.close();
 	}// addTeam
+	
+	//I can update all references to this team to just have the name?
+	//I can also just store team name ONLY when doing stuff
+	//I'll have to think about this
+	public void deleteTeam(String teamId)
+	{
+		SQLiteDatabase db = this.getWritableDatabase();
+		db.delete(TABLE_TEAM, COL_ID + " = ?", new String[]{ teamId } );
+		db.close();
+	}
 
 	//-----------------------------------------------------------
 	//-----------------------------------------------------------
-	//----------------Players---------------------------------------
+	//----------------Players------------------------------------
 	//-----------------------------------------------------------
 
 	//FIXME Doesn't work yet
@@ -457,6 +468,24 @@ public class DatabaseHelper extends SQLiteOpenHelper
 			return true;
 		}
 		return false;
+	}
+	
+	//-----------------------------------------------------------
+	//-----------------------------------------------------------
+	//----------------Games--------------------------------------
+	//-----------------------------------------------------------
+	
+	public List<GameDb> getAllGamesForTeam(String teamId)
+	{
+		List<GameDb> ret = new ArrayList<GameDb>();
+		
+		SQLiteDatabase db = this.getReadableDatabase();
+		
+		String query = "SELECT * FROM " + TABLE_GAME...
+		
+		
+		return ret;
+		
 	}
 	
 	/*

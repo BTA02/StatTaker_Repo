@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.UUID;
 
 import local.stattaker.helper.DatabaseHelper;
+import local.stattaker.model.GameDb;
 import local.stattaker.model.PlayerDb;
 import local.stattaker.model.TeamDb;
 import local.stattaker.util.CursorAdapterTeamList;
@@ -19,6 +20,7 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -40,7 +42,7 @@ import com.parse.ParseQuery;
 public class MainActivity extends Activity
 {
 	private String TAG = "MainActivity";
-	
+
 	DatabaseHelper db;
 
 	List<String> teams;
@@ -55,7 +57,7 @@ public class MainActivity extends Activity
 
 	Context context = this;
 	Activity activity = this;
-	
+
 	protected AlertDialog newTeamDialog = null;
 
 	@Override
@@ -65,7 +67,7 @@ public class MainActivity extends Activity
 
 		setContentView(R.layout.activity_main);
 		db = new DatabaseHelper(this);
-		
+
 		if (isNetworkAvailable())
 		{
 			Parse.initialize(this, 
@@ -116,7 +118,7 @@ public class MainActivity extends Activity
 				newTeamDialog = alertBuilder.create();
 				newTeamDialog.show();
 			}
-			
+
 		});
 
 		populateTeamsList();
@@ -125,7 +127,7 @@ public class MainActivity extends Activity
 		{
 			//populateOnlineTeamList();
 		}
-		
+
 		onlineTeams = (ListView) findViewById(R.id.online_teams_list);
 		onlineTeams.setOnItemClickListener(new OnItemClickListener()
 		{
@@ -164,18 +166,120 @@ public class MainActivity extends Activity
 	{      
 		currentTeams = (ListView) findViewById(R.id.teams_list);
 		Cursor c = db.getAllTeamsCursor();
-		
+
 		List<TeamDb> teamList = new ArrayList<TeamDb>();
 		teamList = db.getAllTeamsList();
 		Collections.sort(teamList, new TeamDb.OrderByTeamName());
 		ListAdapter listAdapter = new ArrayAdapter(this,
 				R.layout.custom_player_list, teamList);
 		currentTeams.setAdapter(listAdapter);
-		
-		
+
+
 		//final CursorAdapterTeamList adapter = new CursorAdapterTeamList(this, c, 0);
 		//currentTeams.setAdapter(adapter);
-		
+		/*
+		 currentTeams.setOnItemClickListener(new OnItemClickListener()
+        {
+
+					@Override
+					public void onItemClick(AdapterView<?> arg0, View arg1, int arg2,
+							long arg3) 
+					{
+						//now this is what happens when you click
+						final String teamClicked = (String)((TextView) arg1).getText();
+						LayoutInflater dialogFactory = LayoutInflater.from(context);
+						final View newGameView = dialogFactory.inflate(
+				        R.layout.custom_new_game_alert, null);
+						AlertDialog.Builder alert = new AlertDialog.Builder(MainActivity.this);
+
+						alert.setView(newGameView);
+	  				alert.setTitle("Options");
+	  				alert.setMessage("Resume Old Game:");
+
+	  				final EditText oppo = (EditText) newGameView
+	  						.findViewById(R.id.new_game_opponent_name);
+
+	  				ListView oldGames = (ListView) newGameView
+	  						.findViewById(R.id.new_game_list);
+	  				List<GameDb> gameList = new ArrayList<GameDb>();
+
+
+	  		  	gameList = db.getAllGames(teamClicked);
+
+	  		  	ListAdapter listAdapter = new ArrayAdapter(context, R.layout.custom_player_list, gameList);
+	  		  	oldGames.setAdapter(listAdapter);
+
+	  				oldGames.setOnItemClickListener(new OnItemClickListener()
+	  				{
+
+							@Override
+							public void onItemClick(AdapterView<?> arg0, View arg1, int arg2,
+									long arg3) 
+							{
+								GameDb g = (GameDb) arg0.getItemAtPosition(arg2);
+								String t = (String)((TextView) arg1).getText();
+								Intent i = new Intent(getApplicationContext(), FragmentMain.class);
+	  						i.putExtra("teamName", teamClicked );
+	  						i.putExtra("gId", g.getGameId() );
+	  						i.putExtra("old", 1);
+	  	          startActivity(i);
+
+							}
+
+	  				});
+
+
+	  				alert.setPositiveButton("Create New Game", new DialogInterface.OnClickListener() 
+	  				{
+	  					public void onClick(DialogInterface dialog, int whichButton) 
+	  					{
+	  						int newGameId = db.getMaxGameRow() + 1;
+	  						List<PlayerDb> newList = db.getAllPlayers(teamClicked, 1);
+	  						Iterator<PlayerDb> it = newList.iterator();
+	  						while (it.hasNext())
+	  						{
+	  							String newOpponentString = oppo.getText().toString();
+	  							if (newOpponentString.matches(""))
+	  							{
+	  								newOpponentString = "name left blank";
+	  							}
+	  							GameDb g = new GameDb(newGameId, teamClicked, newOpponentString, 
+	  									it.next().getPlayerId());
+	  							db.insertGameRow(g);
+	  						}
+	  						Intent i = new Intent(getApplicationContext(), FragmentMain.class);
+	  						i.putExtra("teamName", teamClicked);
+	  						i.putExtra("gId", newGameId);
+	  	          startActivity(i);
+	  				  }
+	  				});
+	  				alert.setNegativeButton("Cancel", new DialogInterface.OnClickListener() 
+	  				{
+	  				  public void onClick(DialogInterface dialog, int whichButton) 
+	  				  {
+	  				  	//Cancel
+	  				  }
+	  				});
+	  				alert.setNeutralButton("Edit Team", new DialogInterface.OnClickListener()
+	  				{
+
+							@Override
+							public void onClick(DialogInterface dialog, int which) 
+							{
+								Intent i = new Intent(getApplicationContext(), EditTeam.class);
+								i.putExtra("teamName", teamClicked);
+								startActivity(i);
+							}
+
+	  				});
+	  				alert.show();
+					}
+
+        });
+
+
+    }
+		 */
 		currentTeams.setOnItemClickListener(new OnItemClickListener()
 		{
 
@@ -183,22 +287,42 @@ public class MainActivity extends Activity
 			public void onItemClick(AdapterView<?> arg0, View arg1, int arg2,
 					long arg3)
 			{
-				//Cursor c = (Cursor) currentTeams.getItemAtPosition(arg2);
-				//String id = c.getString(c.getColumnIndex(DatabaseHelper.COL_ID));
 				TeamDb team = (TeamDb) currentTeams.getItemAtPosition(arg2);
+				//create an options pop up to record new game or edit team or see old games
+				final String teamClicked = (String)((TextView) arg1).getText();
+				LayoutInflater dialogFactory = LayoutInflater.from(context);
+				final View newGameView = dialogFactory.inflate(R.layout.custom_new_game_alert, null);
+				AlertDialog.Builder alert = new AlertDialog.Builder(MainActivity.this);
+
+				alert.setView(newGameView);
+				alert.setTitle("Options");
+				alert.setMessage("Resume Old Game:");
+
+				final EditText oppo = (EditText) newGameView.findViewById(R.id.new_game_opponent_name);
+
+				ListView oldGames = (ListView) newGameView
+						.findViewById(R.id.new_game_list);
+				List<GameDb> gameList = new ArrayList<GameDb>();
+
+
+				gameList = db.getAllGamesForTeam(team.getId());
+
+
+
+				
 				String id = team.getId();
 				Intent i = new Intent(getApplicationContext(), EditTeam.class);
 				i.putExtra("teamId", id);
 				startActivity(i);
 			}
-		
+
 		});
-		
+
 	}
-	
+
 	public void populateOnlineTeamList()
 	{
-		
+
 		onlineTeams = (ListView) findViewById(R.id.online_teams_list);
 
 		List<ParseObject> objects = new ArrayList<ParseObject>();
