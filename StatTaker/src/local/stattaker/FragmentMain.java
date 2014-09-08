@@ -3,6 +3,7 @@ package local.stattaker;
 import java.util.Vector;
 
 import local.stattaker.helper.DatabaseHelper;
+import local.stattaker.model.GameDb;
 import local.stattaker.util.Action;
 import android.app.ActionBar;
 import android.app.ActionBar.Tab;
@@ -23,11 +24,10 @@ public class FragmentMain extends FragmentActivity implements TabListener
 	MyAdapter mAdapter;
 	ViewPager mPager;
 	ActionBar mActionBar;
-	String teamName;
-	String opponent;
-	int homeScore = 0;
-	int awayScore = 0;
-	int gId;
+	String homeTeamName;
+	String awayTeamName;
+	GameDb gInfo;
+	String gId;
 	boolean running;
 	int[] timeSubbedIn = new int[7];
 	int[] sinceRefresh = new int[7];
@@ -70,24 +70,22 @@ public class FragmentMain extends FragmentActivity implements TabListener
 		db = new DatabaseHelper(context);
 
 		Bundle b = getIntent().getExtras();
-		teamName = b.getString("teamName");
-		gId = b.getInt("gId");
+		gId = b.getString("gameId");
+		gInfo = db.getGameInfo(gId);
+		homeTeamName = gInfo.getHomeTeam();
+		awayTeamName = gInfo.getAwayTeam();
+		
 		running = false;
 	}
 
 	@Override
 	public void onSaveInstanceState(Bundle savedInstanceState) {
 		super.onSaveInstanceState(savedInstanceState);
-		savedInstanceState.putInt("homeScore", homeScore);
-		savedInstanceState.putInt("awayScore", awayScore);
 	}
 
 	@Override
 	public void onRestoreInstanceState(Bundle savedInstanceState) {
 		super.onRestoreInstanceState(savedInstanceState);
-		homeScore = savedInstanceState.getInt("homeScore");
-		awayScore = savedInstanceState.getInt("awayScore");
-		// where mMyCurrentPosition should be a public value in your activity.
 	}
 
 

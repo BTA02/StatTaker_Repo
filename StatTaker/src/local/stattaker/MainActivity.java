@@ -92,7 +92,6 @@ public class MainActivity extends Activity
 				alertBuilder.setTitle("Create New Team");
 				alertBuilder.setMessage("Enter Name of Team:");
 
-				// Set an EditText view to get user input
 				final EditText input = new EditText(context);
 				alertBuilder.setView(input);
 
@@ -162,6 +161,7 @@ public class MainActivity extends Activity
 	}
 
 	//still works, shows local teams, which is perfect
+	@SuppressWarnings("unchecked")
 	public void populateTeamsList() 
 	{      
 		currentTeams = (ListView) findViewById(R.id.teams_list);
@@ -170,116 +170,9 @@ public class MainActivity extends Activity
 		List<TeamDb> teamList = new ArrayList<TeamDb>();
 		teamList = db.getAllTeamsList();
 		Collections.sort(teamList, new TeamDb.OrderByTeamName());
-		ListAdapter listAdapter = new ArrayAdapter(this,
-				R.layout.custom_player_list, teamList);
+		ListAdapter listAdapter = new ArrayAdapter<TeamDb>
+							(this, R.layout.custom_player_list, teamList);
 		currentTeams.setAdapter(listAdapter);
-
-
-		//final CursorAdapterTeamList adapter = new CursorAdapterTeamList(this, c, 0);
-		//currentTeams.setAdapter(adapter);
-		/*
-		 currentTeams.setOnItemClickListener(new OnItemClickListener()
-        {
-
-					@Override
-					public void onItemClick(AdapterView<?> arg0, View arg1, int arg2,
-							long arg3) 
-					{
-						//now this is what happens when you click
-						final String teamClicked = (String)((TextView) arg1).getText();
-						LayoutInflater dialogFactory = LayoutInflater.from(context);
-						final View newGameView = dialogFactory.inflate(
-				        R.layout.custom_new_game_alert, null);
-						AlertDialog.Builder alert = new AlertDialog.Builder(MainActivity.this);
-
-						alert.setView(newGameView);
-	  				alert.setTitle("Options");
-	  				alert.setMessage("Resume Old Game:");
-
-	  				final EditText oppo = (EditText) newGameView
-	  						.findViewById(R.id.new_game_opponent_name);
-
-	  				ListView oldGames = (ListView) newGameView
-	  						.findViewById(R.id.new_game_list);
-	  				List<GameDb> gameList = new ArrayList<GameDb>();
-
-
-	  		  	gameList = db.getAllGames(teamClicked);
-
-	  		  	ListAdapter listAdapter = new ArrayAdapter(context, R.layout.custom_player_list, gameList);
-	  		  	oldGames.setAdapter(listAdapter);
-
-	  				oldGames.setOnItemClickListener(new OnItemClickListener()
-	  				{
-
-							@Override
-							public void onItemClick(AdapterView<?> arg0, View arg1, int arg2,
-									long arg3) 
-							{
-								GameDb g = (GameDb) arg0.getItemAtPosition(arg2);
-								String t = (String)((TextView) arg1).getText();
-								Intent i = new Intent(getApplicationContext(), FragmentMain.class);
-	  						i.putExtra("teamName", teamClicked );
-	  						i.putExtra("gId", g.getGameId() );
-	  						i.putExtra("old", 1);
-	  	          startActivity(i);
-
-							}
-
-	  				});
-
-
-	  				alert.setPositiveButton("Create New Game", new DialogInterface.OnClickListener() 
-	  				{
-	  					public void onClick(DialogInterface dialog, int whichButton) 
-	  					{
-	  						int newGameId = db.getMaxGameRow() + 1;
-	  						List<PlayerDb> newList = db.getAllPlayers(teamClicked, 1);
-	  						Iterator<PlayerDb> it = newList.iterator();
-	  						while (it.hasNext())
-	  						{
-	  							String newOpponentString = oppo.getText().toString();
-	  							if (newOpponentString.matches(""))
-	  							{
-	  								newOpponentString = "name left blank";
-	  							}
-	  							GameDb g = new GameDb(newGameId, teamClicked, newOpponentString, 
-	  									it.next().getPlayerId());
-	  							db.insertGameRow(g);
-	  						}
-	  						Intent i = new Intent(getApplicationContext(), FragmentMain.class);
-	  						i.putExtra("teamName", teamClicked);
-	  						i.putExtra("gId", newGameId);
-	  	          startActivity(i);
-	  				  }
-	  				});
-	  				alert.setNegativeButton("Cancel", new DialogInterface.OnClickListener() 
-	  				{
-	  				  public void onClick(DialogInterface dialog, int whichButton) 
-	  				  {
-	  				  	//Cancel
-	  				  }
-	  				});
-	  				alert.setNeutralButton("Edit Team", new DialogInterface.OnClickListener()
-	  				{
-
-							@Override
-							public void onClick(DialogInterface dialog, int which) 
-							{
-								Intent i = new Intent(getApplicationContext(), EditTeam.class);
-								i.putExtra("teamName", teamClicked);
-								startActivity(i);
-							}
-
-	  				});
-	  				alert.show();
-					}
-
-        });
-
-
-    }
-		 */
 		currentTeams.setOnItemClickListener(new OnItemClickListener()
 		{
 
@@ -287,33 +180,87 @@ public class MainActivity extends Activity
 			public void onItemClick(AdapterView<?> arg0, View arg1, int arg2,
 					long arg3)
 			{
-				TeamDb team = (TeamDb) currentTeams.getItemAtPosition(arg2);
+				final TeamDb team = (TeamDb) currentTeams.getItemAtPosition(arg2);
 				//create an options pop up to record new game or edit team or see old games
-				final String teamClicked = (String)((TextView) arg1).getText();
 				LayoutInflater dialogFactory = LayoutInflater.from(context);
 				final View newGameView = dialogFactory.inflate(R.layout.custom_new_game_alert, null);
 				AlertDialog.Builder alert = new AlertDialog.Builder(MainActivity.this);
+				alert.create();
 
 				alert.setView(newGameView);
 				alert.setTitle("Options");
 				alert.setMessage("Resume Old Game:");
-
-				final EditText oppo = (EditText) newGameView.findViewById(R.id.new_game_opponent_name);
-
-				ListView oldGames = (ListView) newGameView
-						.findViewById(R.id.new_game_list);
-				List<GameDb> gameList = new ArrayList<GameDb>();
-
-
-				gameList = db.getAllGamesForTeam(team.getId());
-
-
-
 				
-				String id = team.getId();
-				Intent i = new Intent(getApplicationContext(), EditTeam.class);
-				i.putExtra("teamId", id);
-				startActivity(i);
+				final EditText oppo = (EditText) newGameView.findViewById(R.id.new_game_opponent_name);
+				alert.setPositiveButton("Create New Game", new DialogInterface.OnClickListener()
+				{
+					@Override
+					public void onClick(DialogInterface dialog, int which)
+					{
+						//create a new game with "oppo" as the opponent name
+						String opponentName = oppo.getText().toString();
+						String mod = UUID.randomUUID().toString();
+						mod = mod.substring(0, 4);
+						if(opponentName.length() == 0)
+						{
+							opponentName = "Unnamed Opponent " + "(" + mod + ")";
+						}
+						String gId = db.createNewGame(team.getId(), opponentName);
+						//when creating a new game, I need to add everyone who is "active"
+						//to the "onField" stuff
+						Intent i = new Intent(getApplicationContext(), FragmentMain.class);
+						i.putExtra("gameId", gId);
+						startActivity(i);
+					}
+				});
+				
+				alert.setNeutralButton("Edit Team", new DialogInterface.OnClickListener()
+				{
+					
+					@Override
+					public void onClick(DialogInterface dialog, int which)
+					{
+						String id = team.getId();
+						Intent i = new Intent(getApplicationContext(), EditTeam.class);
+						i.putExtra("teamId", id);
+						startActivity(i);
+					}
+				});
+				
+				alert.setNegativeButton("Cancel", new DialogInterface.OnClickListener()
+				{
+					
+					@Override
+					public void onClick(DialogInterface dialog, int which)
+					{
+						//do nothing
+						dialog.dismiss();
+					}
+				});
+
+				ListView oldGames = (ListView) newGameView.findViewById(R.id.new_game_list);
+				List<GameDb> gameList = new ArrayList<GameDb>();
+				gameList = db.getAllGamesForTeam(team.getId());
+				final ListAdapter listAdapter = new ArrayAdapter(context, R.layout.custom_player_list, gameList);
+	  		  	oldGames.setAdapter(listAdapter);
+	  		  	oldGames.setOnItemClickListener(new OnItemClickListener()
+	  		  	{
+
+					@Override
+					public void onItemClick(AdapterView<?> parent, View view,
+							int position, long id)
+					{
+						GameDb gameClicked = (GameDb)listAdapter.getItem(position);
+						Intent i = new Intent(getApplicationContext(), FragmentMain.class);
+						i.putExtra("gameId", gameClicked.getId());
+						
+						startActivity(i);
+					}
+	  		  		
+	  		  	});
+				
+				alert.show();
+				
 			}
 
 		});

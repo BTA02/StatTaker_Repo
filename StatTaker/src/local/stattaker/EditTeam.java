@@ -21,6 +21,8 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -182,9 +184,21 @@ public class EditTeam extends Activity
 		List<PlayerDb> playerList = new ArrayList<PlayerDb>();
 		playerList = db.getAllPlayersFromTeam(team.getId(), 0);
 		Collections.sort(playerList, new PlayerDb.OrderByLastName());
-		ListAdapter listAdapter = new ArrayAdapter(this,
-				R.layout.custom_player_list, playerList);
+		final ListAdapter listAdapter = new ArrayAdapter<PlayerDb>
+				(this, R.layout.custom_player_list, playerList);
 		currentPlayers.setAdapter(listAdapter);
+		
+		currentPlayers.setOnItemClickListener(new OnItemClickListener()
+		{
+
+			@Override
+			public void onItemClick(AdapterView<?> parent, View view,
+					int position, long id)
+			{
+				editDialog((PlayerDb) listAdapter.getItem(position)).show();
+			}
+			
+		});
 	}
 
 	@Override
@@ -238,7 +252,6 @@ public class EditTeam extends Activity
 				updatedPlayer.setFname(firstName.getText().toString());
 				updatedPlayer.setLname(lastName.getText().toString());
 				updatedPlayer.setPlayerId(currentPlayer.getPlayerId());
-				updatedPlayer.setTeamId(currentPlayer.getTeamId());
 				if (activeBox.isChecked())
 				{
 					updatedPlayer.setActive(1);

@@ -31,8 +31,9 @@ public class FragmentStats extends Fragment
   public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) 
   {
+		
 		rootView = inflater.inflate(R.layout.fragment_stats, container, false);
-		updateStats();
+		//updateStats();
 		
 		Button refresh = (Button) rootView.findViewById(R.id.stats_refresh_button);
 		refresh.setOnClickListener(new OnClickListener()
@@ -50,12 +51,13 @@ public class FragmentStats extends Fragment
 					db.updateStat(fm.gId, pp.get(i).getPlayerId(), "time", tt);
 					*/
 				}
-				updateStats();
+				//updateStats();
 			}
 			
 		});
 		
 		return rootView;
+		
   }
 	
 	@Override
