@@ -70,13 +70,12 @@ public class FragmentStats extends Fragment
 	public void updateStats()
 	{
 		fm = (FragmentMain) getActivity();
-		//db = db.getHelper(fm.getApplicationContext());
+		db = fm.db;
 		table = (TableLayout) rootView.findViewById(R.id.stats);
 		int size = table.getChildCount();
 		table.removeViews(1, size-1);
 		
-		//Cursor c = db.getGameStats(fm.gId);
-		Cursor c = null;
+		Cursor c = db.getGameStats(fm.gId);
 		int i = 0;
 		if (c.moveToFirst())
 		{
@@ -84,19 +83,18 @@ public class FragmentStats extends Fragment
 			{
 				i++;
 				//fill in the table here.
-				String number = c.getString(2);
-				String lname = c.getString(4);
-				int shots = c.getInt(10);
-				int goals = c.getInt(11);
-				int assists = c.getInt(12);
-				int steals = c.getInt(13);
-				int turnovers = c.getInt(14);
-				int saves = c.getInt(15);
-				int snitches = c.getInt(16);
-				int plus = c.getInt(17);
-				int minus = c.getInt(18);
-				int time = c.getInt(20);
-
+				String number = c.getString(c.getColumnIndex(DatabaseHelper.COL_NUMBER));
+				String lname = c.getString(c.getColumnIndex(DatabaseHelper.COL_LNAME));
+				int shots = c.getInt(c.getColumnIndex(DatabaseHelper.COL_SHOTS));
+				int goals = c.getInt(c.getColumnIndex(DatabaseHelper.COL_GOALS));
+				int assists = c.getInt(c.getColumnIndex(DatabaseHelper.COL_ASSISTS));
+				int steals = c.getInt(c.getColumnIndex(DatabaseHelper.COL_STEALS));
+				int turnovers = c.getInt(c.getColumnIndex(DatabaseHelper.COL_TURNOVERS));
+				int saves = c.getInt(c.getColumnIndex(DatabaseHelper.COL_SAVES));
+				int snitches = c.getInt(c.getColumnIndex(DatabaseHelper.COL_SNITCHES));
+				int plus = c.getInt(c.getColumnIndex(DatabaseHelper.COL_PLUSSES));
+				int minus = c.getInt(c.getColumnIndex(DatabaseHelper.COL_MINUSES));
+				int time = c.getInt(c.getColumnIndex(DatabaseHelper.COL_TOTAL_TIME));
 				
 				//Now I have data, load it
 				TableRow row = new TableRow(getActivity());
@@ -114,7 +112,8 @@ public class FragmentStats extends Fragment
 				TextView t10 = new TextView(getActivity());
 				TextView t11 = new TextView(getActivity());
 				
-				int totalSeconds = time;
+				//int totalSeconds = time;
+				int totalSeconds = 0;
 				int minutes = totalSeconds/60;
 				int seconds = totalSeconds%60;
 				final String timeStr = minutes + ":" + seconds;

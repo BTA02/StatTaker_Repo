@@ -23,7 +23,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 	private static final String TAG = "DatabaseHelper";
 
 	// Database Version
-	private static final int DATABASE_VERSION = 42;
+	private static final int DATABASE_VERSION = 44;
 
 	// Database Name
 	private static final String DATABASE_NAME = "quidditchGames";
@@ -73,6 +73,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 	public static final String COL_PLUSSES = "plusses";
 	public static final String COL_MINUSES = "minuses";
 	public static final String COL_TIMEID = "time";
+	public static final String COL_TOTAL_TIME = "totalTime";
 	public static final String COL_ONFIELD = "onField";
 
 	//TIME Tables = column names
@@ -109,7 +110,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 	private static final String CREATE_TABLE_STAT = "CREATE TABLE " + TABLE_STATS
 			+ "(" + COL_ID + " TEXT, "
 			+ COL_GAMEID + " TEXT, " //against who
-			+ COL_PLAYERID + "TEXT, " //who this table is about
+			+ COL_PLAYERID + " TEXT, " //who this table is about
 			+ COL_SHOTS + " INTEGER," 
 			+ COL_GOALS + " INTEGER," 
 			+ COL_ASSISTS + " INTEGER," 
@@ -120,6 +121,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 			+ COL_PLUSSES + " INTEGER," 
 			+ COL_MINUSES + " INTEGER, " 
 			+ COL_TIMEID + " INTEGER, "
+			+ COL_TOTAL_TIME + " INTEGER, "
 			+ COL_ONFIELD + " INTEGER)";
 
 	private static final String CREATE_TABLE_TIME = "CREATE TABLE " + TABLE_TIME
@@ -266,7 +268,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 		db.delete(TABLE_TEAM, COL_ID + " = ?", new String[]{ teamId } );
 		db.close();
 	}
-
+	
 	public List<PlayerDb> getActivePlayers(String teamId)
 	{
 		SQLiteDatabase db = this.getReadableDatabase();
@@ -277,17 +279,16 @@ public class DatabaseHelper extends SQLiteOpenHelper
 				+ TABLE_PLAYER + "." + COL_NUMBER + ", "
 				+ TABLE_PLAYER + "." + COL_FNAME + ", "
 				+ TABLE_PLAYER + "." + COL_LNAME + ", "
-				+ TABLE_PLAYER + "." + COL_ACTIVE
+				+ TABLE_PLAYER + "." + COL_ACTIVE + ", "
+				+ TABLE_TEAM + "." + COL_PLAYERID
 				+ " FROM " + TABLE_PLAYER + ", " + TABLE_TEAM
 				+ " WHERE " 
-				+ TABLE_TEAM + "." + COL_ID + " = ?";
-		/*
+				+ TABLE_TEAM + "." + COL_ID + " = '" + teamId + "'"
 				+ " AND "
-				+ TABLE_PLAYER + "." + COL_ID + " = ?";
-		 */
+				+ TABLE_TEAM + "." + COL_PLAYERID + " = " + TABLE_PLAYER + "." + COL_ID;
 
-		//Cursor c = db.rawQuery(query, new String[] {teamId, TABLE_TEAM + "." + COL_PLAYERID} );
-		Cursor c = db.rawQuery(query, new String[] {teamId});
+		Cursor c = db.rawQuery(query, null);
+		//Cursor c = db.rawQuery(query, new String[] {teamId});
 		if (c.moveToFirst())
 		{
 			do
@@ -302,7 +303,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 				{
 					ret.add(p);
 				}
-				broken
+				
 			}
 			while (c.moveToNext());
 		}
@@ -316,29 +317,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 	//----------------Players------------------------------------
 	//-----------------------------------------------------------
 
-	//FIXME Doesn't work yet
-	//This shouldn't have a "teamId" value, i don't think
-	public void createNewPlayerOld(String teamId, String num, String fname, String lname)
-	{
-		//don't forget to link up a new stat table for the kid
-		//and add him to a team
-		SQLiteDatabase db = this.getWritableDatabase();
-
-		ContentValues values = new ContentValues();
-		values.put(COL_ID, UUID.randomUUID().toString());
-		values.put(COL_FNAME, fname);
-		values.put(COL_LNAME, lname);
-		values.put(COL_NUMBER, num);
-		values.put(COL_TEAMID, teamId);
-		//statId may not be what i want in the end, but it'll work for now
-		values.put(COL_STATID, UUID.randomUUID().toString());
-		db.insert(TABLE_PLAYER, null, values);
-
-		db.close();
-	}// createNewPlayer
-
-	//FIXME Doesn't work yet
-	//Should I have the team name as well here?
+	//Works
 	public void addPlayerToTeam(String playerId, String teamId)
 	{
 		TeamDb team = getTeamFromId(teamId);
@@ -549,14 +528,18 @@ public class DatabaseHelper extends SQLiteOpenHelper
 		db.close();
 
 		//now create the necessary stats tables for each "active" player
-		SQLiteDatabase db1 = this.getWritableDatabase();
-		ContentValues values1 = new ContentValues();
+		
 
 		List<PlayerDb> activePlayers = getActivePlayers(teamId);
+		
+		SQLiteDatabase db1 = this.getWritableDatabase();
+		ContentValues values1 = new ContentValues();
+		long qq;
+		
 		for (int i = 0; i < activePlayers.size(); i++)
 		{
 			values1.put(COL_ID, UUID.randomUUID().toString());
-			values.put(COL_GAMEID, gId);
+			values1.put(COL_GAMEID, gId);
 			values1.put(COL_PLAYERID, activePlayers.get(i).getPlayerId());
 			values1.put(COL_SHOTS, 0);
 			values1.put(COL_GOALS, 0);
@@ -576,7 +559,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 			{
 				values1.put(COL_ONFIELD, 0);
 			}
-			db1.insert(TABLE_STATS, null, values1);
+			qq = db1.insert(TABLE_STATS, null, values1);
 		}
 
 
@@ -645,12 +628,6 @@ public class DatabaseHelper extends SQLiteOpenHelper
 		List<PlayerDb> playerList = new ArrayList<PlayerDb>();
 		SQLiteDatabase db = this.getReadableDatabase();
 
-		//a player cna't have a stat table... right?
-		//what makes sense then?
-		//stats have players, players dont have stats
-		//that is weird, but it MUST be this way
-		//stat row would be
-
 		String query = "SELECT "
 				+ TABLE_PLAYER + "." + COL_ID + ", "
 				+ TABLE_PLAYER + "." + COL_NUMBER + ", "
@@ -660,22 +637,18 @@ public class DatabaseHelper extends SQLiteOpenHelper
 				+ TABLE_STATS + "." + COL_ONFIELD
 				+ " FROM " + TABLE_PLAYER + ", " + TABLE_STATS
 				+ " WHERE " 
-				+ TABLE_STATS + "." + COL_GAMEID + " = ?"
+				+ TABLE_STATS + "." + COL_GAMEID + " = '" + gameId + "'" 
 				+ " AND "
-				+ TABLE_PLAYER + "." + COL_ID + " = ?";
-		//+ TABLE_PLAYER + "." + COL_ID + " = " + TABLE_STATS + "." + COL_PLAYERID;
+				+ TABLE_PLAYER + "." + COL_ID + " = " + TABLE_STATS + "." + COL_PLAYERID;
 
-
-
-		Cursor c = db.rawQuery(query, new String[] {gameId, TABLE_STATS + "." + COL_PLAYERID} );
-
+		Cursor c = db.rawQuery(query, null);
 		if (c.moveToFirst())
 		{
 			do
 			{
 
 				PlayerDb p = new PlayerDb(); //just a db row
-				p.setPlayerId(c.getString((c.getColumnIndex(COL_PLAYERID))));
+				p.setPlayerId(c.getString((c.getColumnIndex(COL_ID))));
 				p.setNumber(c.getString((c.getColumnIndex(COL_NUMBER))));
 				p.setFname(c.getString((c.getColumnIndex(COL_FNAME))));
 				p.setLname(c.getString((c.getColumnIndex(COL_LNAME))));
@@ -781,25 +754,9 @@ public class DatabaseHelper extends SQLiteOpenHelper
 		return 1;
 	}
 
-	public int getTime(String gId)
-	{
-		SQLiteDatabase db = this.getReadableDatabase();
-		String query = "SELECT " + COL_GAME_TIME + " FROM " + TABLE_GAME
-				+ " WHERE " + COL_ID + " = ?";
-		Cursor c = db.rawQuery(query, new String[] {gId} );
-
-		if (c.moveToFirst())
-		{
-			db.close();
-			return c.getInt(c.getColumnIndex(COL_GAME_TIME));
-		}
-		db.close();
-		return 0;
-	}
-
 	public void updateTime(String gId, int valToAdd)
 	{
-		int curTime = getTime(gId);
+		int curTime = getGameTime(gId);
 		SQLiteDatabase db = this.getWritableDatabase();
 
 		ContentValues values = new ContentValues();
@@ -842,6 +799,34 @@ public class DatabaseHelper extends SQLiteOpenHelper
 		db.update(TABLE_STATS, values, COL_GAMEID + " = ? AND " + COL_PLAYERID + " = ?", 
 				new String[] {gameId, playerId} );
 		db.close();
+	}
+	
+	public Cursor getGameStats(String gameId)
+	{
+		SQLiteDatabase db = this.getReadableDatabase();
+		
+		String query = "SELECT "
+				+ TABLE_PLAYER + "." + COL_LNAME
+				+ TABLE_PLAYER + "." + COL_LNAME
+				+ TABLE_STATS + "." + COL_SHOTS
+				+ TABLE_STATS + "." + COL_GOALS
+				+ TABLE_STATS + "." + COL_ASSISTS
+				+ TABLE_STATS + "." + COL_TURNOVERS
+				+ TABLE_STATS + "." + COL_SAVES
+				+ TABLE_STATS + "." + COL_SNITCHES
+				+ TABLE_STATS + "." + COL_PLUSSES
+				+ TABLE_STATS + "." + COL_MINUSES
+				+ TABLE_STATS + "." + COL_TOTAL_TIME
+				+ TABLE_TIME + "." + COL_TIME_IN
+				+ TABLE_TIME + "." + COL_TIME_OUT
+				+ " FROM " + TABLE_STATS
+				+ " WHERE "
+				+ TABLE_STATS + "." + COL_GAMEID + " = '" + gameId + "'";
+		
+		Cursor c = db.rawQuery(query, null);
+
+		db.close();
+		return c;
 	}
 
 
