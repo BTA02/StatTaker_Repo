@@ -9,7 +9,6 @@ public class PlayerDb //row in the player table
 	String number;
 	String fname;
 	String lname;
-	int active; //0 is not active, obviously
 
 
 	// Empty constructor
@@ -25,17 +24,6 @@ public class PlayerDb //row in the player table
 		this.number = n;
 		this.fname = f;
 		this.lname = l;
-		this.active = a;
-
-	}
-
-	public static class OrderByActive implements Comparator<PlayerDb>
-	{
-		@Override
-		public int compare(PlayerDb lhs, PlayerDb rhs) 
-		{
-			return lhs.active < rhs.active ? 1 : (lhs.active > rhs.active ? -1 : 0);
-		}
 
 	}
 
@@ -92,12 +80,6 @@ public class PlayerDb //row in the player table
 		return this.lname;
 	}
 
-
-	public int getActive()
-	{
-		return this.active;
-	}
-
 	//sets
 	public void setPlayerId(String i)
 	{
@@ -119,24 +101,10 @@ public class PlayerDb //row in the player table
 		this.lname = str;
 	}
 
-	public void setActive(int i)
-	{
-		this.active = i;
-	}
-
 	@Override
 	public String toString()
 	{
-		String activeOrNot;
-		if (this.active == 0)
-		{
-			activeOrNot = "Not Active";
-		}
-		else
-		{
-			activeOrNot = "Active";
-		}
-		return this.number + "\t\t" + this.fname + "\t\t" + this.lname + "\t\t\t" + activeOrNot;
+		return this.number + "\t\t" + this.fname + "\t\t" + this.lname + "\t\t\t";
 	}
 
 }

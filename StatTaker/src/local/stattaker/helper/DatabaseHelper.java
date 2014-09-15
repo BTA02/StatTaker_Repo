@@ -23,7 +23,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 	private static final String TAG = "DatabaseHelper";
 
 	// Database Version
-	private static final int DATABASE_VERSION = 44;
+	private static final int DATABASE_VERSION = 47;
 
 	// Database Name
 	private static final String DATABASE_NAME = "quidditchGames";
@@ -104,8 +104,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 			+ "(" + COL_ID + " TEXT, " 
 			+ COL_NUMBER + " TEXT, " 
 			+ COL_FNAME + " TEXT, " 
-			+ COL_LNAME + " TEXT, " 
-			+ COL_ACTIVE + " INTEGER)";
+			+ COL_LNAME + " TEXT)";
 
 	private static final String CREATE_TABLE_STAT = "CREATE TABLE " + TABLE_STATS
 			+ "(" + COL_ID + " TEXT, "
@@ -132,10 +131,11 @@ public class DatabaseHelper extends SQLiteOpenHelper
 	private static final String CREATE_TABLE_TEAM = "CREATE TABLE " + TABLE_TEAM
 			+ "(" + COL_ID + " TEXT, "
 			+ COL_TEAM_NAME + " TEXT, "
-			+ COL_PLAYERID + " TEXT)";//each row is just an entry in a roster
+			+ COL_PLAYERID + " TEXT, "
+			+ COL_ACTIVE + ")";//each row is just an entry in a roster
 	//row looks like:
-	//"892-3011-df9a902", "University of Michigan, "582-2811-pa8f123"
-	//"892-3011-df9a902", "University of Michigan, "113-9301-jk8b553"
+	//"892-3011-df9a902", "University of Michigan, "582-2811-pa8f123", 1 (active)
+	//"892-3011-df9a902", "University of Michigan, "113-9301-jk8b553", 0 (not active)
 	//...
 
 
@@ -294,15 +294,10 @@ public class DatabaseHelper extends SQLiteOpenHelper
 			do
 			{
 				PlayerDb p = new PlayerDb();
-				p.setActive(c.getInt(c.getColumnIndex(COL_ACTIVE)));
 				p.setFname(c.getString(c.getColumnIndex(COL_FNAME)));
 				p.setLname(c.getString(c.getColumnIndex(COL_LNAME)));
 				p.setNumber(c.getString(c.getColumnIndex(COL_NUMBER)));
 				p.setPlayerId(c.getString(c.getColumnIndex(COL_ID)));
-				if (p.getActive() == 1)
-				{
-					ret.add(p);
-				}
 				
 			}
 			while (c.moveToNext());
@@ -310,6 +305,38 @@ public class DatabaseHelper extends SQLiteOpenHelper
 
 
 		return ret;
+	}
+	
+	public boolean isPlayerActiveOnTeam(String teamId, String playerId)
+	{
+		SQLiteDatabase db = this.getReadableDatabase();
+		
+		String query = "SELECT * FROM " + TABLE_TEAM
+				+ " WHERE "
+				+ COL_ID + " = '" + teamId + "'"
+				+ " AND "
+				+ COL_PLAYERID + " = '" + playerId + "'";
+		Cursor c = db.rawQuery(query, null);
+		if (c.moveToFirst())
+		{
+			if (c.getInt(c.getColumnIndex(COL_ACTIVE)) == 1)
+			{
+				db.close();
+				return true;
+			}
+		}
+		db.close();
+		return false;
+	}
+	
+	public void updateActiveInfo(String teamId, String playerId, int newVal)
+	{
+		SQLiteDatabase db = this.getWritableDatabase();
+		
+		ContentValues values = new ContentValues();
+		values.put(COL_ACTIVE, newVal);
+		
+		db.update(TABLE_TEAM, values, COL_ID + " = ? AND " + COL_PLAYERID + " = ?", new String[] {teamId, playerId} );
 	}
 
 	//-----------------------------------------------------------
@@ -386,7 +413,6 @@ public class DatabaseHelper extends SQLiteOpenHelper
 				p.setNumber(c.getString((c.getColumnIndex(COL_NUMBER))));
 				p.setFname(c.getString((c.getColumnIndex(COL_FNAME))));
 				p.setLname(c.getString((c.getColumnIndex(COL_LNAME))));
-				p.setActive(c.getInt((c.getColumnIndex(COL_ACTIVE))));
 				playerList.add(p);
 			}
 			while (c.moveToNext());
@@ -407,7 +433,6 @@ public class DatabaseHelper extends SQLiteOpenHelper
 		values.put(COL_FNAME, updatedPlayer.getFname());
 		values.put(COL_LNAME, updatedPlayer.getLname());
 		values.put(COL_NUMBER, updatedPlayer.getNumber());
-		values.put(COL_ACTIVE, updatedPlayer.getActive());
 
 		db.update(TABLE_PLAYER, values, COL_ID + " = ?", new String[] {playerId} );
 
@@ -452,7 +477,6 @@ public class DatabaseHelper extends SQLiteOpenHelper
 				p.setNumber(c.getString((c.getColumnIndex(COL_NUMBER))));
 				p.setFname(c.getString((c.getColumnIndex(COL_FNAME))));
 				p.setLname(c.getString((c.getColumnIndex(COL_LNAME))));
-				p.setActive(c.getInt((c.getColumnIndex(COL_ACTIVE))));
 				playerList.add(p);
 			}
 			while (c.moveToNext());
@@ -652,7 +676,6 @@ public class DatabaseHelper extends SQLiteOpenHelper
 				p.setNumber(c.getString((c.getColumnIndex(COL_NUMBER))));
 				p.setFname(c.getString((c.getColumnIndex(COL_FNAME))));
 				p.setLname(c.getString((c.getColumnIndex(COL_LNAME))));
-				p.setActive(c.getInt((c.getColumnIndex(COL_ACTIVE))));
 				if (c.getInt(c.getColumnIndex(COL_ONFIELD)) != 0)
 				{
 					playerList.add(p);
@@ -702,7 +725,6 @@ public class DatabaseHelper extends SQLiteOpenHelper
 				p.setNumber(c.getString((c.getColumnIndex(COL_NUMBER))));
 				p.setFname(c.getString((c.getColumnIndex(COL_FNAME))));
 				p.setLname(c.getString((c.getColumnIndex(COL_LNAME))));
-				p.setActive(c.getInt((c.getColumnIndex(COL_ACTIVE))));
 				if (c.getInt(c.getColumnIndex(COL_ONFIELD)) == 0)
 				{
 					playerList.add(p);

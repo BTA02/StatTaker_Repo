@@ -232,7 +232,7 @@ public class EditTeam extends Activity
 		number.setText(currentPlayer.getNumber());
 		firstName.setText(currentPlayer.getFname());
 		lastName.setText(currentPlayer.getLname());
-		if (currentPlayer.getActive() == 1)
+		if (db.isPlayerActiveOnTeam(teamId, currentPlayer.getPlayerId()))
 		{
 			activeBox.setChecked(true);
 		}
@@ -254,11 +254,11 @@ public class EditTeam extends Activity
 				updatedPlayer.setPlayerId(currentPlayer.getPlayerId());
 				if (activeBox.isChecked())
 				{
-					updatedPlayer.setActive(1);
+					db.updateActiveInfo(teamId, updatedPlayer.getPlayerId(), 1);
 				}
 				else
 				{
-					updatedPlayer.setActive(0);
+					db.updateActiveInfo(teamId, updatedPlayer.getPlayerId(), 1);
 				}
 
 				db.updatePlayerInfo(updatedPlayer);

@@ -6,6 +6,7 @@ public class TeamDb
 {
 	private String id;
 	private String name;
+	private boolean active;
 	
 	public TeamDb()
 	{
@@ -56,6 +57,16 @@ public class TeamDb
 	public String toString()
 	{
 		return this.name;
+	}
+
+	public boolean isActive()
+	{
+		return active;
+	}
+
+	public void setActive(boolean active)
+	{
+		this.active = active;
 	}
 	
 }
