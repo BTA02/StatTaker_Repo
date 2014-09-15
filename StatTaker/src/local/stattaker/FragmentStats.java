@@ -112,11 +112,15 @@ public class FragmentStats extends Fragment
 				TextView t10 = new TextView(getActivity());
 				TextView t11 = new TextView(getActivity());
 				
-				//int totalSeconds = time;
-				int totalSeconds = 0;
+				int totalSeconds = time;
 				int minutes = totalSeconds/60;
 				int seconds = totalSeconds%60;
-				final String timeStr = minutes + ":" + seconds;
+				String dummy = minutes + ":" + seconds;
+				if (seconds < 10)
+				{
+					dummy = minutes + ":0" + seconds;
+				}
+				final String timeStr = dummy;
 				
 				t.setText(number);
 				t1.setText(lname);

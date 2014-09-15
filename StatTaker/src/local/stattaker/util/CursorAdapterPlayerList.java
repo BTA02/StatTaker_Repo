@@ -3,12 +3,12 @@ package local.stattaker.util;
 
 import local.stattaker.R;
 import local.stattaker.helper.DatabaseHelper;
-import local.stattaker.model.PlayerDb;
 import android.content.Context;
 import android.database.Cursor;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CheckBox;
 import android.widget.CursorAdapter;
 import android.widget.TextView;
 
@@ -33,14 +33,14 @@ public class CursorAdapterPlayerList extends CursorAdapter
 	@Override
 	public void bindView(View view, Context context, Cursor cursor)
 	{
-		//TextView numberTV = (TextView) view.findViewById(R.id.cursor_adapter_team_name);
-		//numberTV.setText(cursor.getString(cursor.getColumnIndex(DatabaseHelper.COL_TEAM_NAME)));
 		TextView numberTV = (TextView) view.findViewById(R.id.cursor_adapter_player_num);
 		TextView fnameTV = (TextView) view.findViewById(R.id.cursor_adapter_player_fname);
 		TextView lnameTV = (TextView) view.findViewById(R.id.cursor_adapter_player_lname);
+		CheckBox activeCheckBox = (CheckBox) view.findViewById(R.id.cursor_adapter_active_checkbox);
 		numberTV.setText(cursor.getString(cursor.getColumnIndex(DatabaseHelper.COL_NUMBER)));
 		fnameTV.setText(cursor.getString(cursor.getColumnIndex(DatabaseHelper.COL_FNAME)));
 		lnameTV.setText(cursor.getString(cursor.getColumnIndex(DatabaseHelper.COL_LNAME)));
+		activeCheckBox.setChecked(false);
 
 	}// bindView
 

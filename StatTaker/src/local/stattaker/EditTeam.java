@@ -152,7 +152,7 @@ public class EditTeam extends Activity
 								String playerId = UUID.randomUUID().toString();
 
 								db.addPlayer(playerId, number.getText().toString(), fname.getText().toString(),
-										lname.getText().toString(), 0);
+										lname.getText().toString());
 								db.addPlayerToTeam(playerId, teamId);
 								populatePlayerList();
 							}
@@ -185,19 +185,18 @@ public class EditTeam extends Activity
 		playerList = db.getAllPlayersFromTeam(team.getId(), 0);
 		Collections.sort(playerList, new PlayerDb.OrderByLastName());
 		final ListAdapter listAdapter = new ArrayAdapter<PlayerDb>
-				(this, R.layout.custom_player_list, playerList);
+		(this, R.layout.custom_player_list, playerList);
 		currentPlayers.setAdapter(listAdapter);
-		
+
 		currentPlayers.setOnItemClickListener(new OnItemClickListener()
 		{
-
 			@Override
 			public void onItemClick(AdapterView<?> parent, View view,
 					int position, long id)
 			{
 				editDialog((PlayerDb) listAdapter.getItem(position)).show();
 			}
-			
+
 		});
 	}
 
@@ -343,6 +342,20 @@ public class EditTeam extends Activity
 		});
 
 		return addRosterBuilder;
+	}
+	
+	public void onCheckBoxClicked(View v)
+	{
+		CheckBox box = (CheckBox) findViewById(R.id.cursor_adapter_active_checkbox);
+		
+		if (box.isChecked())
+		{
+			
+		}
+		else
+		{
+			
+		}
 	}
 
 

@@ -10,7 +10,6 @@ public class PlayerDb //row in the player table
 	String fname;
 	String lname;
 
-
 	// Empty constructor
 	public PlayerDb()
 	{
