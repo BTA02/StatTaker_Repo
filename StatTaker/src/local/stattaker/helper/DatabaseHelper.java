@@ -23,7 +23,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 	private static final String TAG = "DatabaseHelper";
 
 	// Database Version
-	private static final int DATABASE_VERSION = 47;
+	private static final int DATABASE_VERSION = 48;
 
 	// Database Name
 	private static final String DATABASE_NAME = "quidditchGames";
@@ -353,6 +353,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 		values.put(COL_ID, teamId);
 		values.put(COL_TEAM_NAME, team.getName());
 		values.put(COL_PLAYERID, playerId);
+		values.put(COL_ACTIVE, 0);
 
 		db.insert(TABLE_TEAM, null, values);
 

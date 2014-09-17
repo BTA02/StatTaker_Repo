@@ -193,11 +193,11 @@ public class EditTeam extends Activity
 			String tId = tempPlayer.getString(tempPlayer.getColumnIndex(DatabaseHelper.COL_ID));
 			if (db.isPlayerActiveOnTeam(team.getId(), tId))
 			{
-				currentPlayers.setItemChecked(i, true);
+				
 			}
 			else
 			{
-				currentPlayers.setItemChecked(i, false);
+				
 			}
 		}
 
@@ -275,7 +275,7 @@ public class EditTeam extends Activity
 				}
 				else
 				{
-					db.updateActiveInfo(teamId, updatedPlayer.getPlayerId(), 1);
+					db.updateActiveInfo(teamId, updatedPlayer.getPlayerId(), 0);
 				}
 
 				db.updatePlayerInfo(updatedPlayer);
