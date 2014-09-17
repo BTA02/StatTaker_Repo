@@ -418,6 +418,51 @@ public class DatabaseHelper extends SQLiteOpenHelper
 		return playerList;
 
 	}// getAllPlayersFromTeam
+	
+
+	public Cursor getAllPlayersFromTeamCursor(String teamId, int activeFlag)
+	{
+		SQLiteDatabase db = this.getReadableDatabase();
+		String query;
+		if (activeFlag == 0)
+		{
+			//this might actually be working
+			query = "SELECT "
+					+ TABLE_PLAYER + "." + COL_ID + ", "
+					+ TABLE_PLAYER + "." + COL_NUMBER + ", "
+					+ TABLE_PLAYER + "." + COL_FNAME + ", "
+					+ TABLE_PLAYER + "." + COL_LNAME
+					+ " FROM " + TABLE_TEAM + ", " + TABLE_PLAYER
+					+ " WHERE "
+					+ TABLE_TEAM + "." + COL_PLAYERID + " = "
+					+ TABLE_PLAYER + "." + COL_ID
+					+ " AND " + TABLE_TEAM + "." + COL_ID + " = '"
+					+ teamId + "'";
+
+		}
+		else //active players only, not done
+		{
+			query = "SELECT "
+					+ TABLE_PLAYER + "." + COL_ID + ", "
+					+ TABLE_PLAYER + "." + COL_NUMBER + ", "
+					+ TABLE_PLAYER + "." + COL_FNAME + ", "
+					+ TABLE_PLAYER + "." + COL_LNAME + ", "
+					+ TABLE_PLAYER + "." + COL_ACTIVE
+					+ " FROM " + TABLE_TEAM + ", " + TABLE_PLAYER
+					+ " WHERE "
+					+ TABLE_TEAM + "." + COL_PLAYERID + " = "
+					+ TABLE_PLAYER + "." + COL_ID
+					+ " AND " + TABLE_PLAYER + "." + COL_ACTIVE + " = 1"
+					+ " AND " + TABLE_TEAM + "." + COL_ID + " = '"
+					+ teamId + "'";
+		}
+		Cursor c = db.rawQuery(query, null);
+		if(c.moveToFirst())
+		{
+			return c;
+		}
+		return null;
+	}
 
 	public void updatePlayerInfo(PlayerDb updatedPlayer)
 	{
@@ -514,11 +559,13 @@ public class DatabaseHelper extends SQLiteOpenHelper
 				+ teamId + "' AND " + TABLE_PLAYER + "." + COL_ID
 				+ " = '" + playerId + "'";
 		Cursor c = db.rawQuery(query, null);
-		db.close();
+		
 		if (c.moveToFirst())
 		{
+			db.close();
 			return true;
 		}
+		db.close();
 		return false;
 	}
 
@@ -855,6 +902,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 		if (db != null && db.isOpen())
 			db.close();
 	}
+
 
 
 }

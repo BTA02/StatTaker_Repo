@@ -12,7 +12,7 @@ import android.widget.CheckBox;
 import android.widget.CursorAdapter;
 import android.widget.TextView;
 
-public class CursorAdapterPlayerList extends CursorAdapter
+public class CursorAdapterEditPlayerList extends CursorAdapter
 {
 	private LayoutInflater mInflater;
 	private Context context;
@@ -20,7 +20,7 @@ public class CursorAdapterPlayerList extends CursorAdapter
 	// ---------------------------------------------------------------------------
 	// ---------------------------------------------------------------------------
 
-	public CursorAdapterPlayerList(Context context_, Cursor c, int flags)
+	public CursorAdapterEditPlayerList(Context context_, Cursor c, int flags)
 	{
 		super(context_, c, flags);
 		context = context_;
@@ -33,13 +33,14 @@ public class CursorAdapterPlayerList extends CursorAdapter
 	@Override
 	public void bindView(View view, Context context, Cursor cursor)
 	{
-		TextView numberTV = (TextView) view.findViewById(R.id.cursor_adapter_player_num);
-		TextView fnameTV = (TextView) view.findViewById(R.id.cursor_adapter_player_fname);
-		TextView lnameTV = (TextView) view.findViewById(R.id.cursor_adapter_player_lname);
+		TextView numberTV = (TextView) view.findViewById(R.id.edit_cursor_adapter_player_num);
+		TextView fnameTV = (TextView) view.findViewById(R.id.edit_cursor_adapter_player_fname);
+		TextView lnameTV = (TextView) view.findViewById(R.id.edit_cursor_adapter_player_lname);
+		CheckBox checkbox = (CheckBox) view.findViewById(R.id.edit_cursor_adapter_checkbox);
 		numberTV.setText(cursor.getString(cursor.getColumnIndex(DatabaseHelper.COL_NUMBER)));
 		fnameTV.setText(cursor.getString(cursor.getColumnIndex(DatabaseHelper.COL_FNAME)));
 		lnameTV.setText(cursor.getString(cursor.getColumnIndex(DatabaseHelper.COL_LNAME)));
-
+				
 	}// bindView
 
 	// ---------------------------------------------------------------------------
@@ -47,20 +48,11 @@ public class CursorAdapterPlayerList extends CursorAdapter
 	@Override
 	public View newView(Context context, Cursor cursor, ViewGroup vgroup)
 	{
-		View view = mInflater.inflate(R.layout.player_list_cursor_adapter, null);
+		View view = mInflater.inflate(R.layout.edit_player_list_cursor_adapter, null);
 		bindView(view, context, cursor);
 		return view;
 	}// newView
 	
 	// ---------------------------------------------------------------------------
-	/*
-	@Override
-	public PlayerDb getItem(int which)
-	{
-		PlayerDb retPlayer = new PlayerDb();
-		
-		
-		return retPlayer;
-	}
-	*/
+	
 }// FileListAdapter

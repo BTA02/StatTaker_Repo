@@ -8,6 +8,7 @@ import java.util.UUID;
 import local.stattaker.helper.DatabaseHelper;
 import local.stattaker.model.PlayerDb;
 import local.stattaker.model.TeamDb;
+import local.stattaker.util.CursorAdapterEditPlayerList;
 import local.stattaker.util.CursorAdapterPlayerList;
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -23,11 +24,9 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
-import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -184,9 +183,23 @@ public class EditTeam extends Activity
 		List<PlayerDb> playerList = new ArrayList<PlayerDb>();
 		playerList = db.getAllPlayersFromTeam(team.getId(), 0);
 		Collections.sort(playerList, new PlayerDb.OrderByLastName());
-		final ListAdapter listAdapter = new ArrayAdapter<PlayerDb>
-		(this, R.layout.custom_player_list, playerList);
+		Cursor c = db.getAllPlayersFromTeamCursor(team.getId(), 0);
+		final CursorAdapterEditPlayerList listAdapter = new CursorAdapterEditPlayerList(context, c, 0);
 		currentPlayers.setAdapter(listAdapter);
+		
+		for (int i = 0; i < listAdapter.getCount(); i++)
+		{
+			Cursor tempPlayer = (Cursor) currentPlayers.getItemAtPosition(i);
+			String tId = tempPlayer.getString(tempPlayer.getColumnIndex(DatabaseHelper.COL_ID));
+			if (db.isPlayerActiveOnTeam(team.getId(), tId))
+			{
+				currentPlayers.setItemChecked(i, true);
+			}
+			else
+			{
+				currentPlayers.setItemChecked(i, false);
+			}
+		}
 
 		currentPlayers.setOnItemClickListener(new OnItemClickListener()
 		{
@@ -194,7 +207,13 @@ public class EditTeam extends Activity
 			public void onItemClick(AdapterView<?> parent, View view,
 					int position, long id)
 			{
-				editDialog((PlayerDb) listAdapter.getItem(position)).show();
+				Cursor c = (Cursor) listAdapter.getItem(position);
+				PlayerDb tempPlayer = new PlayerDb();
+				tempPlayer.setFname(c.getString(c.getColumnIndex(DatabaseHelper.COL_FNAME)));
+				tempPlayer.setLname(c.getString(c.getColumnIndex(DatabaseHelper.COL_LNAME)));
+				tempPlayer.setNumber(c.getString(c.getColumnIndex(DatabaseHelper.COL_NUMBER)));
+				tempPlayer.setPlayerId(c.getString(c.getColumnIndex(DatabaseHelper.COL_ID)));
+				editDialog(tempPlayer).show();
 			}
 
 		});
@@ -240,8 +259,7 @@ public class EditTeam extends Activity
 			activeBox.setChecked(false);
 		}
 
-		editRosterBuilder.setPositiveButton("Save",
-				new DialogInterface.OnClickListener()
+		editRosterBuilder.setPositiveButton("Save", new DialogInterface.OnClickListener()
 		{
 			@Override
 			public void onClick(DialogInterface dialog, int which)
@@ -344,19 +362,6 @@ public class EditTeam extends Activity
 		return addRosterBuilder;
 	}
 	
-	public void onCheckBoxClicked(View v)
-	{
-		CheckBox box = (CheckBox) findViewById(R.id.cursor_adapter_active_checkbox);
-		
-		if (box.isChecked())
-		{
-			
-		}
-		else
-		{
-			
-		}
-	}
 
 
 }
