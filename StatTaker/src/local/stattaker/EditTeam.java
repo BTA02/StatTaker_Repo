@@ -38,14 +38,14 @@ public class EditTeam extends Activity
 	Context			context;
 	Activity		activity;
 
-	DatabaseHelper	db;
+	public DatabaseHelper	db;
 
 	ListView		currentPlayers;
 	TextView		teamTitle;
 	Button			addPlayerButton;
 
 	TeamDb			team;
-	String 			teamId;
+	public String 			teamId;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
@@ -186,20 +186,6 @@ public class EditTeam extends Activity
 		Cursor c = db.getAllPlayersFromTeamCursor(team.getId(), 0);
 		final CursorAdapterEditPlayerList listAdapter = new CursorAdapterEditPlayerList(context, c, 0);
 		currentPlayers.setAdapter(listAdapter);
-		
-		for (int i = 0; i < listAdapter.getCount(); i++)
-		{
-			Cursor tempPlayer = (Cursor) currentPlayers.getItemAtPosition(i);
-			String tId = tempPlayer.getString(tempPlayer.getColumnIndex(DatabaseHelper.COL_ID));
-			if (db.isPlayerActiveOnTeam(team.getId(), tId))
-			{
-				
-			}
-			else
-			{
-				
-			}
-		}
 
 		currentPlayers.setOnItemClickListener(new OnItemClickListener()
 		{
@@ -361,7 +347,6 @@ public class EditTeam extends Activity
 
 		return addRosterBuilder;
 	}
-	
 
 
 }

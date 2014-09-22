@@ -87,7 +87,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 	public static final String COL_NUMBER = "number";
 	public static final String COL_FNAME = "fname";
 	public static final String COL_LNAME = "lname";
-	
+
 
 	// Table Create Statements
 	// GAME table create statement
@@ -138,7 +138,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 	//"892-3011-df9a902", "University of Michigan, "582-2811-pa8f123", 1 (active)
 	//"892-3011-df9a902", "University of Michigan, "113-9301-jk8b553", 0 (not active)
 	//...
-	
+
 	@Override
 	public void onCreate(SQLiteDatabase db) 
 	{
@@ -266,7 +266,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 		db.delete(TABLE_TEAM, COL_ID + " = ?", new String[]{ teamId } );
 		db.close();
 	}
-	
+
 	public List<PlayerDb> getActivePlayers(String teamId)
 	{
 		SQLiteDatabase db = this.getReadableDatabase();
@@ -277,7 +277,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 				+ TABLE_PLAYER + "." + COL_NUMBER + ", "
 				+ TABLE_PLAYER + "." + COL_FNAME + ", "
 				+ TABLE_PLAYER + "." + COL_LNAME + ", "
-				+ TABLE_PLAYER + "." + COL_ACTIVE + ", "
+				+ TABLE_TEAM + "." + COL_ACTIVE + ", "
 				+ TABLE_TEAM + "." + COL_PLAYERID
 				+ " FROM " + TABLE_PLAYER + ", " + TABLE_TEAM
 				+ " WHERE " 
@@ -296,19 +296,20 @@ public class DatabaseHelper extends SQLiteOpenHelper
 				p.setLname(c.getString(c.getColumnIndex(COL_LNAME)));
 				p.setNumber(c.getString(c.getColumnIndex(COL_NUMBER)));
 				p.setPlayerId(c.getString(c.getColumnIndex(COL_ID)));
-				
+				if (c.getInt(c.getColumnIndex(COL_ACTIVE)) == 1)
+				{
+					ret.add(p);
+				}
 			}
 			while (c.moveToNext());
 		}
-
-
 		return ret;
 	}
-	
+
 	public boolean isPlayerActiveOnTeam(String teamId, String playerId)
 	{
 		SQLiteDatabase db = this.getReadableDatabase();
-		
+
 		String query = "SELECT * FROM " + TABLE_TEAM
 				+ " WHERE "
 				+ COL_ID + " = '" + teamId + "'"
@@ -326,14 +327,14 @@ public class DatabaseHelper extends SQLiteOpenHelper
 		db.close();
 		return false;
 	}
-	
+
 	public void updateActiveInfo(String teamId, String playerId, int newVal)
 	{
 		SQLiteDatabase db = this.getWritableDatabase();
-		
+
 		ContentValues values = new ContentValues();
 		values.put(COL_ACTIVE, newVal);
-		
+
 		db.update(TABLE_TEAM, values, COL_ID + " = ? AND " + COL_PLAYERID + " = ?", new String[] {teamId, playerId} );
 	}
 
@@ -419,7 +420,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 		return playerList;
 
 	}// getAllPlayersFromTeam
-	
+
 
 	public Cursor getAllPlayersFromTeamCursor(String teamId, int activeFlag)
 	{
@@ -560,7 +561,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 				+ teamId + "' AND " + TABLE_PLAYER + "." + COL_ID
 				+ " = '" + playerId + "'";
 		Cursor c = db.rawQuery(query, null);
-		
+
 		if (c.moveToFirst())
 		{
 			db.close();
@@ -596,14 +597,14 @@ public class DatabaseHelper extends SQLiteOpenHelper
 		db.close();
 
 		//now create the necessary stats tables for each "active" player
-		
+
 
 		List<PlayerDb> activePlayers = getActivePlayers(teamId);
-		
+
 		SQLiteDatabase db1 = this.getWritableDatabase();
 		ContentValues values1 = new ContentValues();
 		long qq;
-		
+
 		for (int i = 0; i < activePlayers.size(); i++)
 		{
 			values1.put(COL_ID, UUID.randomUUID().toString());
@@ -864,37 +865,49 @@ public class DatabaseHelper extends SQLiteOpenHelper
 				new String[] {gameId, playerId} );
 		db.close();
 	}
-	
+
 	public Cursor getGameStats(String gameId)
 	{
 		SQLiteDatabase db = this.getReadableDatabase();
-		
+
 		String query = "SELECT "
-				+ TABLE_PLAYER + "." + COL_LNAME
-				+ TABLE_PLAYER + "." + COL_LNAME
-				+ TABLE_STATS + "." + COL_SHOTS
-				+ TABLE_STATS + "." + COL_GOALS
-				+ TABLE_STATS + "." + COL_ASSISTS
-				+ TABLE_STATS + "." + COL_TURNOVERS
-				+ TABLE_STATS + "." + COL_SAVES
-				+ TABLE_STATS + "." + COL_SNITCHES
-				+ TABLE_STATS + "." + COL_PLUSSES
-				+ TABLE_STATS + "." + COL_MINUSES
-				+ TABLE_STATS + "." + COL_TOTAL_TIME
-				+ TABLE_TIME + "." + COL_TIME_IN
+				+ TABLE_PLAYER + "." + COL_NUMBER + ", "
+				+ TABLE_PLAYER + "." + COL_LNAME + ", "
+				+ TABLE_STATS + "." + COL_SHOTS + ", "
+				+ TABLE_STATS + "." + COL_GOALS + ", "
+				+ TABLE_STATS + "." + COL_ASSISTS + ", "
+				+ TABLE_STATS + "." + COL_TURNOVERS + ", "
+				+ TABLE_STATS + "." + COL_SAVES + ", "
+				+ TABLE_STATS + "." + COL_SNITCHES + ", "
+				+ TABLE_STATS + "." + COL_PLUSSES + ", "
+				+ TABLE_STATS + "." + COL_MINUSES + ", "
+				+ TABLE_STATS + "." + COL_TOTAL_TIME + ", "
+				+ TABLE_TIME + "." + COL_TIME_IN + ", "
 				+ TABLE_TIME + "." + COL_TIME_OUT
-				+ " FROM " + TABLE_STATS
+				+ " FROM " 
+				+ TABLE_PLAYER + ", " 
+				+ TABLE_STATS + ", " 
+				+ TABLE_TIME
 				+ " WHERE "
-				+ TABLE_STATS + "." + COL_GAMEID + " = '" + gameId + "'";
-		
+				+ TABLE_STATS + "." + COL_GAMEID + " = '" + gameId + "'" //finish this later
+				
+
 		Cursor c = db.rawQuery(query, null);
 
-		db.close();
-		return c;
+		if (c.moveToFirst())
+		{
+			db.close();
+			return c;
+		}
+		else
+		{
+			db.close();
+			return null;
+		}
 	}
 
 
-	
+
 
 	//closing database
 	public void closeDB() 
