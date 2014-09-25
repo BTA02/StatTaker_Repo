@@ -23,7 +23,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 	private static final String TAG = "DatabaseHelper";
 
 	// Database Version
-	private static final int DATABASE_VERSION = 48;
+	private static final int DATABASE_VERSION = 49;
 
 	// Database Name
 	private static final String DATABASE_NAME = "quidditchGames";
@@ -620,6 +620,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 			values1.put(COL_PLUSSES, 0);
 			values1.put(COL_MINUSES, 0);
 			values1.put(COL_TIMEID, UUID.randomUUID().toString());
+			values1.put(COL_TOTAL_TIME, 0);
 			if (i < 7)
 			{
 				values1.put(COL_ONFIELD, (i + 1));
@@ -876,21 +877,21 @@ public class DatabaseHelper extends SQLiteOpenHelper
 				+ TABLE_STATS + "." + COL_SHOTS + ", "
 				+ TABLE_STATS + "." + COL_GOALS + ", "
 				+ TABLE_STATS + "." + COL_ASSISTS + ", "
+				+ TABLE_STATS + "." + COL_STEALS + ", "
 				+ TABLE_STATS + "." + COL_TURNOVERS + ", "
 				+ TABLE_STATS + "." + COL_SAVES + ", "
 				+ TABLE_STATS + "." + COL_SNITCHES + ", "
 				+ TABLE_STATS + "." + COL_PLUSSES + ", "
 				+ TABLE_STATS + "." + COL_MINUSES + ", "
-				+ TABLE_STATS + "." + COL_TOTAL_TIME + ", "
-				+ TABLE_TIME + "." + COL_TIME_IN + ", "
-				+ TABLE_TIME + "." + COL_TIME_OUT
+				+ TABLE_STATS + "." + COL_TOTAL_TIME
 				+ " FROM " 
 				+ TABLE_PLAYER + ", " 
-				+ TABLE_STATS + ", " 
-				+ TABLE_TIME
+				+ TABLE_STATS
 				+ " WHERE "
-				+ TABLE_STATS + "." + COL_GAMEID + " = '" + gameId + "'" //finish this later
-				
+				+ TABLE_PLAYER + "." + COL_ID + " = " + TABLE_STATS + "." + COL_PLAYERID
+				+ " AND "
+				+ TABLE_STATS + "." + COL_GAMEID + " = '" + gameId + "'";
+
 
 		Cursor c = db.rawQuery(query, null);
 

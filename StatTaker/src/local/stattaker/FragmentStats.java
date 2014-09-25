@@ -31,7 +31,6 @@ public class FragmentStats extends Fragment
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState)
 	{
-
 		rootView = inflater.inflate(R.layout.fragment_stats, container, false);
 		return rootView;
 	}
@@ -68,7 +67,7 @@ public class FragmentStats extends Fragment
 					 * pp.get(i).getPlayerId(), "time", tt);
 					 */
 				}
-				// updateStats();
+				updateStats();
 			}
 
 		});
@@ -84,6 +83,7 @@ public class FragmentStats extends Fragment
 		// updateStats();
 	}
 
+	
 	public void updateStats()
 	{
 		fm = (FragmentMain) getActivity();
@@ -100,6 +100,7 @@ public class FragmentStats extends Fragment
 			{
 				i++;
 				// fill in the table here.
+				
 				String number = c.getString(c
 						.getColumnIndex(DatabaseHelper.COL_NUMBER));
 				String lname = c.getString(c
@@ -186,4 +187,7 @@ public class FragmentStats extends Fragment
 			while (c.moveToNext());
 		}
 	}
+	
+	
+
 }
