@@ -2,78 +2,60 @@ package local.stattaker.util;
 
 public class Action 
 {
-	private int gId;
-	private int pId;
-	private int pIdOut;
-	private String name;
-	private String category;
-	private int valAdded;
-
+	private String gameId;
+	private String playerId;
+	private int valueAdded;
+	private String playerSubbedOut;
+	private int timeSwitched;
+	private String databaseColumn;
 	
-	
-	public Action(int g, int p, int pOut, String c, String n, int v)
+	public String getGameId()
 	{
-		this.setgId(g);
-		this.setpId(p);
-		this.setpIdOut(pOut);
-		this.setCategory(c);
-		this.setName(n);
-		this.valAdded = v;
+		return gameId;
 	}
-
-	public int getpId() 
+	public void setGameId(String gameId)
 	{
-		return pId;
+		this.gameId = gameId;
 	}
-
-	public void setpId(int pIdOut) 
+	public String getPlayerId()
 	{
-		this.pId = pIdOut;
+		return playerId;
 	}
-	
-	public int getpIdOut() 
+	public void setPlayerId(String playerId)
 	{
-		return pIdOut;
+		this.playerId = playerId;
 	}
-
-	public void setpIdOut(int pIdOut) 
+	public int getValueAdded()
 	{
-		this.pIdOut = pIdOut;
+		return valueAdded;
 	}
-
-	public String getCategory() {
-		return category;
-	}
-
-	public void setCategory(String category) {
-		this.category = category;
-	}
-
-	public int getgId() {
-		return gId;
-	}
-
-	public void setgId(int gId) {
-		this.gId = gId;
-	}
-
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
-	
-	public int getValAdded()
+	public void setValueAdded(int valueAdded)
 	{
-		return valAdded;
+		this.valueAdded = valueAdded;
 	}
-	
-	public void setValAdded(int i)
+	public String getPlayerSubbedOut()
 	{
-		this.valAdded = i;
+		return playerSubbedOut;
 	}
-	
+	public void setPlayerSubbedOut(String playerSubbedOut)
+	{
+		this.playerSubbedOut = playerSubbedOut;
+	}
+	public int getTimeSwitched()
+	{
+		return timeSwitched;
+	}
+	public void setTimeSwitched(int timeSwitched)
+	{
+		this.timeSwitched = timeSwitched;
+	}
+	public String getDatabaseColumn()
+	{
+		return databaseColumn;
+	}
+	public void setDatabaseColumn(String databaseColumn)
+	{
+		this.databaseColumn = databaseColumn;
+	}
 	
 }

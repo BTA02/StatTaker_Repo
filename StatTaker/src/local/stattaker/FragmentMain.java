@@ -1,6 +1,6 @@
 package local.stattaker;
 
-import java.util.Vector;
+import java.util.Stack;
 
 import local.stattaker.helper.DatabaseHelper;
 import local.stattaker.model.GameDb;
@@ -8,7 +8,6 @@ import local.stattaker.util.Action;
 import android.app.ActionBar;
 import android.app.ActionBar.Tab;
 import android.app.ActionBar.TabListener;
-import android.app.Activity;
 import android.app.FragmentTransaction;
 import android.content.Context;
 import android.os.Bundle;
@@ -32,8 +31,8 @@ public class FragmentMain extends FragmentActivity implements TabListener
 	int[] timeSubbedIn = new int[7];
 	int[] sinceRefresh = new int[7];
 
-	Vector<Action> undoQueue = new Vector<Action>();
-	Vector<Action> redoQueue = new Vector<Action>();
+	Stack<Action> undoStack = new Stack<Action>();
+	Stack<Action> redoStack = new Stack<Action>();
 	//Vector<Integer> times = new Vector<Integer>();
 
 	@Override
