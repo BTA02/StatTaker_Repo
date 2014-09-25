@@ -715,7 +715,6 @@ public class DatabaseHelper extends SQLiteOpenHelper
 		{
 			do
 			{
-
 				PlayerDb p = new PlayerDb(); //just a db row
 				p.setPlayerId(c.getString((c.getColumnIndex(COL_ID))));
 				p.setNumber(c.getString((c.getColumnIndex(COL_NUMBER))));
@@ -831,6 +830,26 @@ public class DatabaseHelper extends SQLiteOpenHelper
 		db.update(TABLE_GAME, values, COL_ID + " = ?", new String[] {gId} );
 		db.close();
 	}
+	
+	public void updateScore(String gameId, String who, int newVal)
+	{
+		SQLiteDatabase db = this.getWritableDatabase();
+		
+		int newScore = 0;
+		ContentValues values = new ContentValues();
+		if (who.equals("opponent"))
+		{
+			values.put(COL_AWAY_SCORE, newVal );
+		}
+		else
+		{
+			values.put(COL_HOME_SCORE, newVal );
+		}
+		
+		db.update(TABLE_GAME, values, COL_ID + " = '" + gameId + "'" , null);
+		db.close();
+		
+	}
 
 	//-----------------------------------------------------------
 	//-----------------------------------------------------------
@@ -856,11 +875,10 @@ public class DatabaseHelper extends SQLiteOpenHelper
 
 	public void updateStat(String gameId, String playerId, int valToAdd, String column)
 	{
-		SQLiteDatabase db = this.getWritableDatabase();
-
 		ContentValues values = new ContentValues();
 		values.put(column, (getStatValue(gameId, playerId, column) + valToAdd));
 
+		SQLiteDatabase db = this.getWritableDatabase();
 
 		db.update(TABLE_STATS, values, COL_GAMEID + " = ? AND " + COL_PLAYERID + " = ?", 
 				new String[] {gameId, playerId} );

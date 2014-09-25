@@ -26,6 +26,7 @@ public class FragmentStats extends Fragment
 	FragmentMain	fm;
 
 	TableLayout		table;
+	
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -34,7 +35,7 @@ public class FragmentStats extends Fragment
 		rootView = inflater.inflate(R.layout.fragment_stats, container, false);
 		return rootView;
 	}
-	
+
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState)
 	{
@@ -44,7 +45,7 @@ public class FragmentStats extends Fragment
 
 		}
 		updateStats();
-		
+
 		Button refresh = (Button) rootView
 				.findViewById(R.id.stats_refresh_button);
 		refresh.setOnClickListener(new OnClickListener()
@@ -71,7 +72,7 @@ public class FragmentStats extends Fragment
 			}
 
 		});
-
+		
 		
 
 	}
@@ -83,7 +84,6 @@ public class FragmentStats extends Fragment
 		// updateStats();
 	}
 
-	
 	public void updateStats()
 	{
 		fm = (FragmentMain) getActivity();
@@ -100,7 +100,7 @@ public class FragmentStats extends Fragment
 			{
 				i++;
 				// fill in the table here.
-				
+
 				String number = c.getString(c
 						.getColumnIndex(DatabaseHelper.COL_NUMBER));
 				String lname = c.getString(c
@@ -187,7 +187,5 @@ public class FragmentStats extends Fragment
 			while (c.moveToNext());
 		}
 	}
-	
-	
 
 }
