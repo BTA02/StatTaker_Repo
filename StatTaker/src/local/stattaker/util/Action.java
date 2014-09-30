@@ -6,7 +6,7 @@ public class Action
 	private String playerId;
 	private int valueAdded;
 	private String playerSubbedOut;
-	private int timeSwitched;
+	private int timeOfAction;
 	private String databaseColumn;
 	
 	public String getGameId()
@@ -43,11 +43,11 @@ public class Action
 	}
 	public int getTimeSwitched()
 	{
-		return timeSwitched;
+		return timeOfAction;
 	}
 	public void setTimeSwitched(int timeSwitched)
 	{
-		this.timeSwitched = timeSwitched;
+		this.timeOfAction = timeSwitched;
 	}
 	public String getDatabaseColumn()
 	{

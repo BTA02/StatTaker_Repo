@@ -335,7 +335,10 @@ public class DatabaseHelper extends SQLiteOpenHelper
 		ContentValues values = new ContentValues();
 		values.put(COL_ACTIVE, newVal);
 
-		db.update(TABLE_TEAM, values, COL_ID + " = ? AND " + COL_PLAYERID + " = ?", new String[] {teamId, playerId} );
+		@SuppressWarnings("unused")
+		int rowsAffected = db.update(TABLE_TEAM, values, 
+				COL_ID + " = ? AND " + COL_PLAYERID + " = ?", new String[] {teamId, playerId} );
+		return;
 	}
 
 	//-----------------------------------------------------------
@@ -621,7 +624,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 			values1.put(COL_MINUSES, 0);
 			values1.put(COL_TIMEID, UUID.randomUUID().toString());
 			values1.put(COL_TOTAL_TIME, 0);
-			if (i < 7)
+			if (i < 6)
 			{
 				values1.put(COL_ONFIELD, (i + 1));
 			}
@@ -743,10 +746,10 @@ public class DatabaseHelper extends SQLiteOpenHelper
 		//stat row would be
 
 		String query = "SELECT "
-				+ TABLE_PLAYER + "." + COL_ID
-				+ TABLE_PLAYER + "." + COL_NUMBER
-				+ TABLE_PLAYER + "." + COL_FNAME
-				+ TABLE_PLAYER + "." + COL_LNAME
+				+ TABLE_PLAYER + "." + COL_ID + ", "
+				+ TABLE_PLAYER + "." + COL_NUMBER + ", "
+				+ TABLE_PLAYER + "." + COL_FNAME + ", "
+				+ TABLE_PLAYER + "." + COL_LNAME + ", "
 				+ TABLE_STATS + "." + COL_ONFIELD
 				+ " FROM " + TABLE_PLAYER + ", " + TABLE_STATS
 				+ " WHERE " 
@@ -764,7 +767,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 			{
 
 				PlayerDb p = new PlayerDb(); //just a db row
-				p.setPlayerId(c.getString((c.getColumnIndex(COL_PLAYERID))));
+				p.setPlayerId(c.getString((c.getColumnIndex(COL_ID))));
 				p.setNumber(c.getString((c.getColumnIndex(COL_NUMBER))));
 				p.setFname(c.getString((c.getColumnIndex(COL_FNAME))));
 				p.setLname(c.getString((c.getColumnIndex(COL_LNAME))));
@@ -784,7 +787,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 		SQLiteDatabase db = this.getReadableDatabase();
 
 		String query = "SELECT " + COL_GAME_TIME + " FROM "
-				+ TABLE_GAME + " WHERE " + COL_GAMEID + " = ?";
+				+ TABLE_GAME + " WHERE " + COL_ID + " = ?";
 		Cursor c = db.rawQuery(query, new String[] {gameId} );
 
 		if (c.moveToFirst())

@@ -39,6 +39,9 @@ public class CursorAdapterEditPlayerList extends CursorAdapter
 	@Override
 	public void bindView(View view, Context context, Cursor cursor)
 	{
+		//these checkboxes are just flat wrong for now
+		//I need a way to make them flat right
+		
 		TextView numberTV = (TextView) view.findViewById(R.id.edit_cursor_adapter_player_num);
 		TextView fnameTV = (TextView) view.findViewById(R.id.edit_cursor_adapter_player_fname);
 		TextView lnameTV = (TextView) view.findViewById(R.id.edit_cursor_adapter_player_lname);
@@ -54,6 +57,7 @@ public class CursorAdapterEditPlayerList extends CursorAdapter
 		{
 			checkbox.setChecked(true);
 		}
+		
 		else
 		{
 			checkbox.setChecked(false);

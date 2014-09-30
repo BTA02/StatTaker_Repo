@@ -41,27 +41,40 @@ import com.parse.ParseQuery;
 
 public class MainActivity extends Activity
 {
-	private String TAG = "MainActivity";
+	
+	//TODO
+	//1. Clock
+	//	a. get game time DB function
+	//2. Subbing
+	//3. Home snitch button
+	//	a. assign to player, preferably on the bench, maybe anywhere
+	//4. Active checkboxes
+	//5. Download rosters from internet
+	//	a. Make sure it works offline though
+	//6. Make it pretty
+	//	a. Active count on the edit team screen
+	//	b. Clock could be prettier
+	private String			TAG				= "MainActivity";
 
-	DatabaseHelper db;
+	DatabaseHelper			db;
 
-	List<String> teams;
-	List<String> oTeams;
+	List<String>			teams;
+	List<String>			oTeams;
 
-	Button create_team;
-	ListView currentTeams;
-	ListView onlineTeams;
+	Button					create_team;
+	ListView				currentTeams;
+	ListView				onlineTeams;
 
-	ArrayAdapter<String> listAdapter;
-	ArrayAdapter<String> listAdapter2;
+	ArrayAdapter<String>	listAdapter;
+	ArrayAdapter<String>	listAdapter2;
 
-	Context context = this;
-	Activity activity = this;
+	Context					context			= this;
+	Activity				activity		= this;
 
-	protected AlertDialog newTeamDialog = null;
+	protected AlertDialog	newTeamDialog	= null;
 
 	@Override
-	protected void onCreate(Bundle savedInstanceState) 
+	protected void onCreate(Bundle savedInstanceState)
 	{
 		super.onCreate(savedInstanceState);
 
@@ -70,8 +83,7 @@ public class MainActivity extends Activity
 
 		if (isNetworkAvailable())
 		{
-			Parse.initialize(this, 
-					"RoDlI2ENBnxSWlPvdG2VEsFPRSt06qHJ78nZop77", 
+			Parse.initialize(this, "RoDlI2ENBnxSWlPvdG2VEsFPRSt06qHJ78nZop77",
 					"fbuEyPT9Exq141IZfueUO1asOcbAFaBjJvdAFI1A");
 			ParseAnalytics.trackAppOpened(getIntent());
 		}
@@ -81,13 +93,14 @@ public class MainActivity extends Activity
 		{
 
 			@Override
-			public void onClick(View v) 
+			public void onClick(View v)
 			{
 				if (newTeamDialog != null && newTeamDialog.isShowing())
 				{
 					return;
 				}
-				AlertDialog.Builder alertBuilder = new AlertDialog.Builder(context);
+				AlertDialog.Builder alertBuilder = new AlertDialog.Builder(
+						context);
 
 				alertBuilder.setTitle("Create New Team");
 				alertBuilder.setMessage("Enter Name of Team:");
@@ -95,25 +108,31 @@ public class MainActivity extends Activity
 				final EditText input = new EditText(context);
 				alertBuilder.setView(input);
 
-				alertBuilder.setPositiveButton("Ok", new DialogInterface.OnClickListener() 
-				{
-					public void onClick(DialogInterface dialog, int whichButton) 
-					{
-						String newTeamId = UUID.randomUUID().toString();
-						db.addTeam(newTeamId, input.getText().toString());
-						Intent i = new Intent(getApplicationContext(), EditTeam.class);
-						i.putExtra("teamId", newTeamId);
-						startActivity(i);
-					}
-				});
+				alertBuilder.setPositiveButton("Ok",
+						new DialogInterface.OnClickListener()
+						{
+							public void onClick(DialogInterface dialog,
+									int whichButton)
+							{
+								String newTeamId = UUID.randomUUID().toString();
+								db.addTeam(newTeamId, input.getText()
+										.toString());
+								Intent i = new Intent(getApplicationContext(),
+										EditTeam.class);
+								i.putExtra("teamId", newTeamId);
+								startActivity(i);
+							}
+						});
 
-				alertBuilder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() 
-				{
-					public void onClick(DialogInterface dialog, int whichButton) 
-					{
-						dialog.dismiss();
-					}
-				});
+				alertBuilder.setNegativeButton("Cancel",
+						new DialogInterface.OnClickListener()
+						{
+							public void onClick(DialogInterface dialog,
+									int whichButton)
+							{
+								dialog.dismiss();
+							}
+						});
 				newTeamDialog = alertBuilder.create();
 				newTeamDialog.show();
 			}
@@ -124,7 +143,7 @@ public class MainActivity extends Activity
 
 		if (isNetworkAvailable())
 		{
-			//populateOnlineTeamList();
+			// populateOnlineTeamList();
 		}
 
 		onlineTeams = (ListView) findViewById(R.id.online_teams_list);
@@ -132,11 +151,11 @@ public class MainActivity extends Activity
 		{
 			@Override
 			public void onItemClick(AdapterView<?> parent, View view,
-					int position, long id) 
+					int position, long id)
 			{
-				//do this properly soon
-				final String teamClicked = (String)((TextView) view).getText();
-				//loadInTeam(teamClicked);
+				// do this properly soon
+				final String teamClicked = (String) ((TextView) view).getText();
+				// loadInTeam(teamClicked);
 			}
 
 		});
@@ -149,29 +168,30 @@ public class MainActivity extends Activity
 		populateTeamsList();
 		if (isNetworkAvailable())
 		{
-			//populateOnlineTeamList();
+			// populateOnlineTeamList();
 		}
 	}
+
 	@Override
-	public boolean onCreateOptionsMenu(Menu menu) 
+	public boolean onCreateOptionsMenu(Menu menu)
 	{
 		// Inflate the menu; this adds items to the action bar if it is present.
 		getMenuInflater().inflate(R.menu.main, menu);
 		return true;
 	}
 
-	//still works, shows local teams, which is perfect
+	// still works, shows local teams, which is perfect
 	@SuppressWarnings("unchecked")
-	public void populateTeamsList() 
-	{      
+	public void populateTeamsList()
+	{
 		currentTeams = (ListView) findViewById(R.id.teams_list);
 		Cursor c = db.getAllTeamsCursor();
 
 		List<TeamDb> teamList = new ArrayList<TeamDb>();
 		teamList = db.getAllTeamsList();
 		Collections.sort(teamList, new TeamDb.OrderByTeamName());
-		ListAdapter listAdapter = new ArrayAdapter<TeamDb>
-							(this, R.layout.custom_player_list, teamList);
+		ListAdapter listAdapter = new ArrayAdapter<TeamDb>(this,
+				R.layout.custom_player_list, teamList);
 		currentTeams.setAdapter(listAdapter);
 		currentTeams.setOnItemClickListener(new OnItemClickListener()
 		{
@@ -180,87 +200,108 @@ public class MainActivity extends Activity
 			public void onItemClick(AdapterView<?> arg0, View arg1, int arg2,
 					long arg3)
 			{
-				final TeamDb team = (TeamDb) currentTeams.getItemAtPosition(arg2);
-				//create an options pop up to record new game or edit team or see old games
+				final TeamDb team = (TeamDb) currentTeams
+						.getItemAtPosition(arg2);
+				// create an options pop up to record new game or edit team or
+				// see old games
 				LayoutInflater dialogFactory = LayoutInflater.from(context);
-				final View newGameView = dialogFactory.inflate(R.layout.custom_new_game_alert, null);
-				AlertDialog.Builder alert = new AlertDialog.Builder(MainActivity.this);
+				final View newGameView = dialogFactory.inflate(
+						R.layout.custom_new_game_alert, null);
+				AlertDialog.Builder alert = new AlertDialog.Builder(
+						MainActivity.this);
 				alert.create();
 
 				alert.setView(newGameView);
 				alert.setTitle("Options");
 				alert.setMessage("Resume Old Game:");
-				
-				final EditText oppo = (EditText) newGameView.findViewById(R.id.new_game_opponent_name);
-				alert.setPositiveButton("Create New Game", new DialogInterface.OnClickListener()
-				{
-					@Override
-					public void onClick(DialogInterface dialog, int which)
-					{
-						//create a new game with "oppo" as the opponent name
-						String opponentName = oppo.getText().toString();
-						String mod = UUID.randomUUID().toString();
-						mod = mod.substring(0, 4);
-						if(opponentName.length() == 0)
-						{
-							opponentName = "Unnamed Opponent " + "(" + mod + ")";
-						}
-						String gId = db.createNewGame(team.getId(), opponentName);
-						//when creating a new game, I need to add everyone who is "active"
-						//to the "onField" stuff
-						Intent i = new Intent(getApplicationContext(), FragmentMain.class);
-						i.putExtra("gameId", gId);
-						startActivity(i);
-					}
-				});
-				
-				alert.setNeutralButton("Edit Team", new DialogInterface.OnClickListener()
-				{
-					
-					@Override
-					public void onClick(DialogInterface dialog, int which)
-					{
-						String id = team.getId();
-						Intent i = new Intent(getApplicationContext(), EditTeam.class);
-						i.putExtra("teamId", id);
-						startActivity(i);
-					}
-				});
-				
-				alert.setNegativeButton("Cancel", new DialogInterface.OnClickListener()
-				{
-					
-					@Override
-					public void onClick(DialogInterface dialog, int which)
-					{
-						//do nothing
-						dialog.dismiss();
-					}
-				});
 
-				ListView oldGames = (ListView) newGameView.findViewById(R.id.new_game_list);
+				final EditText oppo = (EditText) newGameView
+						.findViewById(R.id.new_game_opponent_name);
+				alert.setPositiveButton("Create New Game",
+						new DialogInterface.OnClickListener()
+						{
+							@Override
+							public void onClick(DialogInterface dialog,
+									int which)
+							{
+								// create a new game with "oppo" as the opponent
+								// name
+								String opponentName = oppo.getText().toString();
+								String mod = UUID.randomUUID().toString();
+								mod = mod.substring(0, 4);
+								if (opponentName.length() == 0)
+								{
+									opponentName = "Unnamed Opponent " + "("
+											+ mod + ")";
+								}
+								String gId = db.createNewGame(team.getId(),
+										opponentName);
+								// when creating a new game, I need to add
+								// everyone who is "active"
+								// to the "onField" stuff
+								Intent i = new Intent(getApplicationContext(),
+										FragmentMain.class);
+								i.putExtra("gameId", gId);
+								startActivity(i);
+							}
+						});
+
+				alert.setNeutralButton("Edit Team",
+						new DialogInterface.OnClickListener()
+						{
+
+							@Override
+							public void onClick(DialogInterface dialog,
+									int which)
+							{
+								String id = team.getId();
+								Intent i = new Intent(getApplicationContext(),
+										EditTeam.class);
+								i.putExtra("teamId", id);
+								startActivity(i);
+							}
+						});
+
+				alert.setNegativeButton("Cancel",
+						new DialogInterface.OnClickListener()
+						{
+
+							@Override
+							public void onClick(DialogInterface dialog,
+									int which)
+							{
+								// do nothing
+								dialog.dismiss();
+							}
+						});
+
+				ListView oldGames = (ListView) newGameView
+						.findViewById(R.id.new_game_list);
 				List<GameDb> gameList = new ArrayList<GameDb>();
 				gameList = db.getAllGamesForTeam(team.getId());
-				final ListAdapter listAdapter = new ArrayAdapter(context, R.layout.custom_player_list, gameList);
-	  		  	oldGames.setAdapter(listAdapter);
-	  		  	oldGames.setOnItemClickListener(new OnItemClickListener()
-	  		  	{
+				final ListAdapter listAdapter = new ArrayAdapter(context,
+						R.layout.custom_player_list, gameList);
+				oldGames.setAdapter(listAdapter);
+				oldGames.setOnItemClickListener(new OnItemClickListener()
+				{
 
 					@Override
 					public void onItemClick(AdapterView<?> parent, View view,
 							int position, long id)
 					{
-						GameDb gameClicked = (GameDb)listAdapter.getItem(position);
-						Intent i = new Intent(getApplicationContext(), FragmentMain.class);
+						GameDb gameClicked = (GameDb) listAdapter
+								.getItem(position);
+						Intent i = new Intent(getApplicationContext(),
+								FragmentMain.class);
 						i.putExtra("gameId", gameClicked.getId());
-						
+
 						startActivity(i);
 					}
-	  		  		
-	  		  	});
-				
+
+				});
+
 				alert.show();
-				
+
 			}
 
 		});
@@ -275,11 +316,11 @@ public class MainActivity extends Activity
 		List<ParseObject> objects = new ArrayList<ParseObject>();
 		oTeams = new ArrayList<String>();
 		ParseQuery<ParseObject> query = ParseQuery.getQuery("Player");
-		try 
+		try
 		{
 			objects = query.find();
-		} 
-		catch (ParseException e) 
+		}
+		catch (ParseException e)
 		{
 			e.printStackTrace();
 			Log.e("Test", "Parse .find didn't work 1");
@@ -287,19 +328,20 @@ public class MainActivity extends Activity
 		for (int i = 0; i < objects.size(); i++)
 		{
 			String teamName = objects.get(i).getString("team_name");
-			if (!oTeams.contains(teamName) && !teams.contains(teamName) )
+			if (!oTeams.contains(teamName) && !teams.contains(teamName))
 			{
 				oTeams.add(teamName);
 			}
 		}
-		listAdapter2 = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, oTeams);
+		listAdapter2 = new ArrayAdapter<String>(this,
+				android.R.layout.simple_list_item_1, oTeams);
 		onlineTeams.setAdapter(listAdapter2);
 
 	}
 
 	public void loadInTeam(String teamName)
 	{
-		//build a db object here
+		// build a db object here
 		String num;
 		String fname;
 		String lname;
@@ -308,11 +350,11 @@ public class MainActivity extends Activity
 		List<ParseObject> objects = new ArrayList<ParseObject>();
 		ParseQuery<ParseObject> query = ParseQuery.getQuery("Player");
 		query.whereEqualTo("team_name", teamName);
-		try 
+		try
 		{
 			objects = query.find();
-		} 
-		catch (ParseException e) 
+		}
+		catch (ParseException e)
 		{
 			e.printStackTrace();
 			Log.e("Test", "Parse .find didn't work 2");
@@ -330,18 +372,19 @@ public class MainActivity extends Activity
 			{
 				active = 0;
 			}
-			//PlayerDb p = new PlayerDb(teamName, -1, num, fname, lname, 0, active);
-			//db.addPlayer(p);
+			// PlayerDb p = new PlayerDb(teamName, -1, num, fname, lname, 0,
+			// active);
+			// db.addPlayer(p);
 		}
 		populateTeamsList();
 		populateOnlineTeamList();
 	}
 
-	private boolean isNetworkAvailable() 
+	private boolean isNetworkAvailable()
 	{
-		ConnectivityManager connectivityManager 
-		= (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-		NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+		ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+		NetworkInfo activeNetworkInfo = connectivityManager
+				.getActiveNetworkInfo();
 		return activeNetworkInfo != null && activeNetworkInfo.isConnected();
 	}
 

@@ -182,7 +182,7 @@ public class FragmentPlayerList extends ListFragment
 							for (int i = 0; i < onFieldPlayers.size(); i++)
 							{
 								db.updateStat(fm.gId, onFieldPlayers.get(i).getPlayerId(), 
-										-(a.getValueAdded()), DatabaseHelper.COL_MINUSES);
+										-1, DatabaseHelper.COL_MINUSES);
 							}
 						}
 						else
@@ -193,21 +193,28 @@ public class FragmentPlayerList extends ListFragment
 					else //for home team shit
 					{
 						//doesn't account for subs yet
-						db.updateStat(fm.gId, a.getPlayerId(), -1, col);
-						if (col.equals(DatabaseHelper.COL_GOALS))
+						if (a.getDatabaseColumn().equals(DatabaseHelper.COL_TOTAL_TIME))
 						{
-							db.updateStat(fm.gId, a.getPlayerId(), -1, DatabaseHelper.COL_SHOTS);
-							List<PlayerDb> onFieldPlayers = db.getOnFieldPlayersFromGame(fm.gId);
-							for (int i = 0; i < onFieldPlayers.size(); i++)
-							{
-								db.updateStat(fm.gId, onFieldPlayers.get(i).getPlayerId(), 
-										-(a.getValueAdded()), DatabaseHelper.COL_PLUSSES);
-							}
-							updateScore("homeTeam", -10);
+							//subbing, which is hard
 						}
-						else if (col.equals(DatabaseHelper.COL_SNITCHES))
+						else
 						{
-							db.updateScore(fm.gId, "homeTeam", -(a.getValueAdded()));
+							db.updateStat(fm.gId, a.getPlayerId(), -(a.getValueAdded()), col);
+							if (col.equals(DatabaseHelper.COL_GOALS))
+							{
+								db.updateStat(fm.gId, a.getPlayerId(), -1, DatabaseHelper.COL_SHOTS);
+								List<PlayerDb> onFieldPlayers = db.getOnFieldPlayersFromGame(fm.gId);
+								for (int i = 0; i < onFieldPlayers.size(); i++)
+								{
+									db.updateStat(fm.gId, onFieldPlayers.get(i).getPlayerId(), 
+											-(a.getValueAdded()), DatabaseHelper.COL_PLUSSES);
+								}
+								updateScore("homeTeam", -10);
+							}
+							else if (col.equals(DatabaseHelper.COL_SNITCHES))
+							{
+								db.updateScore(fm.gId, "homeTeam", -30);
+							}
 						}
 					}
 					fm.redoStack.push(a);
@@ -393,32 +400,23 @@ public class FragmentPlayerList extends ListFragment
 			@Override
 			public void onClick(DialogInterface dialog, int which)
 			{
-				/*
-				 * int curTime = db.getGameTime(fm.gId); int loc =
-				 * db.getOneRowByIdKeys(fm.gId,
-				 * player.getPlayerId()).get(0).getOnField(); int indexedLoc =
-				 * loc -1; db.updateStat(fm.gId, player.getPlayerId(),
-				 * "onField", 0); db.updateStat(fm.gId,
-				 * list.get(which).getPlayerId(), "onField", loc);
-				 * 
-				 * int timeToAdd = curTime - fm.sinceRefresh[indexedLoc];
-				 * db.updateStat(fm.gId, player.getPlayerId(), "time",
-				 * timeToAdd); //Here? Is this the problem?
-				 * 
-				 * Action toAdd = new Action(fm.gId,
-				 * list.get(which).getPlayerId(), player.getPlayerId(), "sub",
-				 * list.get(which).getLname(), fm.timeSubbedIn[indexedLoc]);
-				 * fm.undoQueue.add(toAdd);
-				 * 
-				 * fm.timeSubbedIn[indexedLoc] = curTime;
-				 * fm.sinceRefresh[indexedLoc] = curTime;
-				 * 
-				 * populateList();
-				 */
-				int curTime = db.getGameTime(fm.gId);
-				int location = db.getListLocation(fm.gId, player.getPlayerId());
-				location--; // for zero indexing
-
+				//record time of substitution
+				//I should put TIME in my action thingy
+				//It is there
+				//so... biuld the subbing action
+				Action subOutAct = new Action();
+				subOutAct.setDatabaseColumn("Sub");
+				subOutAct.setGameId(fm.gId);
+				subOutAct.setPlayerId(list.get(which).getPlayerId());
+				subOutAct.setPlayerSubbedOut(player.getPlayerId());
+				subOutAct.setTimeSwitched(db.getGameTime(fm.gId));
+				subOutAct.setValueAdded(which); //location
+				
+				fm.undoStack.add(subOutAct);
+				
+				//now do the actual switch
+				
+				
 			}
 		});
 		return subBuilder;
