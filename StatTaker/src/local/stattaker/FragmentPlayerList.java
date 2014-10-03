@@ -39,6 +39,7 @@ public class FragmentPlayerList extends ListFragment
 	ListView		currentPlayers;
 	Button			opponentGoal;
 	Button			opponentSnitch;
+	Button			homeSnitch;
 	Button			undoButton;
 	Button			redoButton;
 	TextView		score;
@@ -59,6 +60,7 @@ public class FragmentPlayerList extends ListFragment
 		time = (TextView) rootView.findViewById(R.id.time);
 		opponentGoal = (Button) rootView.findViewById(R.id.opponent_goal);
 		opponentSnitch = (Button) rootView.findViewById(R.id.opponent_snitch);
+		homeSnitch = (Button) rootView.findViewById(R.id.home_snitch);
 		undoButton = (Button) rootView.findViewById(R.id.undo_button);
 		redoButton = (Button) rootView.findViewById(R.id.redo_button);
 
@@ -119,9 +121,6 @@ public class FragmentPlayerList extends ListFragment
 			@Override
 			public void onClick(View v)
 			{
-				// give minuses
-				// add 10 to opponent score
-				// add event to the undo/redo stack
 				List<PlayerDb> onFieldPlayers = db
 						.getOnFieldPlayersFromGame(fm.gId);
 				for (int i = 0; i < onFieldPlayers.size(); i++)
@@ -155,6 +154,24 @@ public class FragmentPlayerList extends ListFragment
 			}
 		});
 
+		homeSnitch.setOnClickListener(new OnClickListener()
+		{
+
+			@Override
+			public void onClick(View v)
+			{
+				updateScore("homeTeam", 30);
+				Action toAdd = new Action();
+				toAdd.setDatabaseColumn("home_snitch");
+				toAdd.setGameId(fm.gId);
+				toAdd.setPlayerId("HOME");
+				toAdd.setValueAdded(1);
+				fm.undoStack.add(toAdd);
+			}
+
+		});
+
+
 		undoButton.setOnClickListener(new OnClickListener()
 		{
 			@Override
@@ -170,19 +187,22 @@ public class FragmentPlayerList extends ListFragment
 				{
 					Action a = fm.undoStack.pop();
 					String col = a.getDatabaseColumn();
-					//for opponent shit
+					// for opponent shit
 					if (a.getPlayerId().equals("AWAY"))
 					{
-						//do away team shit
-						if (a.getDatabaseColumn().equals(DatabaseHelper.COL_AWAY_SCORE))
+						// do away team shit
+						if (a.getDatabaseColumn().equals(
+								DatabaseHelper.COL_AWAY_SCORE))
 						{
 							updateScore("opponent", -10);
-							//get rid of the minuses
-							List<PlayerDb> onFieldPlayers = db.getOnFieldPlayersFromGame(fm.gId);
+							// get rid of the minuses
+							List<PlayerDb> onFieldPlayers = db
+									.getOnFieldPlayersFromGame(fm.gId);
 							for (int i = 0; i < onFieldPlayers.size(); i++)
 							{
-								db.updateStat(fm.gId, onFieldPlayers.get(i).getPlayerId(), 
-										-1, DatabaseHelper.COL_MINUSES);
+								db.updateStat(fm.gId, onFieldPlayers.get(i)
+										.getPlayerId(), -1,
+										DatabaseHelper.COL_MINUSES);
 							}
 						}
 						else
@@ -190,24 +210,36 @@ public class FragmentPlayerList extends ListFragment
 							updateScore("opponent", -(a.getValueAdded()));
 						}
 					}
-					else //for home team shit
+					else
+						// for home team shit
 					{
-						//doesn't account for subs yet
-						if (a.getDatabaseColumn().equals(DatabaseHelper.COL_TOTAL_TIME))
+						// doesn't account for subs yet
+						if (a.getDatabaseColumn().equals(
+								DatabaseHelper.COL_TOTAL_TIME))
 						{
-							//subbing, which is hard
+							// subbing, which is hard
+						}
+						else if (a.getDatabaseColumn().equals("home_snitch"))
+						{
+							updateScore("homeTeam", -30);
+							fm.redoStack.add(a);
 						}
 						else
 						{
-							db.updateStat(fm.gId, a.getPlayerId(), -(a.getValueAdded()), col);
+							db.updateStat(fm.gId, a.getPlayerId(),
+									-(a.getValueAdded()), col);
 							if (col.equals(DatabaseHelper.COL_GOALS))
 							{
-								db.updateStat(fm.gId, a.getPlayerId(), -1, DatabaseHelper.COL_SHOTS);
-								List<PlayerDb> onFieldPlayers = db.getOnFieldPlayersFromGame(fm.gId);
+								db.updateStat(fm.gId, a.getPlayerId(), -1,
+										DatabaseHelper.COL_SHOTS);
+								List<PlayerDb> onFieldPlayers = db
+										.getOnFieldPlayersFromGame(fm.gId);
 								for (int i = 0; i < onFieldPlayers.size(); i++)
 								{
-									db.updateStat(fm.gId, onFieldPlayers.get(i).getPlayerId(), 
-											-(a.getValueAdded()), DatabaseHelper.COL_PLUSSES);
+									db.updateStat(fm.gId, onFieldPlayers.get(i)
+											.getPlayerId(),
+											-(a.getValueAdded()),
+											DatabaseHelper.COL_PLUSSES);
 								}
 								updateScore("homeTeam", -10);
 							}
@@ -400,23 +432,29 @@ public class FragmentPlayerList extends ListFragment
 			@Override
 			public void onClick(DialogInterface dialog, int which)
 			{
-				//record time of substitution
-				//I should put TIME in my action thingy
-				//It is there
-				//so... biuld the subbing action
 				Action subOutAct = new Action();
 				subOutAct.setDatabaseColumn("Sub");
 				subOutAct.setGameId(fm.gId);
 				subOutAct.setPlayerId(list.get(which).getPlayerId());
 				subOutAct.setPlayerSubbedOut(player.getPlayerId());
 				subOutAct.setTimeSwitched(db.getGameTime(fm.gId));
-				subOutAct.setValueAdded(which); //location
-				
+				int spotOnList = db.getListLocation(fm.gId,
+						player.getPlayerId());
+				subOutAct.setValueAdded(spotOnList); // location WRONG!
+				if (spotOnList > 0)
+				{
+					db.subOut(fm.gId, player.getPlayerId(), list.get(which)
+							.getPlayerId(), spotOnList);
+				}
+				else
+				{
+					showMessage("An error has occured", "The Guardians");
+				}
+
 				fm.undoStack.add(subOutAct);
-				
-				//now do the actual switch
-				
-				
+
+				populateList();
+
 			}
 		});
 		return subBuilder;
@@ -457,6 +495,14 @@ public class FragmentPlayerList extends ListFragment
 					if (seconds < 10)
 					{
 						gameTime = minutes + ":0" + seconds;
+					}
+					// add one second to every player on the field
+					List<PlayerDb> players = db
+							.getOnFieldPlayersFromGame(fm.gId);
+					for (int i = 0; i < players.size(); i++)
+					{
+						db.updateStat(fm.gId, players.get(i).getPlayerId(), 1,
+								DatabaseHelper.COL_TOTAL_TIME);
 					}
 					final String gT = gameTime; // cause it needs to be final
 					getActivity().runOnUiThread(new Runnable()

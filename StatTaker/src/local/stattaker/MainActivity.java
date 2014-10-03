@@ -41,19 +41,17 @@ import com.parse.ParseQuery;
 
 public class MainActivity extends Activity
 {
-	
-	//TODO
-	//1. Clock
-	//	a. get game time DB function
-	//2. Subbing
-	//3. Home snitch button
-	//	a. assign to player, preferably on the bench, maybe anywhere
-	//4. Active checkboxes
-	//5. Download rosters from internet
-	//	a. Make sure it works offline though
-	//6. Make it pretty
-	//	a. Active count on the edit team screen
-	//	b. Clock could be prettier
+
+	// TODOs
+	// 2. Undo/redo
+	// 3. Home snitch button
+	// 		a. assign to player, preferably on the bench, maybe anywhere
+	// 4. Active checkboxes
+	// 5. Download rosters from internet
+	// 		a. Make sure it works offline though
+	// 6. Make it pretty
+	// 		a. Active count on the edit team screen
+	// 		b. Clock could be prettier
 	private String			TAG				= "MainActivity";
 
 	DatabaseHelper			db;

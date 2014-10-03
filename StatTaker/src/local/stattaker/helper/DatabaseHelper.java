@@ -711,7 +711,8 @@ public class DatabaseHelper extends SQLiteOpenHelper
 				+ " WHERE " 
 				+ TABLE_STATS + "." + COL_GAMEID + " = '" + gameId + "'" 
 				+ " AND "
-				+ TABLE_PLAYER + "." + COL_ID + " = " + TABLE_STATS + "." + COL_PLAYERID;
+				+ TABLE_PLAYER + "." + COL_ID + " = " + TABLE_STATS + "." + COL_PLAYERID
+				+ " ORDER BY " + COL_ONFIELD + " ASC";
 
 		Cursor c = db.rawQuery(query, null);
 		if (c.moveToFirst())
@@ -819,7 +820,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 			return c.getInt(c.getColumnIndex(COL_ONFIELD));
 		}
 		db.close();
-		return 1;
+		return 0;
 	}
 
 	public void updateTime(String gId, int valToAdd)
@@ -886,6 +887,23 @@ public class DatabaseHelper extends SQLiteOpenHelper
 		db.update(TABLE_STATS, values, COL_GAMEID + " = ? AND " + COL_PLAYERID + " = ?", 
 				new String[] {gameId, playerId} );
 		db.close();
+	}
+	
+	public void subOut(String gameId, String playerIdOut, String playerIdIn, int location)
+	{
+		ContentValues values = new ContentValues();
+		values.put(COL_ONFIELD, 0);
+		
+		ContentValues values1 = new ContentValues();
+		values1.put(COL_ONFIELD, location);
+		
+		SQLiteDatabase db = this.getWritableDatabase();
+		
+		db.update(TABLE_STATS, values, COL_GAMEID + " = ? AND " + COL_PLAYERID + " = ?",
+				new String[] {gameId, playerIdOut} );
+		
+		db.update(TABLE_STATS, values1, COL_GAMEID + " = ? AND " + COL_PLAYERID + " = ?",
+				new String[] {gameId, playerIdIn} );
 	}
 
 	public Cursor getGameStats(String gameId)
