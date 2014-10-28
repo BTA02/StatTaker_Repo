@@ -171,7 +171,6 @@ public class FragmentPlayerList extends ListFragment
 
 		});
 
-
 		undoButton.setOnClickListener(new OnClickListener()
 		{
 			@Override
@@ -187,7 +186,7 @@ public class FragmentPlayerList extends ListFragment
 				{
 					Action a = fm.undoStack.pop();
 					String col = a.getDatabaseColumn();
-					// for opponent shit
+					// for opponents
 					if (a.getPlayerId().equals("AWAY"))
 					{
 						// do away team shit
@@ -211,18 +210,25 @@ public class FragmentPlayerList extends ListFragment
 						}
 					}
 					else
-						// for home team shit
+					// for home team
 					{
 						// doesn't account for subs yet
 						if (a.getDatabaseColumn().equals(
 								DatabaseHelper.COL_TOTAL_TIME))
 						{
-							// subbing, which is hard
+							int curTime = db.getGameTime(fm.gId);
+							int timeChange = curTime - a.getTimeSwitched();
+							//actually change who is in the game
+							db.subOut(fm.gId, a.getPlayerId(), a.getPlayerSubbedOut(), a.getValueAdded());
+							db.updateStat(fm.gId, a.getPlayerId(), -timeChange, DatabaseHelper.COL_TOTAL_TIME);
+							db.updateStat(fm.gId, a.getPlayerSubbedOut(), timeChange, DatabaseHelper.COL_TOTAL_TIME);
+							populateList();
+							//fm.redoStack.add(a);
 						}
 						else if (a.getDatabaseColumn().equals("home_snitch"))
 						{
 							updateScore("homeTeam", -30);
-							fm.redoStack.add(a);
+							//fm.redoStack.add(a);
 						}
 						else
 						{
@@ -250,6 +256,7 @@ public class FragmentPlayerList extends ListFragment
 						}
 					}
 					fm.redoStack.push(a);
+					//Clear the stack on certain undos
 				}
 			}
 		});
@@ -433,7 +440,7 @@ public class FragmentPlayerList extends ListFragment
 			public void onClick(DialogInterface dialog, int which)
 			{
 				Action subOutAct = new Action();
-				subOutAct.setDatabaseColumn("Sub");
+				subOutAct.setDatabaseColumn(DatabaseHelper.COL_TOTAL_TIME);
 				subOutAct.setGameId(fm.gId);
 				subOutAct.setPlayerId(list.get(which).getPlayerId());
 				subOutAct.setPlayerSubbedOut(player.getPlayerId());

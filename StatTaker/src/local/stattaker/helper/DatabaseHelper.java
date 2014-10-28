@@ -876,7 +876,8 @@ public class DatabaseHelper extends SQLiteOpenHelper
 		return 0;
 
 	}
-
+	//Stop passing "Sub" as the column, dumb-ass
+	//Unless I don't actually need to update the stat?
 	public void updateStat(String gameId, String playerId, int valToAdd, String column)
 	{
 		ContentValues values = new ContentValues();
@@ -904,6 +905,8 @@ public class DatabaseHelper extends SQLiteOpenHelper
 		
 		db.update(TABLE_STATS, values1, COL_GAMEID + " = ? AND " + COL_PLAYERID + " = ?",
 				new String[] {gameId, playerIdIn} );
+		
+		db.close();
 	}
 
 	public Cursor getGameStats(String gameId)

@@ -49,7 +49,8 @@ public class MainActivity extends Activity
 	// 4. Active checkboxes
 	// 5. Download rosters from internet
 	// 		a. Make sure it works offline though
-	// 6. Make it pretty
+	// 6. Secondary button for subbing
+	// 7. Make it pretty
 	// 		a. Active count on the edit team screen
 	// 		b. Clock could be prettier
 	private String			TAG				= "MainActivity";
