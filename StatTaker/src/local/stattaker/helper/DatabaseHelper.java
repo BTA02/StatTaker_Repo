@@ -23,7 +23,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 	private static final String TAG = "DatabaseHelper";
 
 	// Database Version
-	private static final int DATABASE_VERSION = 49;
+	private static final int DATABASE_VERSION = 59;
 
 	// Database Name
 	private static final String DATABASE_NAME = "quidditchGames";
