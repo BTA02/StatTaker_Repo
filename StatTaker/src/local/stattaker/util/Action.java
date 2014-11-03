@@ -3,11 +3,11 @@ package local.stattaker.util;
 public class Action 
 {
 	private String gameId;
-	private String playerId;
-	private int valueAdded;
+	private String playerId; //player going in
+	private int valueAdded; //where on the list
 	private String playerSubbedOut;
 	private int timeOfAction;
-	private String databaseColumn;
+	private String databaseColumn; //totalTime
 	
 	public String getGameId()
 	{

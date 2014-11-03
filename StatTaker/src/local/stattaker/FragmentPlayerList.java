@@ -1,6 +1,5 @@
 package local.stattaker;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Timer;
@@ -121,21 +120,7 @@ public class FragmentPlayerList extends ListFragment
 			@Override
 			public void onClick(View v)
 			{
-				List<PlayerDb> onFieldPlayers = db
-						.getOnFieldPlayersFromGame(fm.gId);
-				for (int i = 0; i < onFieldPlayers.size(); i++)
-				{
-					db.updateStat(fm.gId, onFieldPlayers.get(i).getPlayerId(),
-							1, DatabaseHelper.COL_MINUSES);
-				}
-				Action toAdd = new Action();
-				toAdd.setDatabaseColumn(DatabaseHelper.COL_AWAY_SCORE);
-				toAdd.setGameId(fm.gId);
-				toAdd.setPlayerId("AWAY");
-				toAdd.setValueAdded(10);// because I'll want to subtract this
-				fm.undoStack.add(toAdd);
-
-				updateScore("opponent", 10);
+				opponentScored();
 			}
 		});
 
@@ -144,13 +129,7 @@ public class FragmentPlayerList extends ListFragment
 			@Override
 			public void onClick(View v)
 			{
-				updateScore("opponent", 30);
-				Action toAdd = new Action();
-				toAdd.setDatabaseColumn("away_snitch");
-				toAdd.setGameId(fm.gId);
-				toAdd.setPlayerId("AWAY");
-				toAdd.setValueAdded(1);// because I'll want to subtract this
-				fm.undoStack.add(toAdd);
+				opponentSnitch();
 			}
 		});
 
@@ -160,13 +139,7 @@ public class FragmentPlayerList extends ListFragment
 			@Override
 			public void onClick(View v)
 			{
-				updateScore("homeTeam", 30);
-				Action toAdd = new Action();
-				toAdd.setDatabaseColumn("home_snitch");
-				toAdd.setGameId(fm.gId);
-				toAdd.setPlayerId("HOME");
-				toAdd.setValueAdded(1);
-				fm.undoStack.add(toAdd);
+				homeSnitch();
 			}
 
 		});
@@ -209,10 +182,9 @@ public class FragmentPlayerList extends ListFragment
 							updateScore("opponent", -(a.getValueAdded()));
 						}
 					}
+					//for home team...
 					else
-					// for home team
 					{
-						// doesn't account for subs yet
 						if (a.getDatabaseColumn().equals(
 								DatabaseHelper.COL_TOTAL_TIME))
 						{
@@ -223,12 +195,6 @@ public class FragmentPlayerList extends ListFragment
 							db.updateStat(fm.gId, a.getPlayerId(), -timeChange, DatabaseHelper.COL_TOTAL_TIME);
 							db.updateStat(fm.gId, a.getPlayerSubbedOut(), timeChange, DatabaseHelper.COL_TOTAL_TIME);
 							populateList();
-							//fm.redoStack.add(a);
-						}
-						else if (a.getDatabaseColumn().equals("home_snitch"))
-						{
-							updateScore("homeTeam", -30);
-							//fm.redoStack.add(a);
 						}
 						else
 						{
@@ -251,7 +217,7 @@ public class FragmentPlayerList extends ListFragment
 							}
 							else if (col.equals(DatabaseHelper.COL_SNITCHES))
 							{
-								db.updateScore(fm.gId, "homeTeam", -30);
+								updateScore("homeTeam", -30);
 							}
 						}
 					}
@@ -274,13 +240,117 @@ public class FragmentPlayerList extends ListFragment
 				}
 				else
 				{
-					// fm.undoQueue.add(a);
+					redoAction();
 				}
 			}
 		});
 
 	}
+	
+	public void opponentScored()
+	{
+		List<PlayerDb> onFieldPlayers = db
+				.getOnFieldPlayersFromGame(fm.gId);
+		for (int i = 0; i < onFieldPlayers.size(); i++)
+		{
+			db.updateStat(fm.gId, onFieldPlayers.get(i).getPlayerId(),
+					1, DatabaseHelper.COL_MINUSES);
+		}
+		Action toAdd = new Action();
+		toAdd.setDatabaseColumn(DatabaseHelper.COL_AWAY_SCORE);
+		toAdd.setGameId(fm.gId);
+		toAdd.setPlayerId("AWAY");
+		toAdd.setValueAdded(10);// because I'll want to subtract this
+		fm.undoStack.add(toAdd);
 
+		updateScore("opponent", 10);
+	}
+	
+	public void opponentSnitch()
+	{
+		updateScore("opponent", 30);
+		Action toAdd = new Action();
+		toAdd.setDatabaseColumn("away_snitch");
+		toAdd.setGameId(fm.gId);
+		toAdd.setPlayerId("AWAY");
+		toAdd.setValueAdded(1);// because I'll want to subtract this
+		fm.undoStack.add(toAdd);
+	}
+	
+	public void homeSnitch()
+	{
+		//assign to a player
+		//launch a list of players
+		AlertDialog.Builder snitchBuilder = snitchDialog(fm.gId);
+		snitchBuilder.show();
+	}
+
+	public void homeStat(String playerId, String statColumn)
+	{
+		db.updateStat(fm.gId, playerId, 1, statColumn);
+		Action toAdd = new Action();
+		toAdd.setDatabaseColumn(DatabaseHelper.COL_SHOTS);
+		toAdd.setGameId(fm.gId);
+		toAdd.setPlayerId(playerId);
+		toAdd.setValueAdded(1);// because I'll want to subtract this
+		fm.undoStack.add(toAdd);
+		if (statColumn.equals(DatabaseHelper.COL_GOALS))
+		{
+			db.updateStat(fm.gId, playerId, 1, DatabaseHelper.COL_SHOTS);
+			List<PlayerDb> onFieldPlayers = db
+					.getOnFieldPlayersFromGame(fm.gId);
+			for (int i = 0; i < onFieldPlayers.size(); i++)
+			{
+				db.updateStat(fm.gId, onFieldPlayers.get(i)
+						.getPlayerId(), 1, DatabaseHelper.COL_PLUSSES);
+			}
+			updateScore("homeTeam", 10);
+		}
+		else if (statColumn.equals(DatabaseHelper.COL_SNITCHES))
+		{
+			db.updateScore(fm.gId, "homeTeam", 30);
+		}
+	}
+	
+	public void redoAction()
+	{
+		Action a = fm.redoStack.pop();
+		//for a substitution
+		if (a.getDatabaseColumn().equals(DatabaseHelper.COL_TOTAL_TIME))
+		{
+			int curTime = db.getGameTime(fm.gId);
+			int timeChange = curTime - a.getTimeSwitched();
+			//actually change who is in the game
+			db.subOut(fm.gId, a.getPlayerSubbedOut(), a.getPlayerId(), a.getValueAdded());
+			db.updateStat(fm.gId, a.getPlayerId(), timeChange, DatabaseHelper.COL_TOTAL_TIME);
+			db.updateStat(fm.gId, a.getPlayerSubbedOut(), -timeChange, DatabaseHelper.COL_TOTAL_TIME);
+			populateList();
+			fm.undoStack.push(a);
+		}
+		if (a.getPlayerId().equals("AWAY"))
+		{
+			if (a.getDatabaseColumn().equals(
+					DatabaseHelper.COL_AWAY_SCORE))
+			{
+				opponentScored();
+				return;
+			}
+			else //caught snitch
+			{
+				opponentSnitch();
+				return;
+			}
+		}
+		//Something we did...
+		if (a.getDatabaseColumn().equals("home_snitch"))
+		{
+			homeSnitch();
+			return;
+		}
+		homeStat(a.getPlayerId(), a.getDatabaseColumn());
+	}
+
+	
 	@Override
 	public void onListItemClick(ListView l, View v, int position, long id)
 	{
@@ -317,89 +387,32 @@ public class FragmentPlayerList extends ListFragment
 			{
 				if (which == 0)
 				{
-					db.updateStat(gId, pId, 1, DatabaseHelper.COL_SHOTS);
-					Action toAdd = new Action();
-					toAdd.setDatabaseColumn(DatabaseHelper.COL_SHOTS);
-					toAdd.setGameId(gId);
-					toAdd.setPlayerId(pId);
-					toAdd.setValueAdded(1);// because I'll want to subtract this
-					fm.undoStack.add(toAdd);
+					homeStat(pId, DatabaseHelper.COL_SHOTS);
+					
 				}
 				else if (which == 1)
 				{
-					db.updateStat(gId, pId, 1, DatabaseHelper.COL_GOALS);
-					db.updateStat(gId, pId, 1, DatabaseHelper.COL_SHOTS);
-					List<PlayerDb> onFieldPlayers = db
-							.getOnFieldPlayersFromGame(fm.gId);
-					for (int i = 0; i < onFieldPlayers.size(); i++)
-					{
-						db.updateStat(fm.gId, onFieldPlayers.get(i)
-								.getPlayerId(), 1, DatabaseHelper.COL_PLUSSES);
-					}
-					Action toAdd = new Action();
-					toAdd.setDatabaseColumn(DatabaseHelper.COL_GOALS);
-					toAdd.setGameId(gId);
-					toAdd.setPlayerId(pId);
-					toAdd.setValueAdded(1);// because I'll want to subtract this
-					fm.undoStack.add(toAdd);
-
-					updateScore("homeTeam", 10);
+					homeStat(pId, DatabaseHelper.COL_GOALS);
 				}
 				else if (which == 2)
 				{
-					db.updateStat(gId, pId, 1, DatabaseHelper.COL_ASSISTS);
-					Action toAdd = new Action();
-					toAdd.setDatabaseColumn(DatabaseHelper.COL_ASSISTS);
-					toAdd.setGameId(gId);
-					toAdd.setPlayerId(pId);
-					toAdd.setValueAdded(1);// because I'll want to subtract this
-					fm.undoStack.add(toAdd);
-					// add to undo/redo
+					homeStat(pId, DatabaseHelper.COL_ASSISTS);
 				}
 				else if (which == 3)
 				{
-					db.updateStat(gId, pId, 1, DatabaseHelper.COL_STEALS);
-					Action toAdd = new Action();
-					toAdd.setDatabaseColumn(DatabaseHelper.COL_STEALS);
-					toAdd.setGameId(gId);
-					toAdd.setPlayerId(pId);
-					toAdd.setValueAdded(1);// because I'll want to subtract this
-					fm.undoStack.add(toAdd);
-					// add to undo/redo
+					homeStat(pId, DatabaseHelper.COL_STEALS);
 				}
 				else if (which == 4)
 				{
-					db.updateStat(gId, pId, 1, DatabaseHelper.COL_TURNOVERS);
-					Action toAdd = new Action();
-					toAdd.setDatabaseColumn(DatabaseHelper.COL_TURNOVERS);
-					toAdd.setGameId(gId);
-					toAdd.setPlayerId(pId);
-					toAdd.setValueAdded(1);// because I'll want to subtract this
-					fm.undoStack.add(toAdd);
-					// add to undo/redo
+					homeStat(pId, DatabaseHelper.COL_TURNOVERS);
 				}
 				else if (which == 5)
 				{
-					db.updateStat(gId, pId, 1, DatabaseHelper.COL_SAVES);
-					Action toAdd = new Action();
-					toAdd.setDatabaseColumn(DatabaseHelper.COL_SAVES);
-					toAdd.setGameId(gId);
-					toAdd.setPlayerId(pId);
-					toAdd.setValueAdded(1);// because I'll want to subtract this
-					fm.undoStack.add(toAdd);
-					// add to undo/redo
+					homeStat(pId, DatabaseHelper.COL_SAVES);
 				}
 				else if (which == 6)
 				{
-					db.updateStat(gId, pId, 1, DatabaseHelper.COL_SNITCHES);
-					db.updateScore(gId, "homeTeam", 30);
-					Action toAdd = new Action();
-					toAdd.setDatabaseColumn(DatabaseHelper.COL_SNITCHES);
-					toAdd.setGameId(gId);
-					toAdd.setPlayerId(pId);
-					toAdd.setValueAdded(1);// because I'll want to subtract this
-					fm.undoStack.add(toAdd);
-					// add to undo/redo
+					homeStat(pId, DatabaseHelper.COL_SNITCHES);
 				}
 				else
 				{
@@ -465,6 +478,46 @@ public class FragmentPlayerList extends ListFragment
 			}
 		});
 		return subBuilder;
+	}
+	
+	Builder snitchDialog(final String gId)
+	{
+		// setup the dialog
+		LayoutInflater dialogFactory = LayoutInflater.from(getActivity());
+		final View addSubView = dialogFactory.inflate(
+				R.layout.stat_choice_dialog, null);
+		final AlertDialog.Builder snitchBuilder = new AlertDialog.Builder(
+				getActivity());
+		snitchBuilder.setView(addSubView);
+		snitchBuilder.setTitle("Who caught the snitch?");
+		snitchBuilder.setCancelable(false);
+
+		final List<PlayerDb> list = db.getOffFieldPlayersFromGame(gId);
+		Collections.sort(list, new PlayerDb.OrderByFirstName());
+		CharSequence[] items = new String[list.size()];
+		for (int i = 0; i < list.size(); i++)
+		{
+			items[i] = list.get(i).toString();
+		}
+
+		snitchBuilder.setItems(items, new DialogInterface.OnClickListener()
+		{
+
+			@Override
+			public void onClick(DialogInterface dialog, int which)
+			{
+				updateScore("homeTeam", 30);
+				Action toAdd = new Action();
+				toAdd.setDatabaseColumn(DatabaseHelper.COL_SNITCHES);
+				toAdd.setGameId(fm.gId);
+				toAdd.setPlayerId(list.get(which).getPlayerId());
+				toAdd.setValueAdded(1);
+				db.updateStat(fm.gId, list.get(which).getPlayerId(), 1, DatabaseHelper.COL_SNITCHES);
+				fm.undoStack.add(toAdd);
+
+			}
+		});
+		return snitchBuilder;
 	}
 
 	public void populateList() // which list is this?

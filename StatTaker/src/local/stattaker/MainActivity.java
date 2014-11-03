@@ -43,9 +43,6 @@ public class MainActivity extends Activity
 {
 
 	// TODOs
-	// 2. Undo/redo
-	// 3. Home snitch button
-	// 		a. assign to player, preferably on the bench, maybe anywhere
 	// 4. Active checkboxes
 	// 5. Download rosters from internet
 	// 		a. Make sure it works offline though
@@ -53,12 +50,17 @@ public class MainActivity extends Activity
 	// 7. Make it pretty
 	// 		a. Active count on the edit team screen
 	// 		b. Clock could be prettier
+	//		c. Some color
+	//		d. Center things in lists
+	//		e. MRU list for subbing in a certain slot
+	//		f. Deliniate chaser / beater / keeper sections
+	// 8. Code efficiency. Currently sucks
 	private String			TAG				= "MainActivity";
 
 	DatabaseHelper			db;
 
-	List<String>			teams;
-	List<String>			oTeams;
+	List<TeamDb> 			teamList;
+	List<TeamDb>			oTeams;
 
 	Button					create_team;
 	ListView				currentTeams;
@@ -138,36 +140,22 @@ public class MainActivity extends Activity
 
 		});
 
-		populateTeamsList();
+		populateTeamList();
 
 		if (isNetworkAvailable())
 		{
-			// populateOnlineTeamList();
+			populateOnlineTeamList();
 		}
-
-		onlineTeams = (ListView) findViewById(R.id.online_teams_list);
-		onlineTeams.setOnItemClickListener(new OnItemClickListener()
-		{
-			@Override
-			public void onItemClick(AdapterView<?> parent, View view,
-					int position, long id)
-			{
-				// do this properly soon
-				final String teamClicked = (String) ((TextView) view).getText();
-				// loadInTeam(teamClicked);
-			}
-
-		});
 	}
 
 	@Override
 	public void onResume()
 	{
 		super.onResume();
-		populateTeamsList();
+		populateTeamList();
 		if (isNetworkAvailable())
 		{
-			// populateOnlineTeamList();
+			populateOnlineTeamList();
 		}
 	}
 
@@ -180,13 +168,14 @@ public class MainActivity extends Activity
 	}
 
 	// still works, shows local teams, which is perfect
+	// this is totally wrong code
 	@SuppressWarnings("unchecked")
-	public void populateTeamsList()
+	public void populateTeamList()
 	{
 		currentTeams = (ListView) findViewById(R.id.teams_list);
 		Cursor c = db.getAllTeamsCursor();
 
-		List<TeamDb> teamList = new ArrayList<TeamDb>();
+		teamList = new ArrayList<TeamDb>();
 		teamList = db.getAllTeamsList();
 		Collections.sort(teamList, new TeamDb.OrderByTeamName());
 		ListAdapter listAdapter = new ArrayAdapter<TeamDb>(this,
@@ -194,7 +183,6 @@ public class MainActivity extends Activity
 		currentTeams.setAdapter(listAdapter);
 		currentTeams.setOnItemClickListener(new OnItemClickListener()
 		{
-
 			@Override
 			public void onItemClick(AdapterView<?> arg0, View arg1, int arg2,
 					long arg3)
@@ -309,12 +297,11 @@ public class MainActivity extends Activity
 
 	public void populateOnlineTeamList()
 	{
-
 		onlineTeams = (ListView) findViewById(R.id.online_teams_list);
 
 		List<ParseObject> objects = new ArrayList<ParseObject>();
-		oTeams = new ArrayList<String>();
-		ParseQuery<ParseObject> query = ParseQuery.getQuery("Player");
+		oTeams = new ArrayList<TeamDb>();
+		ParseQuery<ParseObject> query = ParseQuery.getQuery("Team");
 		try
 		{
 			objects = query.find();
@@ -327,28 +314,49 @@ public class MainActivity extends Activity
 		for (int i = 0; i < objects.size(); i++)
 		{
 			String teamName = objects.get(i).getString("team_name");
-			if (!oTeams.contains(teamName) && !teams.contains(teamName))
+			String teamId = objects.get(i).getString("objectId");
+			if (!teamExists(teamId))
 			{
-				oTeams.add(teamName);
+				oTeams.add(new TeamDb(teamId, teamName));
 			}
 		}
-		listAdapter2 = new ArrayAdapter<String>(this,
-				android.R.layout.simple_list_item_1, oTeams);
+		ListAdapter listAdapter2 = new ArrayAdapter<TeamDb>(this,
+				R.layout.custom_player_list, oTeams);
 		onlineTeams.setAdapter(listAdapter2);
+		
+		onlineTeams.setOnItemClickListener(new OnItemClickListener()
+		{
+			@Override
+			public void onItemClick(AdapterView<?> parent, View view,
+					int position, long id)
+			{
+				Object o = onlineTeams.getItemAtPosition(position);
+				TeamDb teamClicked = (TeamDb)o;
+				loadInTeam(teamClicked.getId());
+			}
+		});
 
 	}
-
-	public void loadInTeam(String teamName)
+	
+	public boolean teamExists(String teamId)
 	{
-		// build a db object here
-		String num;
-		String fname;
-		String lname;
-		int active;
+		for (int i = 0; i < teamList.size(); i++)
+		{
+			if (teamList.get(i).getId().equals(teamId))
+			{
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	//There is a better way. Give every team online an ID, display the name, check against the ID
 
+	public void loadInTeam(String teamId)
+	{
 		List<ParseObject> objects = new ArrayList<ParseObject>();
-		ParseQuery<ParseObject> query = ParseQuery.getQuery("Player");
-		query.whereEqualTo("team_name", teamName);
+		ParseQuery<ParseObject> query = ParseQuery.getQuery("Team");
+		query.whereEqualTo("objectId", teamId);
 		try
 		{
 			objects = query.find();
@@ -356,8 +364,28 @@ public class MainActivity extends Activity
 		catch (ParseException e)
 		{
 			e.printStackTrace();
-			Log.e("Test", "Parse .find didn't work 2");
+			Log.e("Test", "Parse .find() didn't work 2");
 		}
+		//populate my database now
+		for (int i = 0; i < objects.size(); i++)
+		{
+			//1. Add the team 
+			//2. Add the players to db from said team
+			//3. Add players to the team
+			String tName = objects.get(i).getString("team_name"); 
+			
+		}
+		
+		
+		
+		
+		
+		
+		//add players to database
+		String num;
+		String fname;
+		String lname;
+		int active;
 		for (int i = 0; i < objects.size(); i++)
 		{
 			num = objects.get(i).getString("number");
@@ -371,12 +399,12 @@ public class MainActivity extends Activity
 			{
 				active = 0;
 			}
-			// PlayerDb p = new PlayerDb(teamName, -1, num, fname, lname, 0,
-			// active);
-			// db.addPlayer(p);
+			String newPlayerId = UUID.randomUUID().toString();
+			db.addPlayer(newPlayerId, num, fname, lname);
+			//db.addPlayerToTeam(newPlayerId, teamId);
 		}
-		populateTeamsList();
-		populateOnlineTeamList();
+		populateTeamList();
+		//populateOnlineTeamList();
 	}
 
 	private boolean isNetworkAvailable()

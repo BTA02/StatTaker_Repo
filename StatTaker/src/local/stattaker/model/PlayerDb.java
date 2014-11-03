@@ -17,13 +17,13 @@ public class PlayerDb //row in the player table
 	}
 
 	// constructor
-	public PlayerDb(String t, String p, String n, String f, String l, int oF, int a)
+	public PlayerDb(String teamName_, String playerId_, String number_, 
+			String fname_, String lname_, int onField_, int active_)
 	{
-		this.playerId = p;
-		this.number = n;
-		this.fname = f;
-		this.lname = l;
-
+		this.playerId = playerId_;
+		this.number = number_;
+		this.fname = fname_;
+		this.lname = lname_;
 	}
 
 	public static class OrderByFirstName implements Comparator<PlayerDb>

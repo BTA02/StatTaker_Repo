@@ -885,7 +885,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 
 		SQLiteDatabase db = this.getWritableDatabase();
 
-		db.update(TABLE_STATS, values, COL_GAMEID + " = ? AND " + COL_PLAYERID + " = ?", 
+		int i = db.update(TABLE_STATS, values, COL_GAMEID + " = ? AND " + COL_PLAYERID + " = ?", 
 				new String[] {gameId, playerId} );
 		db.close();
 	}
