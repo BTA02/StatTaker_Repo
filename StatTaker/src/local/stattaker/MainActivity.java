@@ -42,18 +42,15 @@ public class MainActivity extends Activity
 {
 
 	// TODOs
-	// 4. Active checkboxes
-	// 5. Download rosters from internet
-	// 		a. Make sure it works offline though
-	// 6. Secondary button for subbing
 	// 7. Make it pretty
-	// 		a. Active count on the edit team screen
 	// 		b. Clock could be prettier
 	// 		c. Some color
 	// 		d. Center things in lists
 	// 		e. MRU list for subbing in a certain slot
 	// 		f. Deliniate chaser / beater / keeper sections
 	// 8. Code efficiency. Currently sucks
+	// 9. Delete team!
+	//		a. Should put it back on the "online team list" thing
 	private String			TAG					= "MainActivity";
 
 	DatabaseHelper			db;

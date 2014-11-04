@@ -9,10 +9,12 @@ import local.stattaker.helper.DatabaseHelper;
 import local.stattaker.model.GameDb;
 import local.stattaker.model.PlayerDb;
 import local.stattaker.util.Action;
+import local.stattaker.util.CursorAdapterOnFieldList;
 import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
 import android.util.Log;
@@ -49,6 +51,8 @@ public class FragmentPlayerList extends ListFragment
 	FragmentMain	fm;
 	View			rootView;
 
+	Cursor			c		= null;
+
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState)
@@ -75,6 +79,7 @@ public class FragmentPlayerList extends ListFragment
 		}
 		fm = (FragmentMain) getActivity();
 		db = new DatabaseHelper(fm.context);
+		fm.playerFrag = this;
 
 		score.setText(fm.gInfo.getHomeScore() + " - " + fm.gInfo.getAwayScore());
 		int totalSeconds = fm.gInfo.getGameTimeSeconds();
@@ -107,10 +112,20 @@ public class FragmentPlayerList extends ListFragment
 			public boolean onItemLongClick(AdapterView<?> arg0, View arg1,
 					int arg2, long arg3)
 			{
+				if (c != null)
+				{
+					c.moveToPosition(arg2);
+					AlertDialog.Builder subBuilder = 
+							subDialog(fm.gId, c.getString(c.getColumnIndex(DatabaseHelper.COL_ID)));
+					subBuilder.show();
+				}
+				return true;
+				/*
 				final PlayerDb player = (PlayerDb) arg0.getItemAtPosition(arg2);
 				AlertDialog.Builder subBuilder = subDialog(fm.gId, player);
 				subBuilder.show();
 				return true; // that's all it took, cool
+				 */
 			}
 
 		});
@@ -182,7 +197,7 @@ public class FragmentPlayerList extends ListFragment
 							updateScore("opponent", -(a.getValueAdded()));
 						}
 					}
-					//for home team...
+					// for home team...
 					else
 					{
 						if (a.getDatabaseColumn().equals(
@@ -190,10 +205,13 @@ public class FragmentPlayerList extends ListFragment
 						{
 							int curTime = db.getGameTime(fm.gId);
 							int timeChange = curTime - a.getTimeSwitched();
-							//actually change who is in the game
-							db.subOut(fm.gId, a.getPlayerId(), a.getPlayerSubbedOut(), a.getValueAdded());
-							db.updateStat(fm.gId, a.getPlayerId(), -timeChange, DatabaseHelper.COL_TOTAL_TIME);
-							db.updateStat(fm.gId, a.getPlayerSubbedOut(), timeChange, DatabaseHelper.COL_TOTAL_TIME);
+							// actually change who is in the game
+							db.subOut(fm.gId, a.getPlayerId(),
+									a.getPlayerSubbedOut(), a.getValueAdded());
+							db.updateStat(fm.gId, a.getPlayerId(), -timeChange,
+									DatabaseHelper.COL_TOTAL_TIME);
+							db.updateStat(fm.gId, a.getPlayerSubbedOut(),
+									timeChange, DatabaseHelper.COL_TOTAL_TIME);
 							populateList();
 						}
 						else
@@ -222,7 +240,7 @@ public class FragmentPlayerList extends ListFragment
 						}
 					}
 					fm.redoStack.push(a);
-					//Clear the stack on certain undos
+					// Clear the stack on certain undos
 				}
 			}
 		});
@@ -246,15 +264,14 @@ public class FragmentPlayerList extends ListFragment
 		});
 
 	}
-	
+
 	public void opponentScored()
 	{
-		List<PlayerDb> onFieldPlayers = db
-				.getOnFieldPlayersFromGame(fm.gId);
+		List<PlayerDb> onFieldPlayers = db.getOnFieldPlayersFromGame(fm.gId);
 		for (int i = 0; i < onFieldPlayers.size(); i++)
 		{
-			db.updateStat(fm.gId, onFieldPlayers.get(i).getPlayerId(),
-					1, DatabaseHelper.COL_MINUSES);
+			db.updateStat(fm.gId, onFieldPlayers.get(i).getPlayerId(), 1,
+					DatabaseHelper.COL_MINUSES);
 		}
 		Action toAdd = new Action();
 		toAdd.setDatabaseColumn(DatabaseHelper.COL_AWAY_SCORE);
@@ -265,7 +282,7 @@ public class FragmentPlayerList extends ListFragment
 
 		updateScore("opponent", 10);
 	}
-	
+
 	public void opponentSnitch()
 	{
 		updateScore("opponent", 30);
@@ -276,11 +293,11 @@ public class FragmentPlayerList extends ListFragment
 		toAdd.setValueAdded(1);// because I'll want to subtract this
 		fm.undoStack.add(toAdd);
 	}
-	
+
 	public void homeSnitch()
 	{
-		//assign to a player
-		//launch a list of players
+		// assign to a player
+		// launch a list of players
 		AlertDialog.Builder snitchBuilder = snitchDialog(fm.gId);
 		snitchBuilder.show();
 	}
@@ -301,8 +318,8 @@ public class FragmentPlayerList extends ListFragment
 					.getOnFieldPlayersFromGame(fm.gId);
 			for (int i = 0; i < onFieldPlayers.size(); i++)
 			{
-				db.updateStat(fm.gId, onFieldPlayers.get(i)
-						.getPlayerId(), 1, DatabaseHelper.COL_PLUSSES);
+				db.updateStat(fm.gId, onFieldPlayers.get(i).getPlayerId(), 1,
+						DatabaseHelper.COL_PLUSSES);
 			}
 			updateScore("homeTeam", 10);
 		}
@@ -311,37 +328,40 @@ public class FragmentPlayerList extends ListFragment
 			db.updateScore(fm.gId, "homeTeam", 30);
 		}
 	}
-	
+
 	public void redoAction()
 	{
 		Action a = fm.redoStack.pop();
-		//for a substitution
+		// for a substitution
 		if (a.getDatabaseColumn().equals(DatabaseHelper.COL_TOTAL_TIME))
 		{
 			int curTime = db.getGameTime(fm.gId);
 			int timeChange = curTime - a.getTimeSwitched();
-			//actually change who is in the game
-			db.subOut(fm.gId, a.getPlayerSubbedOut(), a.getPlayerId(), a.getValueAdded());
-			db.updateStat(fm.gId, a.getPlayerId(), timeChange, DatabaseHelper.COL_TOTAL_TIME);
-			db.updateStat(fm.gId, a.getPlayerSubbedOut(), -timeChange, DatabaseHelper.COL_TOTAL_TIME);
+			// actually change who is in the game
+			db.subOut(fm.gId, a.getPlayerSubbedOut(), a.getPlayerId(),
+					a.getValueAdded());
+			db.updateStat(fm.gId, a.getPlayerId(), timeChange,
+					DatabaseHelper.COL_TOTAL_TIME);
+			db.updateStat(fm.gId, a.getPlayerSubbedOut(), -timeChange,
+					DatabaseHelper.COL_TOTAL_TIME);
 			populateList();
 			fm.undoStack.push(a);
 		}
 		if (a.getPlayerId().equals("AWAY"))
 		{
-			if (a.getDatabaseColumn().equals(
-					DatabaseHelper.COL_AWAY_SCORE))
+			if (a.getDatabaseColumn().equals(DatabaseHelper.COL_AWAY_SCORE))
 			{
 				opponentScored();
 				return;
 			}
-			else //caught snitch
+			else
+				// caught snitch
 			{
 				opponentSnitch();
 				return;
 			}
 		}
-		//Something we did...
+		// Something we did...
 		if (a.getDatabaseColumn().equals("home_snitch"))
 		{
 			homeSnitch();
@@ -350,17 +370,18 @@ public class FragmentPlayerList extends ListFragment
 		homeStat(a.getPlayerId(), a.getDatabaseColumn());
 	}
 
-	
 	@Override
 	public void onListItemClick(ListView l, View v, int position, long id)
 	{
-		final PlayerDb player = (PlayerDb) l.getItemAtPosition(position);
-
-		AlertDialog.Builder statsBuilder = statsDialog(fm.gId, player);
-		statsBuilder.show();
+		if (c != null)
+		{
+			c.moveToPosition(position);
+			AlertDialog.Builder statsBuilder = statsDialog(fm.gId, c.getString(c.getColumnIndex(DatabaseHelper.COL_ID)));
+			statsBuilder.show();
+		}
 	}
 
-	Builder statsDialog(final String gId, final PlayerDb player)
+	Builder statsDialog(final String gId, final String pId)
 	{
 		// setup the dialog
 		final Context context = getActivity();
@@ -377,8 +398,6 @@ public class FragmentPlayerList extends ListFragment
 		CharSequence[] items = { "Shot", "Goal", "Assist", "Steal", "Turnover",
 				"Save", "Snitch" };
 
-		final String pId = player.getPlayerId();
-
 		statsBuilder.setItems(items, new DialogInterface.OnClickListener()
 		{
 
@@ -388,7 +407,7 @@ public class FragmentPlayerList extends ListFragment
 				if (which == 0)
 				{
 					homeStat(pId, DatabaseHelper.COL_SHOTS);
-					
+
 				}
 				else if (which == 1)
 				{
@@ -425,7 +444,7 @@ public class FragmentPlayerList extends ListFragment
 		return statsBuilder;
 	}
 
-	Builder subDialog(final String gId, final PlayerDb player)
+	Builder subDialog(final String gId, final String playerId)
 	{
 		// setup the dialog
 		final Context context = getActivity();
@@ -456,15 +475,13 @@ public class FragmentPlayerList extends ListFragment
 				subOutAct.setDatabaseColumn(DatabaseHelper.COL_TOTAL_TIME);
 				subOutAct.setGameId(fm.gId);
 				subOutAct.setPlayerId(list.get(which).getPlayerId());
-				subOutAct.setPlayerSubbedOut(player.getPlayerId());
+				subOutAct.setPlayerSubbedOut(playerId);
 				subOutAct.setTimeSwitched(db.getGameTime(fm.gId));
-				int spotOnList = db.getListLocation(fm.gId,
-						player.getPlayerId());
+				int spotOnList = db.getListLocation(fm.gId, playerId);
 				subOutAct.setValueAdded(spotOnList); // location WRONG!
 				if (spotOnList > 0)
 				{
-					db.subOut(fm.gId, player.getPlayerId(), list.get(which)
-							.getPlayerId(), spotOnList);
+					db.subOut(fm.gId, playerId, list.get(which).getPlayerId(), spotOnList);
 				}
 				else
 				{
@@ -479,7 +496,7 @@ public class FragmentPlayerList extends ListFragment
 		});
 		return subBuilder;
 	}
-	
+
 	Builder snitchDialog(final String gId)
 	{
 		// setup the dialog
@@ -512,7 +529,8 @@ public class FragmentPlayerList extends ListFragment
 				toAdd.setGameId(fm.gId);
 				toAdd.setPlayerId(list.get(which).getPlayerId());
 				toAdd.setValueAdded(1);
-				db.updateStat(fm.gId, list.get(which).getPlayerId(), 1, DatabaseHelper.COL_SNITCHES);
+				db.updateStat(fm.gId, list.get(which).getPlayerId(), 1,
+						DatabaseHelper.COL_SNITCHES);
 				fm.undoStack.add(toAdd);
 
 			}
@@ -520,12 +538,19 @@ public class FragmentPlayerList extends ListFragment
 		return snitchBuilder;
 	}
 
-	public void populateList() // which list is this?
+	public void populateList()
 	{
-		List<PlayerDb> playerList = db.getOnFieldPlayersFromGame(fm.gId);
-		listAdapter = new ArrayAdapter<PlayerDb>(getActivity(),
-				R.layout.custom_player_list, playerList);
-		setListAdapter(listAdapter);
+		/*
+		 * List<PlayerDb> playerList = db.getOnFieldPlayersFromGame(fm.gId);
+		 * listAdapter = new ArrayAdapter<PlayerDb>(getActivity(),
+		 * R.layout.custom_player_list, playerList);
+		 * setListAdapter(listAdapter);
+		 */
+
+		c = db.getOnFieldPlayersFromGameCursor(fm.gId);
+		final CursorAdapterOnFieldList onFieldAdapter = new CursorAdapterOnFieldList(
+				fm.context, c, 0);
+		setListAdapter(onFieldAdapter);
 	}
 
 	public void showMessage(String name, String action)
@@ -630,4 +655,14 @@ public class FragmentPlayerList extends ListFragment
 		}
 	}
 
+	public void showSubDialog(int pos)
+	{
+		if (c != null)
+		{
+			c.moveToPosition(pos);
+			AlertDialog.Builder subBuilder = 
+					subDialog(fm.gId, c.getString(c.getColumnIndex(DatabaseHelper.COL_ID)));
+			subBuilder.show();
+		}
+	}
 }

@@ -11,6 +11,7 @@ import android.app.ActionBar.TabListener;
 import android.app.FragmentTransaction;
 import android.content.Context;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.view.ViewPager;
 
@@ -30,6 +31,8 @@ public class FragmentMain extends FragmentActivity implements TabListener
 	boolean running;
 	int[] timeSubbedIn = new int[7];
 	int[] sinceRefresh = new int[7];
+	
+	public Fragment playerFrag;
 
 	Stack<Action> undoStack = new Stack<Action>();
 	Stack<Action> redoStack = new Stack<Action>();

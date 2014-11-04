@@ -24,7 +24,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 	private static final String TAG = "DatabaseHelper";
 
 	// Database Version
-	private static final int DATABASE_VERSION = 59;
+	private static final int DATABASE_VERSION = 60;
 
 	// Database Name
 	private static final String DATABASE_NAME = "quidditchGames";
@@ -341,6 +341,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 				COL_ID + " = ? AND " + COL_PLAYERID + " = ?", new String[] {teamId, playerId} );
 		return;
 	}
+	
 
 	//-----------------------------------------------------------
 	//-----------------------------------------------------------
@@ -696,7 +697,34 @@ public class DatabaseHelper extends SQLiteOpenHelper
 		return ret;
 	}
 
-	//untested
+	public Cursor getOnFieldPlayersFromGameCursor(String gameId)
+	{
+		List<PlayerDb> playerList = new ArrayList<PlayerDb>();
+		SQLiteDatabase db = this.getReadableDatabase();
+
+		String query = "SELECT "
+				+ TABLE_PLAYER + "." + COL_ID + ", "
+				+ TABLE_PLAYER + "." + COL_NUMBER + ", "
+				+ TABLE_PLAYER + "." + COL_FNAME + ", "
+				+ TABLE_PLAYER + "." + COL_LNAME + ", "
+				+ TABLE_STATS + "." + COL_ONFIELD
+				+ " FROM " + TABLE_PLAYER + ", " + TABLE_STATS
+				+ " WHERE " 
+				+ TABLE_STATS + "." + COL_GAMEID + " = '" + gameId + "'" 
+				+ " AND "
+				+ TABLE_PLAYER + "." + COL_ID + " = " + TABLE_STATS + "." + COL_PLAYERID
+				+ " AND "
+				+ COL_ONFIELD + " != 0"
+				+ " ORDER BY " + COL_ONFIELD + " ASC";
+
+		Cursor c = db.rawQuery(query, null);
+		if (c.moveToFirst())
+		{
+			return c;
+		}
+		return null;
+	}
+	
 	public List<PlayerDb> getOnFieldPlayersFromGame(String gameId)
 	{
 		List<PlayerDb> playerList = new ArrayList<PlayerDb>();
