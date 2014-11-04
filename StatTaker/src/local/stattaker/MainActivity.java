@@ -44,15 +44,15 @@ public class MainActivity extends Activity
 	// TODOs
 	// 4. Active checkboxes
 	// 5. Download rosters from internet
-	// a. Make sure it works offline though
+	// 		a. Make sure it works offline though
 	// 6. Secondary button for subbing
 	// 7. Make it pretty
-	// a. Active count on the edit team screen
-	// b. Clock could be prettier
-	// c. Some color
-	// d. Center things in lists
-	// e. MRU list for subbing in a certain slot
-	// f. Deliniate chaser / beater / keeper sections
+	// 		a. Active count on the edit team screen
+	// 		b. Clock could be prettier
+	// 		c. Some color
+	// 		d. Center things in lists
+	// 		e. MRU list for subbing in a certain slot
+	// 		f. Deliniate chaser / beater / keeper sections
 	// 8. Code efficiency. Currently sucks
 	private String			TAG					= "MainActivity";
 
@@ -82,12 +82,7 @@ public class MainActivity extends Activity
 		setContentView(R.layout.activity_main);
 		db = new DatabaseHelper(this);
 
-		if (isNetworkAvailable())
-		{
-			Parse.initialize(this, "RoDlI2ENBnxSWlPvdG2VEsFPRSt06qHJ78nZop77",
-					"fbuEyPT9Exq141IZfueUO1asOcbAFaBjJvdAFI1A");
-			ParseAnalytics.trackAppOpened(getIntent());
-		}
+
 
 		create_team = (Button) findViewById(R.id.create_button);
 		create_team.setOnClickListener(new OnClickListener()
@@ -297,6 +292,12 @@ public class MainActivity extends Activity
 
 	public void populateOnlineTeamList()
 	{
+
+		Parse.initialize(this, "RoDlI2ENBnxSWlPvdG2VEsFPRSt06qHJ78nZop77",
+				"fbuEyPT9Exq141IZfueUO1asOcbAFaBjJvdAFI1A");
+		ParseAnalytics.trackAppOpened(getIntent());
+
+
 		onlineTeams = (ListView) findViewById(R.id.online_teams_list);
 
 		List<ParseObject> objects = new ArrayList<ParseObject>();
@@ -356,7 +357,7 @@ public class MainActivity extends Activity
 				}
 				listAdapter2.notifyDataSetChanged();
 				listAdapter.notifyDataSetChanged();
-				*/
+				 */
 			}
 		});
 
@@ -410,8 +411,8 @@ public class MainActivity extends Activity
 		newTeamObj.setId(newTeamId);
 		newTeamObj.setName(newTeamName);
 		db.addTeam(newTeamId, newTeamName);
-		
-		
+
+
 
 		for (int i = 0; i < objects.size(); i++)
 		{
@@ -440,11 +441,11 @@ public class MainActivity extends Activity
 						listAdapter2.remove(listAdapter2.getItem(i));
 					}
 				}
-				
+
 				listAdapter2.notifyDataSetChanged();
 				listAdapter.notifyDataSetChanged();
 			}
-			
+
 		});
 	}
 

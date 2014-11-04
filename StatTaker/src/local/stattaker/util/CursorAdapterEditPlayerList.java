@@ -37,7 +37,7 @@ public class CursorAdapterEditPlayerList extends CursorAdapter
 	// ---------------------------------------------------------------------------
 
 	@Override
-	public void bindView(View view, Context context, Cursor cursor)
+	public void bindView(final View view, Context context, final Cursor cursor)
 	{
 		//these checkboxes are just flat wrong for now
 		//I need a way to make them flat right
@@ -46,6 +46,7 @@ public class CursorAdapterEditPlayerList extends CursorAdapter
 		TextView fnameTV = (TextView) view.findViewById(R.id.edit_cursor_adapter_player_fname);
 		TextView lnameTV = (TextView) view.findViewById(R.id.edit_cursor_adapter_player_lname);
 		final CheckBox checkbox = (CheckBox) view.findViewById(R.id.edit_cursor_adapter_checkbox);
+		checkbox.setTag(new Integer(cursor.getPosition()));
 		numberTV.setText(cursor.getString(cursor.getColumnIndex(DatabaseHelper.COL_NUMBER)));
 		fnameTV.setText(cursor.getString(cursor.getColumnIndex(DatabaseHelper.COL_FNAME)));
 		lnameTV.setText(cursor.getString(cursor.getColumnIndex(DatabaseHelper.COL_LNAME)));
@@ -73,19 +74,30 @@ public class CursorAdapterEditPlayerList extends CursorAdapter
 				if (checkbox.isChecked())
 				{
 					//add player to active roster
-					activity.db.updateActiveInfo(teamId, playerId, 1);
+					Integer posInt = (Integer)v.getTag();
+					int pos = posInt.intValue();
+					cursor.moveToPosition(pos);
+					String pId = cursor.getString(cursor.getColumnIndex(DatabaseHelper.COL_ID));
+					activity.db.updateActiveInfo(teamId, pId, 1);
+					activity.updateActiveCount();
 					//update the "active" count
+					
 				}
 				else
 				{
 					//remove player from active roster
-					activity.db.updateActiveInfo(teamId, playerId, 0);
+					Integer posInt = (Integer)v.getTag();
+					int pos = posInt.intValue();
+					cursor.moveToPosition(pos);
+					String pId = cursor.getString(cursor.getColumnIndex(DatabaseHelper.COL_ID));
+					activity.db.updateActiveInfo(teamId, pId, 0);
+					activity.updateActiveCount();
 					//update the "active" count
+					
 				}
 			}
 		
 		});
-
 	}// bindView
 
 	// ---------------------------------------------------------------------------
@@ -99,26 +111,7 @@ public class CursorAdapterEditPlayerList extends CursorAdapter
 	}// newView
 
 	// ---------------------------------------------------------------------------
-	/*
-	@Override
-	public View getView(int position, View convertView, ViewGroup parent)
-	{
-		View row_layout_view = convertView;
-		if ((row_layout_view == null)){
-
-
-			LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-			row_layout_view = inflater.inflate(R.layout.edit_player_list_cursor_adapter, null);
-		}   
-
-		TextView numberTV = (TextView) row_layout_view.findViewById(R.id.edit_cursor_adapter_player_num);
-		TextView fnameTV = (TextView) row_layout_view.findViewById(R.id.edit_cursor_adapter_player_fname);
-		TextView lnameTV = (TextView) row_layout_view.findViewById(R.id.edit_cursor_adapter_player_lname);
-		CheckBox checkBox = (CheckBox) row_layout_view.findViewById(R.id.edit_cursor_adapter_checkbox);
-
-		return row_layout_view;
-	}
-	*/
+	
 	// ---------------------------------------------------------------------------
 
 }// FileListAdapter

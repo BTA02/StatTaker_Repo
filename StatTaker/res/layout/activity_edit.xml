@@ -13,19 +13,39 @@
         android:id="@+id/edit_team_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textSize="30sp"
-        android:text="team name" />
-    
+        android:text="team name"
+        android:textSize="30sp" />
+
+    <LinearLayout
+        android:id="@+id/edit_team_active_bar"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content" >
+
+        <TextView
+            android:id="@+id/edit_team_active_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Total Active:"
+            android:textSize="15sp" />
+
+        <TextView
+            android:id="@+id/edit_team_active_count"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="15sp" />
+        
+    </LinearLayout>
+
     <ListView
         android:id="@+id/edit_player_list"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_weight="80"/>
-    
+        android:layout_weight="80" />
+
     <Button
         android:id="@+id/edit_add_player_button"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content" 
+        android:layout_height="wrap_content"
         android:text="Add New Player" />
 
     <Button
