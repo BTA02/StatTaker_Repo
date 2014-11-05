@@ -8,6 +8,7 @@ import java.util.UUID;
 import local.stattaker.helper.DatabaseHelper;
 import local.stattaker.model.GameDb;
 import local.stattaker.model.TeamDb;
+import local.stattaker.model.TeamDb.OrderByTeamName;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
@@ -241,19 +242,6 @@ public class MainActivity extends Activity
 					}
 				});
 
-				alert.setNegativeButton("Cancel",
-						new DialogInterface.OnClickListener()
-				{
-
-					@Override
-					public void onClick(DialogInterface dialog,
-							int which)
-					{
-						// do nothing
-						dialog.dismiss();
-					}
-				});
-
 				ListView oldGames = (ListView) newGameView
 						.findViewById(R.id.new_game_list);
 				List<GameDb> gameList = new ArrayList<GameDb>();
@@ -418,7 +406,11 @@ public class MainActivity extends Activity
 			String fname = objects.get(i).getString("fname");
 			String lname = objects.get(i).getString("lname");
 			String number = objects.get(i).getString("number");
-			db.addPlayer(id, number, fname, lname);
+			//check if player exists
+			if (!db.playerExists(id))
+			{
+				db.addPlayer(id, number, fname, lname);
+			}
 			db.addPlayerToTeam(id, newTeamId);
 		}
 		loadingTeamDialog.dismiss();
@@ -429,6 +421,7 @@ public class MainActivity extends Activity
 			public void run()
 			{
 				listAdapter.add(new TeamDb(newTeamId, newTeamName));
+				listAdapter.sort(new TeamDb.OrderByTeamName());
 				for(int i = 0; i < listAdapter2.getCount(); i++)
 				{
 					Object o = listAdapter2.getItem(i);

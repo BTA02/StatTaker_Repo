@@ -24,7 +24,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 	private static final String TAG = "DatabaseHelper";
 
 	// Database Version
-	private static final int DATABASE_VERSION = 60;
+	private static final int DATABASE_VERSION = 61;
 
 	// Database Name
 	private static final String DATABASE_NAME = "quidditchGames";
@@ -553,6 +553,19 @@ public class DatabaseHelper extends SQLiteOpenHelper
 			return null;
 		}
 	}
+	
+	public boolean playerExists(String playerId)
+	{
+		SQLiteDatabase db = this.getReadableDatabase();
+		String query = "SELECT * FROM " + TABLE_PLAYER + " WHERE "
+				+ COL_ID + " = '" + playerId + "'";
+		Cursor c = db.rawQuery(query, null);
+		if (c.moveToFirst())
+		{
+			return true;
+		}
+		return false;
+	}
 
 	public boolean playerExistsOnTeam(String playerId, String teamId)
 	{
@@ -720,8 +733,10 @@ public class DatabaseHelper extends SQLiteOpenHelper
 		Cursor c = db.rawQuery(query, null);
 		if (c.moveToFirst())
 		{
+			db.close();
 			return c;
 		}
+		db.close();
 		return null;
 	}
 	

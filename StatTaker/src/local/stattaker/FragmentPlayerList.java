@@ -290,7 +290,7 @@ public class FragmentPlayerList extends ListFragment
 		toAdd.setDatabaseColumn("away_snitch");
 		toAdd.setGameId(fm.gId);
 		toAdd.setPlayerId("AWAY");
-		toAdd.setValueAdded(1);// because I'll want to subtract this
+		toAdd.setValueAdded(30);// because I'll want to subtract this
 		fm.undoStack.add(toAdd);
 	}
 
@@ -507,7 +507,7 @@ public class FragmentPlayerList extends ListFragment
 				getActivity());
 		snitchBuilder.setView(addSubView);
 		snitchBuilder.setTitle("Who caught the snitch?");
-		snitchBuilder.setCancelable(false);
+		snitchBuilder.setCancelable(true);
 
 		final List<PlayerDb> list = db.getOffFieldPlayersFromGame(gId);
 		Collections.sort(list, new PlayerDb.OrderByFirstName());
