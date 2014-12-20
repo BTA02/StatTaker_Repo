@@ -24,7 +24,6 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemLongClickListener;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListAdapter;
 import android.widget.ListView;
@@ -34,24 +33,24 @@ import android.widget.Toast;
 public class FragmentPlayerList extends ListFragment
 {
 
-	DatabaseHelper	db;
-	String			TAG		= "FragmentPlayerList";
+	DatabaseHelper db;
+	String TAG = "FragmentPlayerList";
 
-	ListView		currentPlayers;
-	Button			opponentGoal;
-	Button			opponentSnitch;
-	Button			homeSnitch;
-	Button			undoButton;
-	Button			redoButton;
-	TextView		score;
-	TextView		time;
+	ListView currentPlayers;
+	Button opponentGoal;
+	Button opponentSnitch;
+	Button homeSnitch;
+	Button undoButton;
+	Button redoButton;
+	TextView score;
+	TextView time;
 
-	Timer			timer	= new Timer();
-	ListAdapter		listAdapter;
-	FragmentMain	fm;
-	View			rootView;
+	Timer timer = new Timer();
+	ListAdapter listAdapter;
+	FragmentMain fm;
+	View rootView;
 
-	Cursor			c		= null;
+	Cursor c = null;
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -115,8 +114,8 @@ public class FragmentPlayerList extends ListFragment
 				if (c != null)
 				{
 					c.moveToPosition(arg2);
-					AlertDialog.Builder subBuilder = 
-							subDialog(fm.gId, c.getString(c.getColumnIndex(DatabaseHelper.COL_ID)));
+					AlertDialog.Builder subBuilder = subDialog(fm.gId, c
+							.getString(c.getColumnIndex(DatabaseHelper.COL_ID)));
 					subBuilder.show();
 				}
 				return true;
@@ -355,7 +354,7 @@ public class FragmentPlayerList extends ListFragment
 				return;
 			}
 			else
-				// caught snitch
+			// caught snitch
 			{
 				opponentSnitch();
 				return;
@@ -376,7 +375,8 @@ public class FragmentPlayerList extends ListFragment
 		if (c != null)
 		{
 			c.moveToPosition(position);
-			AlertDialog.Builder statsBuilder = statsDialog(fm.gId, c.getString(c.getColumnIndex(DatabaseHelper.COL_ID)));
+			AlertDialog.Builder statsBuilder = statsDialog(fm.gId,
+					c.getString(c.getColumnIndex(DatabaseHelper.COL_ID)));
 			statsBuilder.show();
 		}
 	}
@@ -481,7 +481,8 @@ public class FragmentPlayerList extends ListFragment
 				subOutAct.setValueAdded(spotOnList); // location WRONG!
 				if (spotOnList > 0)
 				{
-					db.subOut(fm.gId, playerId, list.get(which).getPlayerId(), spotOnList);
+					db.subOut(fm.gId, playerId, list.get(which).getPlayerId(),
+							spotOnList);
 				}
 				else
 				{
@@ -660,8 +661,8 @@ public class FragmentPlayerList extends ListFragment
 		if (c != null)
 		{
 			c.moveToPosition(pos);
-			AlertDialog.Builder subBuilder = 
-					subDialog(fm.gId, c.getString(c.getColumnIndex(DatabaseHelper.COL_ID)));
+			AlertDialog.Builder subBuilder = subDialog(fm.gId,
+					c.getString(c.getColumnIndex(DatabaseHelper.COL_ID)));
 			subBuilder.show();
 		}
 	}

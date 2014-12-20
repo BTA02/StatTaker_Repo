@@ -19,14 +19,13 @@ import android.widget.TextView;
 
 public class FragmentStats extends Fragment
 {
-	View			rootView;
+	View rootView;
 
-	DatabaseHelper	db;
+	DatabaseHelper db;
 
-	FragmentMain	fm;
+	FragmentMain fm;
 
-	TableLayout		table;
-	
+	TableLayout table;
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -72,8 +71,6 @@ public class FragmentStats extends Fragment
 			}
 
 		});
-		
-		
 
 	}
 
