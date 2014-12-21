@@ -25,7 +25,7 @@ import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
 
-public class FragmentOnlineTeam extends Fragment
+public class FragmentTeamsOnline extends Fragment
 {
 	String TAG = "FragmentOnlineTeam";
 	
@@ -39,7 +39,7 @@ public class FragmentOnlineTeam extends Fragment
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState)
 	{
-		View rootView = inflater.inflate(R.layout.fragment_online_team, container,
+		View rootView = inflater.inflate(R.layout.fragment_team_online, container,
 				false);
 		
 		return rootView;
@@ -54,6 +54,14 @@ public class FragmentOnlineTeam extends Fragment
 		{
 			populateOnlineTeams();
 		}
+	}
+	
+	@Override
+	public void onResume()
+	{
+		super.onResume();
+		
+		populateOnlineTeams();
 	}
 	
 	public void populateOnlineTeams()

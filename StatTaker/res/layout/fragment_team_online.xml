@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
+
+    <TextView
+        android:id="@+id/fragment_online_teams_title"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="8"
+        android:text="Download a team:"
+        android:textSize="30sp" />
+
+    <ListView
+        android:id="@+id/fragment_online_teams_list"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="70" />
+    
+        <TextView
+        android:id="@+id/textView1"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="10"
+        android:gravity="center"
+        android:text="Swipe left for downloaded teams"
+        android:textSize="20sp"
+        android:textStyle="italic"
+        android:textColor="#a9a9a9"/>
+
+</LinearLayout>

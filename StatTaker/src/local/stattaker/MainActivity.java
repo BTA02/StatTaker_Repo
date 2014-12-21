@@ -2,12 +2,8 @@ package local.stattaker;
 
 import local.stattaker.helper.DatabaseHelper;
 import local.stattaker.model.TeamDb;
-import android.app.ActionBar;
-import android.app.ActionBar.Tab;
-import android.app.ActionBar.TabListener;
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.FragmentTransaction;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -18,7 +14,7 @@ import android.view.Menu;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 
-public class MainActivity extends FragmentActivity implements TabListener
+public class MainActivity extends FragmentActivity
 {
 
 	// TODOs
@@ -36,24 +32,19 @@ public class MainActivity extends FragmentActivity implements TabListener
 
 	DatabaseHelper db;
 
-
-
 	Button create_team;
 
 	ArrayAdapter<TeamDb> listAdapter;
-	ArrayAdapter<TeamDb> listAdapter2;	
+	ArrayAdapter<TeamDb> listAdapter2;
 
 	Context context = this;
 	Activity activity = this;
 
 	protected AlertDialog newTeamDialog = null;
-	
+
 	//Fragment stuff
-	MyAdapter mAdapter;
-	ViewPager mPager;
-	ActionBar mActionBar;
-
-
+	MainPagePagerAdapter mMainPagePagerAdapter;
+	ViewPager mViewPager;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
@@ -61,32 +52,14 @@ public class MainActivity extends FragmentActivity implements TabListener
 		super.onCreate(savedInstanceState);
 
 		setContentView(R.layout.fragment_home_screen);
+
+		mMainPagePagerAdapter = new MainPagePagerAdapter(
+				getSupportFragmentManager());
+		mViewPager = (ViewPager) findViewById(R.id.pager);
+		mViewPager.setAdapter(mMainPagePagerAdapter);
+		
+
 		db = new DatabaseHelper(this);
-
-		//------FRAGMENT STUFF---------
-		mAdapter = new MyAdapter( getSupportFragmentManager() );
-		mPager = (ViewPager)findViewById(R.id.pager);
-		mActionBar = getActionBar();
-		mPager.setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener()
-		{
-			@Override
-			public void onPageSelected(int position)
-			{
-				getActionBar().setSelectedNavigationItem(position);
-			}
-		});
-
-		mPager.setAdapter(mAdapter);
-		mActionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
-		mActionBar.setDisplayShowTitleEnabled(false);
-		mActionBar.setHomeButtonEnabled(false);
-		mActionBar.addTab(mActionBar.newTab().setText("Players").setTabListener(this) );
-		mActionBar.addTab(mActionBar.newTab().setText("Stats").setTabListener(this) );
-		mPager.setCurrentItem(0);
-		mActionBar.setDisplayShowHomeEnabled(false);
-		mActionBar.setDisplayShowTitleEnabled(false);
-		//------END FRAGMENT STUFF--------------
-
 
 		/*
 		create_team = (Button) findViewById(R.id.create_button);
@@ -157,38 +130,12 @@ public class MainActivity extends FragmentActivity implements TabListener
 		return true;
 	}
 
-	// still works, shows local teams, which is perfect
-	// this is totally wrong code
-
-
-	// There is a better way. Give every team online an ID, display the name,
-	// check against the ID
 	public boolean isNetworkAvailable()
 	{
 		ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
 		NetworkInfo activeNetworkInfo = connectivityManager
 				.getActiveNetworkInfo();
 		return activeNetworkInfo != null && activeNetworkInfo.isConnected();
-	}
-
-	@Override
-	public void onTabSelected(Tab tab, FragmentTransaction ft)
-	{
-		mPager.setCurrentItem(tab.getPosition());
-	}
-
-	@Override
-	public void onTabUnselected(Tab tab, FragmentTransaction ft)
-	{
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void onTabReselected(Tab tab, FragmentTransaction ft)
-	{
-		// TODO Auto-generated method stub
-		
 	}
 
 }

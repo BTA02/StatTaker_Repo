@@ -23,7 +23,7 @@ import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.AdapterView.OnItemClickListener;
 
-public class FragmentLocalTeam extends Fragment
+public class FragmentTeamsLocal extends Fragment
 {
 	String TAG = "FragmentLocalTeam";
 
@@ -37,7 +37,7 @@ public class FragmentLocalTeam extends Fragment
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState)
 	{
-		View rootView = inflater.inflate(R.layout.fragment_local_team, container,
+		View rootView = inflater.inflate(R.layout.fragment_team_local, container,
 				false);
 		return rootView;
 	}
@@ -51,9 +51,16 @@ public class FragmentLocalTeam extends Fragment
 		populateLocalList();
 	}
 
+	@Override
+	public void onResume()
+	{
+		super.onResume();
+		
+		populateLocalList();
+	}
+
 	void populateLocalList()
 	{
-
 		currentTeams = (ListView) ma.findViewById(R.id.fragment_local_teams_list);
 		Cursor c = ma.db.getAllTeamsCursor();
 
