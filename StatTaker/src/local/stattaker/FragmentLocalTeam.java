@@ -33,13 +33,11 @@ public class FragmentLocalTeam extends Fragment
 
 	List<TeamDb> teamList;
 
-	ArrayAdapter<TeamDb> listAdapter;
-
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState)
 	{
-		View rootView = inflater.inflate(R.layout.fragment_stats, container,
+		View rootView = inflater.inflate(R.layout.fragment_local_team, container,
 				false);
 		return rootView;
 	}
@@ -48,6 +46,7 @@ public class FragmentLocalTeam extends Fragment
 	public void onActivityCreated(Bundle savedInstanceState)
 	{
 		super.onActivityCreated(savedInstanceState);
+		ma = (MainActivity) getActivity();
 		
 		populateLocalList();
 	}
@@ -55,15 +54,15 @@ public class FragmentLocalTeam extends Fragment
 	void populateLocalList()
 	{
 
-		currentTeams = (ListView) ma.findViewById(R.id.teams_list);
+		currentTeams = (ListView) ma.findViewById(R.id.fragment_local_teams_list);
 		Cursor c = ma.db.getAllTeamsCursor();
 
 		teamList = new ArrayList<TeamDb>();
 		teamList = ma.db.getAllTeamsList();
 		Collections.sort(teamList, new TeamDb.OrderByTeamName());
-		listAdapter = new ArrayAdapter<TeamDb>(ma.context,
+		ma.listAdapter = new ArrayAdapter<TeamDb>(ma.context,
 				R.layout.custom_player_list, teamList);
-		currentTeams.setAdapter(listAdapter);
+		currentTeams.setAdapter(ma.listAdapter);
 		currentTeams.setOnItemClickListener(new OnItemClickListener()
 		{
 			@Override

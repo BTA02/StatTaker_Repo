@@ -339,7 +339,30 @@ public class DatabaseHelper extends SQLiteOpenHelper
 		@SuppressWarnings("unused")
 		int rowsAffected = db.update(TABLE_TEAM, values, 
 				COL_ID + " = ? AND " + COL_PLAYERID + " = ?", new String[] {teamId, playerId} );
+		
+		db.close();
 		return;
+	}
+	
+	public boolean teamExists(String teamId)
+	{
+		SQLiteDatabase db = this.getReadableDatabase();
+
+		String query = "SELECT * FROM " + TABLE_TEAM + " WHERE "
+				+ COL_ID + " = '" + teamId + "'";
+		
+		Cursor c = db.rawQuery(query, null);
+		
+		if (c.moveToFirst())
+		{
+			db.close();
+			return true;
+		}
+		else
+		{
+			db.close();
+			return false;
+		}
 	}
 	
 
