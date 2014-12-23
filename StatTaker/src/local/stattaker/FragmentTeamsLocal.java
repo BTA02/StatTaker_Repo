@@ -27,11 +27,12 @@ public class FragmentTeamsLocal extends Fragment
 {
 	String TAG = "FragmentLocalTeam";
 
-	MainActivity ma;
-
+	FragmentHolderMain ma;
 	ListView currentTeams;
-
 	List<TeamDb> teamList;
+
+	protected AlertDialog newTeamDialog = null;
+
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -46,7 +47,7 @@ public class FragmentTeamsLocal extends Fragment
 	public void onActivityCreated(Bundle savedInstanceState)
 	{
 		super.onActivityCreated(savedInstanceState);
-		ma = (MainActivity) getActivity();
+		ma = (FragmentHolderMain) getActivity();
 		
 		populateLocalList();
 	}
@@ -66,9 +67,16 @@ public class FragmentTeamsLocal extends Fragment
 
 		teamList = new ArrayList<TeamDb>();
 		teamList = ma.db.getAllTeamsList();
+		
+		teamList.remove(ma.teamRowList);
+		
 		Collections.sort(teamList, new TeamDb.OrderByTeamName());
+
+		teamList.add(0, ma.teamRowList);
+		
 		ma.listAdapter = new ArrayAdapter<TeamDb>(ma.context,
 				R.layout.custom_player_list, teamList);
+		
 		currentTeams.setAdapter(ma.listAdapter);
 		currentTeams.setOnItemClickListener(new OnItemClickListener()
 		{
@@ -78,6 +86,11 @@ public class FragmentTeamsLocal extends Fragment
 			{
 				final TeamDb team = (TeamDb) currentTeams
 						.getItemAtPosition(arg2);
+				if (team.getId().equals("aaa-aaa-aaa") )
+				{
+					showNewTeamDialog();
+					return;
+				}
 				// create an options pop up to record new game or edit team or
 				// see old games
 				LayoutInflater dialogFactory = LayoutInflater.from(ma.context);
@@ -115,7 +128,7 @@ public class FragmentTeamsLocal extends Fragment
 								// everyone who is "active"
 								// to the "onField" stuff
 								Intent i = new Intent(ma.context,
-										FragmentMain.class);
+										FragmentHolderWork.class);
 								i.putExtra("gameId", gId);
 								startActivity(i);
 							}
@@ -154,7 +167,7 @@ public class FragmentTeamsLocal extends Fragment
 						GameDb gameClicked = (GameDb) listAdapter
 								.getItem(position);
 						Intent i = new Intent(ma.context,
-								FragmentMain.class);
+								FragmentHolderWork.class);
 						i.putExtra("gameId", gameClicked.getId());
 
 						startActivity(i);
@@ -168,6 +181,50 @@ public class FragmentTeamsLocal extends Fragment
 
 		});
 
+	}
+	
+	public void showNewTeamDialog()
+	{
+		if (newTeamDialog != null && newTeamDialog.isShowing())
+		{
+			return;
+		}
+		AlertDialog.Builder alertBuilder = new AlertDialog.Builder(
+				ma.context);
+
+		alertBuilder.setTitle("Create New Team");
+		alertBuilder.setMessage("Enter Name of Team:");
+
+		final EditText input = new EditText(ma.context);
+		alertBuilder.setView(input);
+
+		alertBuilder.setPositiveButton("Ok",
+				new DialogInterface.OnClickListener()
+				{
+					public void onClick(DialogInterface dialog,
+							int whichButton)
+					{
+						String newTeamId = UUID.randomUUID().toString();
+						ma.db.addTeam(newTeamId, input.getText()
+								.toString());
+						Intent i = new Intent(ma.context,
+								EditTeam.class);
+						i.putExtra("teamId", newTeamId);
+						startActivity(i);
+					}
+				});
+
+		alertBuilder.setNegativeButton("Cancel",
+				new DialogInterface.OnClickListener()
+				{
+					public void onClick(DialogInterface dialog,
+							int whichButton)
+					{
+						dialog.dismiss();
+					}
+				});
+		newTeamDialog = alertBuilder.create();
+		newTeamDialog.show();
 	}
 
 }

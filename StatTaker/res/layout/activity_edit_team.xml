@@ -33,7 +33,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textSize="15sp" />
-        
     </LinearLayout>
 
     <ListView
@@ -42,16 +41,22 @@
         android:layout_height="match_parent"
         android:layout_weight="80" />
 
-    <Button
-        android:id="@+id/edit_add_player_button"
+    <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Add New Player" />
+        android:orientation="horizontal" >
 
-    <Button
-        android:id="@+id/edit_delete_team"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Delete Team" />
+        <Button
+            android:id="@+id/edit_add_player_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Add New Player" />
+
+        <Button
+            android:id="@+id/edit_delete_team"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Delete Team" />
+    </LinearLayout>
 
 </LinearLayout>

@@ -5,9 +5,6 @@ import java.util.List;
 
 import local.stattaker.model.TeamDb;
 import android.app.ProgressDialog;
-import android.content.Context;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
@@ -29,7 +26,7 @@ public class FragmentTeamsOnline extends Fragment
 {
 	String TAG = "FragmentOnlineTeam";
 	
-	MainActivity ma;
+	FragmentHolderMain ma;
 	
 	ListView onlineTeams;
 	List<TeamDb> oTeams;
@@ -49,7 +46,7 @@ public class FragmentTeamsOnline extends Fragment
 	public void onActivityCreated(Bundle savedInstanceState)
 	{
 		super.onActivityCreated(savedInstanceState);
-		ma = (MainActivity) getActivity();
+		ma = (FragmentHolderMain) getActivity();
 		if (ma.isNetworkAvailable())
 		{
 			populateOnlineTeams();
@@ -85,7 +82,7 @@ public class FragmentTeamsOnline extends Fragment
 			e.printStackTrace();
 			Log.e("Test", "Parse .find() didn't work 1");
 		}
-		ArrayList<String> teamIds = new ArrayList<String>();
+		
 		for (int i = 0; i < objects.size(); i++)
 		{
 			String teamName = objects.get(i).getString("team_name");
@@ -101,6 +98,7 @@ public class FragmentTeamsOnline extends Fragment
 		ma.listAdapter2 = new ArrayAdapter<TeamDb>(ma.context,
 				R.layout.custom_player_list, oTeams);
 		onlineTeams.setAdapter(ma.listAdapter2);
+		ma.listAdapter2.sort(new TeamDb.OrderByTeamName());
 
 		onlineTeams.setOnItemClickListener(new OnItemClickListener()
 		{
@@ -121,19 +119,6 @@ public class FragmentTeamsOnline extends Fragment
 						loadInTeam(teamClicked.getId());
 					}
 				}).start();
-				//t.start();
-				/*
-				try
-				{
-					t.join();
-				}
-				catch (InterruptedException e)
-				{
-					e.printStackTrace();
-				}
-				listAdapter2.notifyDataSetChanged();
-				listAdapter.notifyDataSetChanged();
-				 */
 			}
 		});
 		
@@ -193,9 +178,12 @@ public class FragmentTeamsOnline extends Fragment
 						ma.listAdapter2.remove(ma.listAdapter2.getItem(i));
 					}
 				}
-
+				
 				ma.listAdapter2.notifyDataSetChanged();
 				ma.listAdapter.notifyDataSetChanged();
+
+				ma.listAdapter.remove(ma.teamRowList);
+				ma.listAdapter.insert(ma.teamRowList, 0);
 			}
 
 		});

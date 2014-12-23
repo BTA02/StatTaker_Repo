@@ -30,7 +30,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class FragmentPlayerList extends ListFragment
+public class FragmentWorkPlayers extends ListFragment
 {
 
 	DatabaseHelper db;
@@ -47,7 +47,7 @@ public class FragmentPlayerList extends ListFragment
 
 	Timer timer = new Timer();
 	ListAdapter listAdapter;
-	FragmentMain fm;
+	FragmentHolderWork fm;
 	View rootView;
 
 	Cursor c = null;
@@ -76,8 +76,8 @@ public class FragmentPlayerList extends ListFragment
 		{
 
 		}
-		fm = (FragmentMain) getActivity();
-		db = new DatabaseHelper(fm.context);
+		fm = (FragmentHolderWork) getActivity();
+		db = new DatabaseHelper(fm.mContext);
 		fm.playerFrag = this;
 
 		score.setText(fm.gInfo.getHomeScore() + " - " + fm.gInfo.getAwayScore());
@@ -550,7 +550,7 @@ public class FragmentPlayerList extends ListFragment
 
 		c = db.getOnFieldPlayersFromGameCursor(fm.gId);
 		final CursorAdapterOnFieldList onFieldAdapter = new CursorAdapterOnFieldList(
-				fm.context, c, 0);
+				fm.mContext, c, 0);
 		setListAdapter(onFieldAdapter);
 	}
 

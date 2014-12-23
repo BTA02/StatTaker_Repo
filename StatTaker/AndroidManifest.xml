@@ -13,11 +13,11 @@
 
     <application
         android:allowBackup="true"
-        android:icon="@drawable/ic_launcher"
+        android:icon="@drawable/qs_logo"
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
         <activity
-            android:name="local.stattaker.MainActivity"
+            android:name="local.stattaker.FragmentHolderMain"
             android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -26,17 +26,17 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="local.stattaker.FragmentMain"
+            android:name="local.stattaker.FragmentHolderWork"
             android:label="FragmentMain"
             android:screenOrientation="portrait" >
         </activity>
         <activity
-            android:name="local.stattaker.FragmentPlayerList"
+            android:name="local.stattaker.FragmentWorkPlayers"
             android:label="FragmentPlayerList"
             android:screenOrientation="portrait" >
         </activity>
         <activity
-            android:name="local.stattaker.FragmentStats"
+            android:name="local.stattaker.FragmentWorkStats"
             android:label="FragmentStats"
             android:screenOrientation="portrait" >
         </activity>

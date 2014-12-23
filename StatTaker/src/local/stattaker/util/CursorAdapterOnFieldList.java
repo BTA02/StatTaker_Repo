@@ -1,8 +1,8 @@
 package local.stattaker.util;
 
 
-import local.stattaker.FragmentMain;
-import local.stattaker.FragmentPlayerList;
+import local.stattaker.FragmentHolderWork;
+import local.stattaker.FragmentWorkPlayers;
 import local.stattaker.R;
 import local.stattaker.helper.DatabaseHelper;
 import android.content.Context;
@@ -46,8 +46,8 @@ public class CursorAdapterOnFieldList extends CursorAdapter
 		fnameTV.setText(cursor.getString(cursor.getColumnIndex(DatabaseHelper.COL_FNAME)));
 		lnameTV.setText(cursor.getString(cursor.getColumnIndex(DatabaseHelper.COL_LNAME)));
 		
-		final FragmentMain fragmentAct = (FragmentMain) context;
-		final FragmentPlayerList pFrag = (FragmentPlayerList) fragmentAct.playerFrag;
+		final FragmentHolderWork fragmentAct = (FragmentHolderWork) context;
+		final FragmentWorkPlayers pFrag = (FragmentWorkPlayers) fragmentAct.playerFrag;
 		subButton.setOnClickListener(new OnClickListener()
 		{
 

@@ -14,11 +14,10 @@ import android.view.Menu;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 
-public class MainActivity extends FragmentActivity
+public class FragmentHolderMain extends FragmentActivity
 {
 
 	// TODOs
-	// Fragment the whole app, I think.... 
 	// 7. Make it pretty
 	// 		b. Clock could be prettier / better with functionality
 	// 		c. Some color
@@ -39,11 +38,11 @@ public class MainActivity extends FragmentActivity
 
 	Context context = this;
 	Activity activity = this;
-
-	protected AlertDialog newTeamDialog = null;
+	
+	TeamDb teamRowList = new TeamDb("aaa-aaa-aaa", "Create new team");
 
 	//Fragment stuff
-	MainPagePagerAdapter mMainPagePagerAdapter;
+	PagerAdapterMainPage mPagerAdapterMainPage;
 	ViewPager mViewPager;
 
 	@Override
@@ -53,66 +52,14 @@ public class MainActivity extends FragmentActivity
 
 		setContentView(R.layout.fragment_home_screen);
 
-		mMainPagePagerAdapter = new MainPagePagerAdapter(
+		//--STAET FRAGMENT STUFF
+		mPagerAdapterMainPage = new PagerAdapterMainPage(
 				getSupportFragmentManager());
 		mViewPager = (ViewPager) findViewById(R.id.pager);
-		mViewPager.setAdapter(mMainPagePagerAdapter);
-		
+		mViewPager.setAdapter(mPagerAdapterMainPage);
+		//--END FRAGMENT STUFF
 
 		db = new DatabaseHelper(this);
-
-		/*
-		create_team = (Button) findViewById(R.id.create_button);
-		create_team.setOnClickListener(new OnClickListener()
-		{
-
-			@Override
-			public void onClick(View v)
-			{
-				if (newTeamDialog != null && newTeamDialog.isShowing())
-				{
-					return;
-				}
-				AlertDialog.Builder alertBuilder = new AlertDialog.Builder(
-						context);
-
-				alertBuilder.setTitle("Create New Team");
-				alertBuilder.setMessage("Enter Name of Team:");
-
-				final EditText input = new EditText(context);
-				alertBuilder.setView(input);
-
-				alertBuilder.setPositiveButton("Ok",
-						new DialogInterface.OnClickListener()
-						{
-							public void onClick(DialogInterface dialog,
-									int whichButton)
-							{
-								String newTeamId = UUID.randomUUID().toString();
-								db.addTeam(newTeamId, input.getText()
-										.toString());
-								Intent i = new Intent(getApplicationContext(),
-										EditTeam.class);
-								i.putExtra("teamId", newTeamId);
-								startActivity(i);
-							}
-						});
-
-				alertBuilder.setNegativeButton("Cancel",
-						new DialogInterface.OnClickListener()
-						{
-							public void onClick(DialogInterface dialog,
-									int whichButton)
-							{
-								dialog.dismiss();
-							}
-						});
-				newTeamDialog = alertBuilder.create();
-				newTeamDialog.show();
-			}
-
-		});
-		 */
 
 	}
 
