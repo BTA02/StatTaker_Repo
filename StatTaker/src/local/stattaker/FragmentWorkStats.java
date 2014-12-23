@@ -31,7 +31,7 @@ public class FragmentWorkStats extends Fragment
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState)
 	{
-		rootView = inflater.inflate(R.layout.fragment_stats, container, false);
+		rootView = inflater.inflate(R.layout.fragment_work_stats, container, false);
 		return rootView;
 	}
 

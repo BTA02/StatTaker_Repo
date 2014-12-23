@@ -2,8 +2,8 @@ package local.stattaker;
 
 import local.stattaker.helper.DatabaseHelper;
 import local.stattaker.model.TeamDb;
+import android.app.ActionBar;
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -44,6 +44,7 @@ public class FragmentHolderMain extends FragmentActivity
 	//Fragment stuff
 	PagerAdapterMainPage mPagerAdapterMainPage;
 	ViewPager mViewPager;
+	ActionBar mActionBar;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
@@ -57,6 +58,7 @@ public class FragmentHolderMain extends FragmentActivity
 				getSupportFragmentManager());
 		mViewPager = (ViewPager) findViewById(R.id.pager);
 		mViewPager.setAdapter(mPagerAdapterMainPage);
+		
 		//--END FRAGMENT STUFF
 
 		db = new DatabaseHelper(this);

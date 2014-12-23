@@ -265,6 +265,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 	{
 		SQLiteDatabase db = this.getWritableDatabase();
 		db.delete(TABLE_TEAM, COL_ID + " = ?", new String[]{ teamId } );
+		db.delete(TABLE_GAME, COL_HOME_TEAM + " = ?", new String[]{ teamId } );
 		db.close();
 	}
 
