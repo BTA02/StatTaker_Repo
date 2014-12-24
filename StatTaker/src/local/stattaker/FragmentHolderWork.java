@@ -6,11 +6,16 @@ import local.stattaker.helper.DatabaseHelper;
 import local.stattaker.model.GameDb;
 import local.stattaker.util.Action;
 import android.app.ActionBar;
+import android.app.AlertDialog;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.view.ViewPager;
+import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
 
 public class FragmentHolderWork extends FragmentActivity
 {
@@ -51,7 +56,6 @@ public class FragmentHolderWork extends FragmentActivity
 		mViewPager.setAdapter(mPagerAdapterWorkPage);
 		//------END FRAGMENT STUFF--------------
 
-
 		db = new DatabaseHelper(mContext);
 
 		Bundle b = getIntent().getExtras();
@@ -64,14 +68,53 @@ public class FragmentHolderWork extends FragmentActivity
 	}
 
 	@Override
-	public void onSaveInstanceState(Bundle savedInstanceState) {
+	public void onSaveInstanceState(Bundle savedInstanceState)
+	{
 		super.onSaveInstanceState(savedInstanceState);
 	}
 
 	@Override
-	public void onRestoreInstanceState(Bundle savedInstanceState) {
+	public void onRestoreInstanceState(Bundle savedInstanceState)
+	{
 		super.onRestoreInstanceState(savedInstanceState);
 	}
 
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu)
+	{
+		// Inflate the menu; this adds items to the action bar if it is present.
+		getMenuInflater().inflate(R.menu.main, menu);
+		return true;
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item)
+	{
+		// Handle presses on the action bar items
+		switch (item.getItemId())
+		{
+			case R.id.action_help:
+				showHelpPopup();
+				return true;
+			case R.id.action_settings:
+				//do nothing
+				return true;
+			default:
+				return super.onOptionsItemSelected(item);
+		}
+	}
+
+	public void showHelpPopup()
+	{
+		AlertDialog.Builder helpDialog = new AlertDialog.Builder(mContext);
+		helpDialog.setTitle("How to use:");
+
+		LayoutInflater inflater = (LayoutInflater) mContext
+				.getSystemService(LAYOUT_INFLATER_SERVICE);
+	
+		View layout = inflater.inflate(R.layout.help_layout_work, null);
+		helpDialog.setView(layout);
+		AlertDialog alert = helpDialog.show();
+	}
 
 }

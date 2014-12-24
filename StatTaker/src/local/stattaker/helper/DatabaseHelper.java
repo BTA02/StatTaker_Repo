@@ -238,6 +238,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 		else
 		{
 			Log.e(TAG, "team not found in getTeamNameFromId");
+			db.close();
 			return null;
 		}
 		db.close();
@@ -305,6 +306,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 			}
 			while (c.moveToNext());
 		}
+		db.close();
 		return ret;
 	}
 
@@ -490,8 +492,10 @@ public class DatabaseHelper extends SQLiteOpenHelper
 		Cursor c = db.rawQuery(query, null);
 		if(c.moveToFirst())
 		{
+			db.close();
 			return c;
 		}
+		db.close();
 		return null;
 	}
 
