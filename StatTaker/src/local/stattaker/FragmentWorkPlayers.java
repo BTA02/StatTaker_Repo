@@ -566,7 +566,9 @@ public class FragmentWorkPlayers extends ListFragment
 				{
 					// update the game time, and the view
 					final TextView clock = (TextView) v;
+					//Countdown latch on this, I think?
 					db.updateTime(fragmentHolder.gId, 1); // update every second
+					//Unlock?
 					int totalSeconds = db.getGameTime(fragmentHolder.gId);
 					int minutes = totalSeconds / 60;
 					int seconds = totalSeconds % 60;

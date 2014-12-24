@@ -590,8 +590,10 @@ public class DatabaseHelper extends SQLiteOpenHelper
 		Cursor c = db.rawQuery(query, null);
 		if (c.moveToFirst())
 		{
+			db.close();
 			return true;
 		}
+		db.close();
 		return false;
 	}
 
@@ -1020,9 +1022,6 @@ public class DatabaseHelper extends SQLiteOpenHelper
 			return null;
 		}
 	}
-
-
-
 
 	//closing database
 	public void closeDB() 
