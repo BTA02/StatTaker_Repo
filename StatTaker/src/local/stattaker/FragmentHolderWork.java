@@ -114,6 +114,7 @@ public class FragmentHolderWork extends FragmentActivity
 	
 		View layout = inflater.inflate(R.layout.help_layout_work, null);
 		helpDialog.setView(layout);
+		helpDialog.setCancelable(true);
 		AlertDialog alert = helpDialog.show();
 	}
 

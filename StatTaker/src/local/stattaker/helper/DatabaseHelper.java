@@ -12,7 +12,6 @@ import local.stattaker.model.TeamDb;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
-import android.database.DatabaseUtils;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteDatabase.CursorFactory;
 import android.database.sqlite.SQLiteOpenHelper;
@@ -39,6 +38,9 @@ public class DatabaseHelper extends SQLiteOpenHelper
 	{
 		super(context, DATABASE_NAME, null, DATABASE_VERSION);
 	}
+	
+
+	private SQLiteDatabase myDabatabse;
 
 	//Shared strings
 	public static final String COL_ID = "_id";
@@ -143,22 +145,22 @@ public class DatabaseHelper extends SQLiteOpenHelper
 	@Override
 	public void onCreate(SQLiteDatabase db) 
 	{
-		db.execSQL(CREATE_TABLE_GAME);
-		db.execSQL(CREATE_TABLE_PLAYER);
-		db.execSQL(CREATE_TABLE_STAT);
-		db.execSQL(CREATE_TABLE_TIME);
-		db.execSQL(CREATE_TABLE_TEAM);
+		getDB().execSQL(CREATE_TABLE_GAME);
+		getDB().execSQL(CREATE_TABLE_PLAYER);
+		getDB().execSQL(CREATE_TABLE_STAT);
+		getDB().execSQL(CREATE_TABLE_TIME);
+		getDB().execSQL(CREATE_TABLE_TEAM);
 	}
 
 	@Override
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) 
 	{
 		// on upgrade drop older tables
-		db.execSQL("DROP TABLE IF EXISTS " + TABLE_GAME);
-		db.execSQL("DROP TABLE IF EXISTS " + TABLE_PLAYER);
-		db.execSQL("DROP TABLE IF EXISTS " + TABLE_STATS);
-		db.execSQL("DROP TABLE IF EXISTS " + TABLE_TIME);
-		db.execSQL("DROP TABLE IF EXISTS " + TABLE_TEAM);
+		getDB().execSQL("DROP TABLE IF EXISTS " + TABLE_GAME);
+		getDB().execSQL("DROP TABLE IF EXISTS " + TABLE_PLAYER);
+		getDB().execSQL("DROP TABLE IF EXISTS " + TABLE_STATS);
+		getDB().execSQL("DROP TABLE IF EXISTS " + TABLE_TIME);
+		getDB().execSQL("DROP TABLE IF EXISTS " + TABLE_TEAM);
 
 		// create new tables
 		onCreate(db);
@@ -170,30 +172,26 @@ public class DatabaseHelper extends SQLiteOpenHelper
 	//-----------------------------------------------------------
 	public Cursor getAllTeamsCursor()
 	{
-		SQLiteDatabase db = this.getReadableDatabase();
-
 		//this is a problem because I need to select DISTINCT
 
 		String query = "SELECT * FROM " + TABLE_TEAM;
-		Cursor c = db.rawQuery(query, null);
+		Cursor c = getDB().rawQuery(query, null);
 		if (c.moveToFirst())
 		{
-			db.close();
+			
 			return c;
 		}
 		else
 		{
-			db.close();
+			
 			return null;
 		}
 	}
 
 	public List<TeamDb> getAllTeamsList()
 	{
-		SQLiteDatabase db = this.getReadableDatabase();
-
 		String query = "SELECT * FROM " + TABLE_TEAM;
-		Cursor c = db.rawQuery(query, null);
+		Cursor c = getDB().rawQuery(query, null);
 
 		List<TeamDb> teamList = new ArrayList<TeamDb>();
 		Map<String, Integer> ids = new HashMap<String, Integer>();
@@ -218,17 +216,16 @@ public class DatabaseHelper extends SQLiteOpenHelper
 			}
 			while (c.moveToNext());
 		}
-		db.close();
+		
 
 		return teamList;
 	}
 
 	public TeamDb getTeamFromId(String id)
 	{
-		SQLiteDatabase db = this.getReadableDatabase();
 		String query = "SELECT " + COL_TEAM_NAME + " FROM " + TABLE_TEAM
 				+ " WHERE " + COL_ID + " = ?";
-		Cursor c = db.rawQuery(query, new String[]{ id });
+		Cursor c = getDB().rawQuery(query, new String[]{ id });
 		TeamDb ret = new TeamDb();
 		if (c.moveToFirst())
 		{
@@ -238,25 +235,23 @@ public class DatabaseHelper extends SQLiteOpenHelper
 		else
 		{
 			Log.e(TAG, "team not found in getTeamNameFromId");
-			db.close();
+			
 			return null;
 		}
-		db.close();
+		
 		return ret;
 	}
 
 	public void addTeam(String teamId, String teamName)
 	{
-		SQLiteDatabase db = this.getWritableDatabase();
-
 		ContentValues values = new ContentValues();
 		values.put(COL_ID, teamId);
 		values.put(COL_TEAM_NAME, teamName);
 		values.put(COL_PLAYERID, ""); //null player, so I can access the first row whenever
 
-		long num = db.insert(TABLE_TEAM, null, values);
+		long num = getDB().insert(TABLE_TEAM, null, values);
 
-		db.close();
+		
 	}// addTeam
 
 	//I can update all references to this team to just have the name?
@@ -264,15 +259,12 @@ public class DatabaseHelper extends SQLiteOpenHelper
 	//I'll have to think about this
 	public void deleteTeam(String teamId)
 	{
-		SQLiteDatabase db = this.getWritableDatabase();
-		db.delete(TABLE_TEAM, COL_ID + " = ?", new String[]{ teamId } );
-		db.delete(TABLE_GAME, COL_HOME_TEAM + " = ?", new String[]{ teamId } );
-		db.close();
+		getDB().delete(TABLE_TEAM, COL_ID + " = ?", new String[]{ teamId } );
+		getDB().delete(TABLE_GAME, COL_HOME_TEAM + " = ?", new String[]{ teamId } );
 	}
 
 	public List<PlayerDb> getActivePlayers(String teamId)
 	{
-		SQLiteDatabase db = this.getReadableDatabase();
 		List<PlayerDb> ret = new ArrayList<PlayerDb>();
 
 		String query = "SELECT "
@@ -288,8 +280,8 @@ public class DatabaseHelper extends SQLiteOpenHelper
 				+ " AND "
 				+ TABLE_TEAM + "." + COL_PLAYERID + " = " + TABLE_PLAYER + "." + COL_ID;
 
-		Cursor c = db.rawQuery(query, null);
-		//Cursor c = db.rawQuery(query, new String[] {teamId});
+		Cursor c = getDB().rawQuery(query, null);
+		//Cursor c = getDB().rawQuery(query, new String[] {teamId});
 		if (c.moveToFirst())
 		{
 			do
@@ -306,64 +298,58 @@ public class DatabaseHelper extends SQLiteOpenHelper
 			}
 			while (c.moveToNext());
 		}
-		db.close();
+		
 		return ret;
 	}
 
 	public boolean isPlayerActiveOnTeam(String teamId, String playerId)
 	{
-		SQLiteDatabase db = this.getReadableDatabase();
-
 		String query = "SELECT * FROM " + TABLE_TEAM
 				+ " WHERE "
 				+ COL_ID + " = '" + teamId + "'"
 				+ " AND "
 				+ COL_PLAYERID + " = '" + playerId + "'";
-		Cursor c = db.rawQuery(query, null);
+		Cursor c = getDB().rawQuery(query, null);
 		if (c.moveToFirst())
 		{
 			if (c.getInt(c.getColumnIndex(COL_ACTIVE)) == 1)
 			{
-				db.close();
+				
 				return true;
 			}
 		}
-		db.close();
+		
 		return false;
 	}
 
 	public void updateActiveInfo(String teamId, String playerId, int newVal)
 	{
-		SQLiteDatabase db = this.getWritableDatabase();
-
 		ContentValues values = new ContentValues();
 		values.put(COL_ACTIVE, newVal);
 
 		@SuppressWarnings("unused")
-		int rowsAffected = db.update(TABLE_TEAM, values, 
+		int rowsAffected = getDB().update(TABLE_TEAM, values, 
 				COL_ID + " = ? AND " + COL_PLAYERID + " = ?", new String[] {teamId, playerId} );
 		
-		db.close();
+		
 		return;
 	}
 	
 	public boolean teamExists(String teamId)
 	{
-		SQLiteDatabase db = this.getReadableDatabase();
-
 		String query = "SELECT * FROM " + TABLE_TEAM + " WHERE "
 				+ COL_ID + " = '" + teamId + "'";
 		
-		Cursor c = db.rawQuery(query, null);
+		Cursor c = getDB().rawQuery(query, null);
 		
 		if (c.moveToFirst())
 		{
-			db.close();
+			
 			return true;
 		}
 		else
 		{
-			db.close();
+			
 			return false;
 		}
 	}
@@ -379,25 +365,21 @@ public class DatabaseHelper extends SQLiteOpenHelper
 	{
 		TeamDb team = getTeamFromId(teamId);
 
-		SQLiteDatabase db = this.getWritableDatabase();
-
 		ContentValues values = new ContentValues();
 		values.put(COL_ID, teamId);
 		values.put(COL_TEAM_NAME, team.getName());
 		values.put(COL_PLAYERID, playerId);
 		values.put(COL_ACTIVE, 0);
 
-		db.insert(TABLE_TEAM, null, values);
+		getDB().insert(TABLE_TEAM, null, values);
 
-		db.close();
+		
 
 	}// addPlayerToTeam
 
 	//works
 	public List<PlayerDb> getAllPlayersFromTeam(String teamId, int activeFlag)
 	{
-		SQLiteDatabase db = this.getReadableDatabase();
-
 		List<PlayerDb> playerList = new ArrayList<PlayerDb>();
 		String query;
 		if (activeFlag == 0)
@@ -432,7 +414,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 					+ " AND " + TABLE_TEAM + "." + COL_ID + " = '"
 					+ teamId + "'";
 		}
-		Cursor c = db.rawQuery(query, null);
+		Cursor c = getDB().rawQuery(query, null);
 
 		if (c.moveToFirst())
 		{
@@ -447,7 +429,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 			}
 			while (c.moveToNext());
 		}
-		db.close();
+		
 		return playerList;
 
 	}// getAllPlayersFromTeam
@@ -455,7 +437,6 @@ public class DatabaseHelper extends SQLiteOpenHelper
 
 	public Cursor getAllPlayersFromTeamCursor(String teamId, int activeFlag)
 	{
-		SQLiteDatabase db = this.getReadableDatabase();
 		String query;
 		if (activeFlag == 0)
 		{
@@ -489,20 +470,18 @@ public class DatabaseHelper extends SQLiteOpenHelper
 					+ " AND " + TABLE_TEAM + "." + COL_ID + " = '"
 					+ teamId + "'";
 		}
-		Cursor c = db.rawQuery(query, null);
+		Cursor c = getDB().rawQuery(query, null);
 		if(c.moveToFirst())
 		{
-			db.close();
+			
 			return c;
 		}
-		db.close();
+		
 		return null;
 	}
 
 	public void updatePlayerInfo(PlayerDb updatedPlayer)
 	{
-		SQLiteDatabase db =  this.getWritableDatabase();
-
 		String playerId = updatedPlayer.getPlayerId();
 
 		ContentValues values = new ContentValues();
@@ -511,30 +490,26 @@ public class DatabaseHelper extends SQLiteOpenHelper
 		values.put(COL_LNAME, updatedPlayer.getLname());
 		values.put(COL_NUMBER, updatedPlayer.getNumber());
 
-		db.update(TABLE_PLAYER, values, COL_ID + " = ?", new String[] {playerId} );
+		getDB().update(TABLE_PLAYER, values, COL_ID + " = ?", new String[] {playerId} );
 
-		db.close();
+		
 	}
 
 	public void addPlayer(String id, String number, String fname, String lname)
 	{
-		SQLiteDatabase db = this.getWritableDatabase();
-
 		ContentValues values = new ContentValues();
 		values.put(COL_ID, id);
 		values.put(COL_NUMBER, number);
 		values.put(COL_FNAME, fname);
 		values.put(COL_LNAME, lname);
 
-		db.insert(TABLE_PLAYER, null, values);
+		getDB().insert(TABLE_PLAYER, null, values);
 
-		db.close();
+		
 	}
 
 	public List<PlayerDb> getAllPlayersList()
 	{
-		SQLiteDatabase db = this.getReadableDatabase();
-
 		List<PlayerDb> playerList = new ArrayList<PlayerDb>();
 		String query;
 
@@ -542,7 +517,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 		query = "SELECT * FROM " + TABLE_PLAYER;
 
 
-		Cursor c = db.rawQuery(query, null);
+		Cursor c = getDB().rawQuery(query, null);
 
 		if (c.moveToFirst())
 		{
@@ -557,50 +532,43 @@ public class DatabaseHelper extends SQLiteOpenHelper
 			}
 			while (c.moveToNext());
 		}
-		db.close();
+		
 		return playerList;
 	}
 
 	public Cursor getAllPlayersCursor()
 	{
-		SQLiteDatabase db = this.getReadableDatabase();
-
-		//this is a problem because I need to select DISTINCT
-
 		String query = "SELECT * FROM " + TABLE_PLAYER + " ORDER BY " + COL_LNAME + " ASC";
 		//String query = "SELECT * FROM " + TABLE_PLAYER;
-		Cursor c = db.rawQuery(query, null);
+		Cursor c = getDB().rawQuery(query, null);
 		if (c.moveToFirst())
 		{
-			db.close();
+			
 			return c;
 		}
 		else
 		{
-			db.close();
+			
 			return null;
 		}
 	}
 	
 	public boolean playerExists(String playerId)
 	{
-		SQLiteDatabase db = this.getReadableDatabase();
 		String query = "SELECT * FROM " + TABLE_PLAYER + " WHERE "
 				+ COL_ID + " = '" + playerId + "'";
-		Cursor c = db.rawQuery(query, null);
+		Cursor c = getDB().rawQuery(query, null);
 		if (c.moveToFirst())
 		{
-			db.close();
+			
 			return true;
 		}
-		db.close();
+		
 		return false;
 	}
 
 	public boolean playerExistsOnTeam(String playerId, String teamId)
 	{
-		SQLiteDatabase db = this.getReadableDatabase();
-
 		String query = "SELECT 1 FROM " + TABLE_TEAM + ", " + TABLE_PLAYER
 				+ " WHERE "
 				+ TABLE_TEAM + "." + COL_PLAYERID + " = "
@@ -608,14 +576,14 @@ public class DatabaseHelper extends SQLiteOpenHelper
 				+ " AND " + TABLE_TEAM + "." + COL_ID + " = '"
 				+ teamId + "' AND " + TABLE_PLAYER + "." + COL_ID
 				+ " = '" + playerId + "'";
-		Cursor c = db.rawQuery(query, null);
+		Cursor c = getDB().rawQuery(query, null);
 
 		if (c.moveToFirst())
 		{
-			db.close();
+			
 			return true;
 		}
-		db.close();
+		
 		return false;
 	}
 
@@ -630,8 +598,6 @@ public class DatabaseHelper extends SQLiteOpenHelper
 
 	public String createNewGame(String teamId, String awayTeamName)
 	{
-		SQLiteDatabase db = this.getReadableDatabase();
-
 		ContentValues values = new ContentValues();
 		String gId = UUID.randomUUID().toString();
 		values.put(COL_ID, gId);
@@ -641,8 +607,8 @@ public class DatabaseHelper extends SQLiteOpenHelper
 		values.put(COL_AWAY_SCORE, 0);
 		values.put(COL_GAME_TIME, 0);
 
-		db.insert(TABLE_GAME, null, values);
-		db.close();
+		getDB().insert(TABLE_GAME, null, values);
+		
 
 		//now create the necessary stats tables for each "active" player
 
@@ -679,21 +645,15 @@ public class DatabaseHelper extends SQLiteOpenHelper
 			}
 			qq = db1.insert(TABLE_STATS, null, values1);
 		}
-
-
-		db1.close();
 		return gId;
 	}
 
 	public List<GameDb> getAllGamesForTeam(String teamId)
 	{
 		List<GameDb> gamesList = new ArrayList<GameDb>();
-
-		SQLiteDatabase db = this.getReadableDatabase();
-
 		String query = "SELECT * FROM " + TABLE_GAME + " WHERE "
 				+ COL_HOME_TEAM + " = ?";
-		Cursor c = db.rawQuery(query, new String[]{ teamId });
+		Cursor c = getDB().rawQuery(query, new String[]{ teamId });
 
 
 		if (c.moveToFirst())
@@ -712,7 +672,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 			}
 			while (c.moveToNext());
 		}
-		db.close();
+		
 		return gamesList;
 	}
 
@@ -720,11 +680,9 @@ public class DatabaseHelper extends SQLiteOpenHelper
 	{
 		GameDb ret = new GameDb();
 
-		SQLiteDatabase db = this.getReadableDatabase();
-
 		String query = "SELECT * FROM " + TABLE_GAME + " WHERE " 
 				+ COL_ID + " = ?";
-		Cursor c = db.rawQuery(query, new String[] {gId} );
+		Cursor c = getDB().rawQuery(query, new String[] {gId} );
 
 
 		if (c.moveToFirst())
@@ -736,15 +694,14 @@ public class DatabaseHelper extends SQLiteOpenHelper
 			ret.setHomeScore(c.getInt(c.getColumnIndex(COL_HOME_SCORE)));
 			ret.setHomeTeam(c.getString(c.getColumnIndex(COL_HOME_TEAM)));
 		}
-		db.close();
+		
 		return ret;
 	}
 
 	public Cursor getOnFieldPlayersFromGameCursor(String gameId)
 	{
 		List<PlayerDb> playerList = new ArrayList<PlayerDb>();
-		SQLiteDatabase db = this.getReadableDatabase();
-
+		
 		String query = "SELECT "
 				+ TABLE_PLAYER + "." + COL_ID + ", "
 				+ TABLE_PLAYER + "." + COL_NUMBER + ", "
@@ -760,21 +717,20 @@ public class DatabaseHelper extends SQLiteOpenHelper
 				+ COL_ONFIELD + " != 0"
 				+ " ORDER BY " + COL_ONFIELD + " ASC";
 
-		Cursor c = db.rawQuery(query, null);
+		Cursor c = getDB().rawQuery(query, null);
 		if (c.moveToFirst())
 		{
-			db.close();
+			
 			return c;
 		}
-		db.close();
+		
 		return null;
 	}
 	
 	public List<PlayerDb> getOnFieldPlayersFromGame(String gameId)
 	{
 		List<PlayerDb> playerList = new ArrayList<PlayerDb>();
-		SQLiteDatabase db = this.getReadableDatabase();
-
+		
 		String query = "SELECT "
 				+ TABLE_PLAYER + "." + COL_ID + ", "
 				+ TABLE_PLAYER + "." + COL_NUMBER + ", "
@@ -788,7 +744,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 				+ TABLE_PLAYER + "." + COL_ID + " = " + TABLE_STATS + "." + COL_PLAYERID
 				+ " ORDER BY " + COL_ONFIELD + " ASC";
 
-		Cursor c = db.rawQuery(query, null);
+		Cursor c = getDB().rawQuery(query, null);
 		if (c.moveToFirst())
 		{
 			do
@@ -805,15 +761,14 @@ public class DatabaseHelper extends SQLiteOpenHelper
 			}
 			while (c.moveToNext());
 		}
-		db.close();
+		
 		return playerList;
 	}
 
 	public List<PlayerDb> getOffFieldPlayersFromGame(String gameId)
 	{
 		List<PlayerDb> playerList = new ArrayList<PlayerDb>();
-		SQLiteDatabase db = this.getReadableDatabase();
-
+		
 		//a player cna't have a stat table... right?
 		//what makes sense then?
 		//stats have players, players dont have stats
@@ -834,7 +789,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 
 
 
-		Cursor c = db.rawQuery(query, new String[] {gameId} );
+		Cursor c = getDB().rawQuery(query, new String[] {gameId} );
 
 		if (c.moveToFirst())
 		{
@@ -853,66 +808,59 @@ public class DatabaseHelper extends SQLiteOpenHelper
 			}
 			while (c.moveToNext());
 		}
-		db.close();
+		
 		return playerList;
 	}
 
 	public int getGameTime(String gameId)
 	{
-		SQLiteDatabase db = this.getReadableDatabase();
-
 		String query = "SELECT " + COL_GAME_TIME + " FROM "
 				+ TABLE_GAME + " WHERE " + COL_ID + " = ?";
-		Cursor c = db.rawQuery(query, new String[] {gameId} );
+		Cursor c = getDB().rawQuery(query, new String[] {gameId} );
 
 		if (c.moveToFirst())
 		{
-			db.close();
+			
 			return c.getInt(c.getColumnIndex(COL_GAME_TIME));
 		}
-		db.close();
+		
 		return 0;
 	}
 
 	public int getListLocation(String gId, String pId)
 	{
-		SQLiteDatabase db = this.getReadableDatabase();
-
 		String query = "SELECT " + COL_ONFIELD
 				+ " FROM " + TABLE_STATS
 				+ " WHERE "
 				+ COL_GAMEID + " = ?" + " AND "
 				+ COL_PLAYERID + " = ?";
 
-		Cursor c = db.rawQuery(query, new String[] {gId, pId} );
+		Cursor c = getDB().rawQuery(query, new String[] {gId, pId} );
 
 
 
 		if (c.moveToFirst())
 		{
-			db.close();
+			
 			return c.getInt(c.getColumnIndex(COL_ONFIELD));
 		}
-		db.close();
+		
 		return 0;
 	}
 
 	public void updateTime(String gId, int valToAdd)
 	{
 		int curTime = getGameTime(gId);
-		SQLiteDatabase db = this.getWritableDatabase();
 
 		ContentValues values = new ContentValues();
 		values.put(COL_GAME_TIME, (curTime + valToAdd) );
 
-		db.update(TABLE_GAME, values, COL_ID + " = ?", new String[] {gId} );
-		db.close();
+		getDB().update(TABLE_GAME, values, COL_ID + " = ?", new String[] {gId} );
+		
 	}
 	
 	public void updateScore(String gameId, String who, int newVal)
-	{
-		SQLiteDatabase db = this.getWritableDatabase();
-		
+	{	
 		int newScore = 0;
 		ContentValues values = new ContentValues();
 		if (who.equals("opponent"))
@@ -924,8 +872,8 @@ public class DatabaseHelper extends SQLiteOpenHelper
 			values.put(COL_HOME_SCORE, newVal );
 		}
 		
-		db.update(TABLE_GAME, values, COL_ID + " = '" + gameId + "'" , null);
-		db.close();
+		getDB().update(TABLE_GAME, values, COL_ID + " = '" + gameId + "'" , null);
+		
 		
 	}
 
@@ -936,17 +884,16 @@ public class DatabaseHelper extends SQLiteOpenHelper
 
 	public int getStatValue(String gameId, String playerId, String column)
 	{
-		SQLiteDatabase db = this.getReadableDatabase();
 		String query = "SELECT * FROM " + TABLE_STATS + " WHERE "
 				+ COL_GAMEID + " = ? AND " + COL_PLAYERID + " = ?";
-		Cursor c = db.rawQuery(query, new String[] {gameId, playerId});
+		Cursor c = getDB().rawQuery(query, new String[] {gameId, playerId});
 
 		if (c.moveToFirst())
 		{
-			db.close();
+			
 			return c.getInt(c.getColumnIndex(column));
 		}
-		db.close();
+		
 		return 0;
 
 	}
@@ -957,11 +904,9 @@ public class DatabaseHelper extends SQLiteOpenHelper
 		ContentValues values = new ContentValues();
 		values.put(column, (getStatValue(gameId, playerId, column) + valToAdd));
 
-		SQLiteDatabase db = this.getWritableDatabase();
-
-		int i = db.update(TABLE_STATS, values, COL_GAMEID + " = ? AND " + COL_PLAYERID + " = ?", 
+		int i = getDB().update(TABLE_STATS, values, COL_GAMEID + " = ? AND " + COL_PLAYERID + " = ?", 
 				new String[] {gameId, playerId} );
-		db.close();
+		
 	}
 	
 	public void subOut(String gameId, String playerIdOut, String playerIdIn, int location)
@@ -972,21 +917,17 @@ public class DatabaseHelper extends SQLiteOpenHelper
 		ContentValues values1 = new ContentValues();
 		values1.put(COL_ONFIELD, location);
 		
-		SQLiteDatabase db = this.getWritableDatabase();
-		
-		db.update(TABLE_STATS, values, COL_GAMEID + " = ? AND " + COL_PLAYERID + " = ?",
+		getDB().update(TABLE_STATS, values, COL_GAMEID + " = ? AND " + COL_PLAYERID + " = ?",
 				new String[] {gameId, playerIdOut} );
 		
-		db.update(TABLE_STATS, values1, COL_GAMEID + " = ? AND " + COL_PLAYERID + " = ?",
+		getDB().update(TABLE_STATS, values1, COL_GAMEID + " = ? AND " + COL_PLAYERID + " = ?",
 				new String[] {gameId, playerIdIn} );
 		
-		db.close();
+		
 	}
 
 	public Cursor getGameStats(String gameId)
 	{
-		SQLiteDatabase db = this.getReadableDatabase();
-
 		String query = "SELECT "
 				+ TABLE_PLAYER + "." + COL_NUMBER + ", "
 				+ TABLE_PLAYER + "." + COL_LNAME + ", "
@@ -1009,27 +950,33 @@ public class DatabaseHelper extends SQLiteOpenHelper
 				+ TABLE_STATS + "." + COL_GAMEID + " = '" + gameId + "'";
 
 
-		Cursor c = db.rawQuery(query, null);
+		Cursor c = getDB().rawQuery(query, null);
 
 		if (c.moveToFirst())
 		{
-			db.close();
+			
 			return c;
 		}
 		else
 		{
-			db.close();
+			
 			return null;
 		}
 	}
 
-	//closing database
-	public void closeDB() 
+
+	// -------------------------------------------------------------------------
+
+	public SQLiteDatabase getDB()
 	{
-		SQLiteDatabase db = this.getReadableDatabase();
-		if (db != null && db.isOpen())
-			db.close();
+		if( myDabatabse == null )
+		{
+			myDabatabse = getWritableDatabase();
+		}
+		return myDabatabse;
 	}
+	
+	// -------------------------------------------------------------------------
 
 
 
