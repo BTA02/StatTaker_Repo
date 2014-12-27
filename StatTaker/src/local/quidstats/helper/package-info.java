@@ -5,4 +5,4 @@
  * @author andrewaxtell
  *
  */
-package local.stattaker.model;
+package local.quidstats.helper;

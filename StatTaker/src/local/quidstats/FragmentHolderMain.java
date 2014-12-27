@@ -1,7 +1,8 @@
-package local.stattaker;
+package local.quidstats;
 
-import local.stattaker.helper.DatabaseHelper;
-import local.stattaker.model.TeamDb;
+import local.quidstats.helper.DatabaseHelper;
+import local.quidstats.model.TeamDb;
+import local.stattaker.R;
 import android.app.ActionBar;
 import android.app.Activity;
 import android.content.Context;
@@ -24,7 +25,6 @@ public class FragmentHolderMain extends FragmentActivity
 	// 		d. Center things in lists
 	// 		e. MRU list for subbing in a certain slot
 	// 		f. Deliniate chaser / beater / keeper sections
-	// 8. Code efficiency. Currently sucks
 	// 9. Delete team!
 	//		a. Should put it back on the "online team list" thing
 	private String TAG = "MainActivity";

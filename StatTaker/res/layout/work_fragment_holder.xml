@@ -14,13 +14,13 @@
 
     <fragment
         android:id="@+id/player_list"
-        android:name="local.stattaker.FragmentWorkPlayers"
+        android:name="local.quidstats.FragmentWorkPlayers"
         android:layout_width="match_parent"
         android:layout_height="209dp" />
     
     <fragment
         android:id="@+id/stats"
-        android:name="local.stattaker.FragmentWorkStats"
+        android:name="local.quidstats.FragmentWorkStats"
         android:layout_width="match_parent"
         android:layout_height="204dp" />
     

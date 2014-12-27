@@ -1,4 +1,4 @@
-package local.stattaker.util;
+package local.quidstats.util;
 
 public class Action 
 {

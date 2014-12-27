@@ -1,10 +1,11 @@
-package local.stattaker;
+package local.quidstats;
 
 import java.util.Stack;
 
-import local.stattaker.helper.DatabaseHelper;
-import local.stattaker.model.GameDb;
-import local.stattaker.util.Action;
+import local.quidstats.helper.DatabaseHelper;
+import local.quidstats.model.GameDb;
+import local.quidstats.util.Action;
+import local.stattaker.R;
 import android.app.ActionBar;
 import android.app.AlertDialog;
 import android.content.Context;

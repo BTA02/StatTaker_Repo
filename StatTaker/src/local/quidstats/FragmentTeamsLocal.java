@@ -1,12 +1,13 @@
-package local.stattaker;
+package local.quidstats;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
-import local.stattaker.model.GameDb;
-import local.stattaker.model.TeamDb;
+import local.quidstats.model.GameDb;
+import local.quidstats.model.TeamDb;
+import local.stattaker.R;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -17,11 +18,12 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
+import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ListAdapter;
 import android.widget.ListView;
-import android.widget.AdapterView.OnItemClickListener;
 
 public class FragmentTeamsLocal extends Fragment
 {
@@ -33,13 +35,12 @@ public class FragmentTeamsLocal extends Fragment
 
 	protected AlertDialog newTeamDialog = null;
 
-
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState)
 	{
-		View rootView = inflater.inflate(R.layout.fragment_team_local, container,
-				false);
+		View rootView = inflater.inflate(R.layout.fragment_team_local,
+				container, false);
 		return rootView;
 	}
 
@@ -48,7 +49,7 @@ public class FragmentTeamsLocal extends Fragment
 	{
 		super.onActivityCreated(savedInstanceState);
 		ma = (FragmentHolderMain) getActivity();
-		
+
 		populateLocalList();
 	}
 
@@ -56,27 +57,28 @@ public class FragmentTeamsLocal extends Fragment
 	public void onResume()
 	{
 		super.onResume();
-		
+
 		populateLocalList();
 	}
 
 	void populateLocalList()
 	{
-		currentTeams = (ListView) ma.findViewById(R.id.fragment_local_teams_list);
+		currentTeams = (ListView) ma
+				.findViewById(R.id.fragment_local_teams_list);
 		Cursor c = ma.db.getAllTeamsCursor();
 
 		teamList = new ArrayList<TeamDb>();
 		teamList = ma.db.getAllTeamsList();
-		
+
 		teamList.remove(ma.teamRowList);
-		
+
 		Collections.sort(teamList, new TeamDb.OrderByTeamName());
 
 		teamList.add(0, ma.teamRowList);
-		
+
 		ma.listAdapter = new ArrayAdapter<TeamDb>(ma.context,
 				R.layout.custom_player_list, teamList);
-		
+
 		currentTeams.setAdapter(ma.listAdapter);
 		currentTeams.setOnItemClickListener(new OnItemClickListener()
 		{
@@ -86,7 +88,7 @@ public class FragmentTeamsLocal extends Fragment
 			{
 				final TeamDb team = (TeamDb) currentTeams
 						.getItemAtPosition(arg2);
-				if (team.getId().equals("aaa-aaa-aaa") )
+				if (team.getId().equals("aaa-aaa-aaa"))
 				{
 					showNewTeamDialog();
 					return;
@@ -112,8 +114,6 @@ public class FragmentTeamsLocal extends Fragment
 							public void onClick(DialogInterface dialog,
 									int which)
 							{
-								// create a new game with "oppo" as the opponent
-								// name
 								String opponentName = oppo.getText().toString();
 								String mod = UUID.randomUUID().toString();
 								mod = mod.substring(0, 4);
@@ -174,7 +174,19 @@ public class FragmentTeamsLocal extends Fragment
 					}
 
 				});
+				//Long click, for game deletion
+				oldGames.setOnItemLongClickListener(new OnItemLongClickListener()
+				{
 
+					@Override
+					public boolean onItemLongClick(AdapterView<?> parent,
+							View view, int position, long id)
+					{
+						//delete game code goes here, I don't really care to do it now
+						return false;
+					}
+
+				});
 				alert.show();
 
 			}
@@ -182,15 +194,14 @@ public class FragmentTeamsLocal extends Fragment
 		});
 
 	}
-	
+
 	public void showNewTeamDialog()
 	{
 		if (newTeamDialog != null && newTeamDialog.isShowing())
 		{
 			return;
 		}
-		AlertDialog.Builder alertBuilder = new AlertDialog.Builder(
-				ma.context);
+		AlertDialog.Builder alertBuilder = new AlertDialog.Builder(ma.context);
 
 		alertBuilder.setTitle("Create New Team");
 		alertBuilder.setMessage("Enter Name of Team:");
@@ -201,14 +212,11 @@ public class FragmentTeamsLocal extends Fragment
 		alertBuilder.setPositiveButton("Ok",
 				new DialogInterface.OnClickListener()
 				{
-					public void onClick(DialogInterface dialog,
-							int whichButton)
+					public void onClick(DialogInterface dialog, int whichButton)
 					{
 						String newTeamId = UUID.randomUUID().toString();
-						ma.db.addTeam(newTeamId, input.getText()
-								.toString());
-						Intent i = new Intent(ma.context,
-								EditTeam.class);
+						ma.db.addTeam(newTeamId, input.getText().toString());
+						Intent i = new Intent(ma.context, EditTeam.class);
 						i.putExtra("teamId", newTeamId);
 						startActivity(i);
 					}
@@ -217,8 +225,7 @@ public class FragmentTeamsLocal extends Fragment
 		alertBuilder.setNegativeButton("Cancel",
 				new DialogInterface.OnClickListener()
 				{
-					public void onClick(DialogInterface dialog,
-							int whichButton)
+					public void onClick(DialogInterface dialog, int whichButton)
 					{
 						dialog.dismiss();
 					}

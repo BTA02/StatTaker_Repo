@@ -1,9 +1,10 @@
-package local.stattaker;
+package local.quidstats;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import local.stattaker.model.TeamDb;
+import local.quidstats.model.TeamDb;
+import local.stattaker.R;
 import android.app.ProgressDialog;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -25,23 +26,26 @@ import com.parse.ParseQuery;
 public class FragmentTeamsOnline extends Fragment
 {
 	String TAG = "FragmentOnlineTeam";
-	
+
 	FragmentHolderMain ma;
-	
+
 	ListView onlineTeams;
 	List<TeamDb> oTeams;
+	ProgressDialog teamsDialog = null;
 	ProgressDialog loadingTeamDialog = null;
-	
+
+	List<ParseObject> objects = new ArrayList<ParseObject>();
+
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState)
 	{
 		View rootView = inflater.inflate(R.layout.fragment_team_online, container,
 				false);
-		
+
 		return rootView;
 	}
-	
+
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState)
 	{
@@ -51,16 +55,19 @@ public class FragmentTeamsOnline extends Fragment
 		{
 			populateOnlineTeams();
 		}
+
 	}
-	
+
 	@Override
 	public void onResume()
 	{
 		super.onResume();
-		
-		populateOnlineTeams();
+		if (ma.isNetworkAvailable())
+		{
+			populateOnlineTeams();
+		}
 	}
-	
+
 	public void populateOnlineTeams()
 	{
 		Parse.initialize(ma.context, "RoDlI2ENBnxSWlPvdG2VEsFPRSt06qHJ78nZop77",
@@ -69,61 +76,85 @@ public class FragmentTeamsOnline extends Fragment
 
 		onlineTeams = (ListView) ma.findViewById(R.id.fragment_online_teams_list);
 
-		List<ParseObject> objects = new ArrayList<ParseObject>();
+		//Just need to put parse on the background thread?
 		oTeams = new ArrayList<TeamDb>();
-		ParseQuery<ParseObject> query = ParseQuery.getQuery("Teams");
+		final ParseQuery<ParseObject> query = ParseQuery.getQuery("Teams");
 		query.setLimit(1000);
-		try
-		{
-			objects = query.find();
-		}
-		catch (ParseException e)
-		{
-			e.printStackTrace();
-			Log.e("Test", "Parse .find() didn't work 1");
-		}
-		
-		for (int i = 0; i < objects.size(); i++)
-		{
-			String teamName = objects.get(i).getString("team_name");
-			String teamId = objects.get(i).getString("team_id");
-			TeamDb teamToAdd = new TeamDb(teamId, teamName);
-			if (! ma.db.teamExists(teamId) && !containsTeam(teamToAdd.getId()))
-			{
-				oTeams.add(teamToAdd);
-			}
-		}
-		
-		
-		ma.listAdapter2 = new ArrayAdapter<TeamDb>(ma.context,
-				R.layout.custom_player_list, oTeams);
-		onlineTeams.setAdapter(ma.listAdapter2);
-		ma.listAdapter2.sort(new TeamDb.OrderByTeamName());
 
-		onlineTeams.setOnItemClickListener(new OnItemClickListener()
+		//Thread stuffs?
+		teamsDialog = new ProgressDialog(ma.context);
+		teamsDialog.setTitle("Loading Teams");
+		teamsDialog.setCancelable(false);
+		teamsDialog.show();
+		new Thread(new Runnable()
 		{
+
 			@Override
-			public void onItemClick(AdapterView<?> parent, View view,
-					final int position, long id)
+			public void run()
 			{
-				loadingTeamDialog = new ProgressDialog(ma.context);
-				loadingTeamDialog.setTitle("Downloading team");
-				loadingTeamDialog.setCancelable(false);
-				loadingTeamDialog.show();
-				new Thread(new Runnable()
+				// TODO Auto-generated method stub
+
+
+				try
 				{
+					objects = query.find();
+				}
+				catch (ParseException e)
+				{
+					e.printStackTrace();
+					Log.e("Test", "Parse .find() didn't work 1");
+				}
+
+				for (int i = 0; i < objects.size(); i++)
+				{
+					String teamName = objects.get(i).getString("team_name");
+					String teamId = objects.get(i).getString("team_id");
+					TeamDb teamToAdd = new TeamDb(teamId, teamName);
+					if (! ma.db.teamExists(teamId) && !containsTeam(teamToAdd.getId()))
+					{
+						oTeams.add(teamToAdd);
+					}
+				}
+
+				ma.listAdapter2 = new ArrayAdapter<TeamDb>(ma.context,
+						R.layout.custom_player_list, oTeams);
+				getActivity().runOnUiThread(new Runnable()
+				{
+					@Override
 					public void run()
 					{
-						Object o = onlineTeams.getItemAtPosition(position);
-						TeamDb teamClicked = (TeamDb) o;
-						loadInTeam(teamClicked.getId());
+						onlineTeams.setAdapter(ma.listAdapter2);
 					}
-				}).start();
+				});
+				
+				ma.listAdapter2.sort(new TeamDb.OrderByTeamName());
+
+				onlineTeams.setOnItemClickListener(new OnItemClickListener()
+				{
+					@Override
+					public void onItemClick(AdapterView<?> parent, View view,
+							final int position, long id)
+					{
+						loadingTeamDialog = new ProgressDialog(ma.context);
+						loadingTeamDialog.setTitle("Downloading team");
+						loadingTeamDialog.setCancelable(false);
+						loadingTeamDialog.show();
+						new Thread(new Runnable()
+						{
+							public void run()
+							{
+								Object o = onlineTeams.getItemAtPosition(position);
+								TeamDb teamClicked = (TeamDb) o;
+								loadInTeam(teamClicked.getId());
+							}
+						}).start();
+					}
+				});
 			}
-		});
-		
+		}).start();
+		teamsDialog.dismiss();
 	}
-	
+
 	public void loadInTeam(String teamId)
 	{
 		List<ParseObject> objects = new ArrayList<ParseObject>();
@@ -178,7 +209,7 @@ public class FragmentTeamsOnline extends Fragment
 						ma.listAdapter2.remove(ma.listAdapter2.getItem(i));
 					}
 				}
-				
+
 				ma.listAdapter2.notifyDataSetChanged();
 				ma.listAdapter.notifyDataSetChanged();
 
@@ -189,7 +220,7 @@ public class FragmentTeamsOnline extends Fragment
 		});
 	}
 
-	
+
 	public boolean containsTeam(String teamId)
 	{
 		for (int i = 0; i < oTeams.size(); i++)
@@ -201,6 +232,6 @@ public class FragmentTeamsOnline extends Fragment
 		}
 		return false;
 	}
-	
-	
+
+
 }

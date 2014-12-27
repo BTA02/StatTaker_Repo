@@ -1,15 +1,16 @@
-package local.stattaker;
+package local.quidstats;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import local.stattaker.helper.DatabaseHelper;
-import local.stattaker.model.GameDb;
-import local.stattaker.model.PlayerDb;
-import local.stattaker.util.Action;
-import local.stattaker.util.CursorAdapterOnFieldList;
+import local.quidstats.helper.DatabaseHelper;
+import local.quidstats.model.GameDb;
+import local.quidstats.model.PlayerDb;
+import local.quidstats.util.Action;
+import local.quidstats.util.CursorAdapterOnFieldList;
+import local.stattaker.R;
 import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
 import android.content.Context;
@@ -117,12 +118,6 @@ public class FragmentWorkPlayers extends ListFragment
 					subBuilder.show();
 				}
 				return true;
-				/*
-				final PlayerDb player = (PlayerDb) arg0.getItemAtPosition(arg2);
-				AlertDialog.Builder subBuilder = subDialog(fm.gId, player);
-				subBuilder.show();
-				return true; // that's all it took, cool
-				 */
 			}
 
 		});
@@ -393,7 +388,7 @@ public class FragmentWorkPlayers extends ListFragment
 		statsBuilder.setCancelable(true);
 
 		CharSequence[] items = { "Shot", "Goal", "Assist", "Steal", "Turnover",
-				"Save", "Snitch" };
+				"Save"};
 
 		statsBuilder.setItems(items, new DialogInterface.OnClickListener()
 		{

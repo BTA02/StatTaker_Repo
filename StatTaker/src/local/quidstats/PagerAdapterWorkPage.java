@@ -1,13 +1,13 @@
-package local.stattaker;
+package local.quidstats;
 
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 
-public class PagerAdapterMainPage extends FragmentPagerAdapter
+public class PagerAdapterWorkPage extends FragmentPagerAdapter
 {
 
-	public PagerAdapterMainPage(FragmentManager fm)
+	public PagerAdapterWorkPage(FragmentManager fm)
 	{
 		super(fm);
 		// TODO Auto-generated constructor stub
@@ -19,9 +19,9 @@ public class PagerAdapterMainPage extends FragmentPagerAdapter
 		switch (position)
 		{
 			case 0:
-				return new FragmentTeamsLocal();
+				return new FragmentWorkPlayers();
 			case 1:
-				return new FragmentTeamsOnline();
+				return new FragmentWorkStats();
 		}
 		return null;
 	}
@@ -38,9 +38,9 @@ public class PagerAdapterMainPage extends FragmentPagerAdapter
     	switch (position)
     	{
     		case 0:
-    			return "Local Teams";
+    			return "Player List";
     		case 1:
-    			return "Online Teams";
+    			return "Stats";
     			
     	}
     	return "";

@@ -1,4 +1,4 @@
-package local.stattaker;
+package local.quidstats;
 
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;

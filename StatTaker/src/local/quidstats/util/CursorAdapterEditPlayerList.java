@@ -1,9 +1,9 @@
-package local.stattaker.util;
+package local.quidstats.util;
 
 
-import local.stattaker.EditTeam;
+import local.quidstats.EditTeam;
+import local.quidstats.helper.DatabaseHelper;
 import local.stattaker.R;
-import local.stattaker.helper.DatabaseHelper;
 import android.content.Context;
 import android.database.Cursor;
 import android.util.Log;

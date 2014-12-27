@@ -1,4 +1,4 @@
-package local.stattaker.util;
+package local.quidstats.util;
 
 import android.app.Activity;
 import android.view.View;

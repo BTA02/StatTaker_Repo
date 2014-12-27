@@ -1,15 +1,16 @@
-package local.stattaker;
+package local.quidstats;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
-import local.stattaker.helper.DatabaseHelper;
-import local.stattaker.model.PlayerDb;
-import local.stattaker.model.TeamDb;
-import local.stattaker.util.CursorAdapterEditPlayerList;
-import local.stattaker.util.CursorAdapterPlayerList;
+import local.quidstats.helper.DatabaseHelper;
+import local.quidstats.model.PlayerDb;
+import local.quidstats.model.TeamDb;
+import local.quidstats.util.CursorAdapterEditPlayerList;
+import local.quidstats.util.CursorAdapterPlayerList;
+import local.stattaker.R;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;

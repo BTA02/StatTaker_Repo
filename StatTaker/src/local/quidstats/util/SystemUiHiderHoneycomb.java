@@ -1,4 +1,4 @@
-package local.stattaker.util;
+package local.quidstats.util;
 
 import android.annotation.TargetApi;
 import android.app.Activity;

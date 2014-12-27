@@ -1,4 +1,4 @@
-package local.stattaker.model;
+package local.quidstats.model;
 
 import java.util.Comparator;
 

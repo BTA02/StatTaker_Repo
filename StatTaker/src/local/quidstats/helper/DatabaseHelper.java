@@ -1,4 +1,4 @@
-package local.stattaker.helper;
+package local.quidstats.helper;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -6,9 +6,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import local.stattaker.model.GameDb;
-import local.stattaker.model.PlayerDb;
-import local.stattaker.model.TeamDb;
+import local.quidstats.model.GameDb;
+import local.quidstats.model.PlayerDb;
+import local.quidstats.model.TeamDb;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;

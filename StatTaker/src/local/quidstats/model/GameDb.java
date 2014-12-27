@@ -1,4 +1,4 @@
-package local.stattaker.model;
+package local.quidstats.model;
 
 
 public class GameDb //row data for a game table
