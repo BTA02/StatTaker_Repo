@@ -23,7 +23,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 	private static final String TAG = "DatabaseHelper";
 
 	// Database Version
-	private static final int DATABASE_VERSION = 61;
+	private static final int DATABASE_VERSION = 62;
 
 	// Database Name
 	private static final String DATABASE_NAME = "quidditchGames";
@@ -145,22 +145,22 @@ public class DatabaseHelper extends SQLiteOpenHelper
 	@Override
 	public void onCreate(SQLiteDatabase db) 
 	{
-		getDB().execSQL(CREATE_TABLE_GAME);
-		getDB().execSQL(CREATE_TABLE_PLAYER);
-		getDB().execSQL(CREATE_TABLE_STAT);
-		getDB().execSQL(CREATE_TABLE_TIME);
-		getDB().execSQL(CREATE_TABLE_TEAM);
+		db.execSQL(CREATE_TABLE_GAME);
+		db.execSQL(CREATE_TABLE_PLAYER);
+		db.execSQL(CREATE_TABLE_STAT);
+		db.execSQL(CREATE_TABLE_TIME);
+		db.execSQL(CREATE_TABLE_TEAM);
 	}
 
 	@Override
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) 
 	{
 		// on upgrade drop older tables
-		getDB().execSQL("DROP TABLE IF EXISTS " + TABLE_GAME);
-		getDB().execSQL("DROP TABLE IF EXISTS " + TABLE_PLAYER);
-		getDB().execSQL("DROP TABLE IF EXISTS " + TABLE_STATS);
-		getDB().execSQL("DROP TABLE IF EXISTS " + TABLE_TIME);
-		getDB().execSQL("DROP TABLE IF EXISTS " + TABLE_TEAM);
+		db.execSQL("DROP TABLE IF EXISTS " + TABLE_GAME);
+		db.execSQL("DROP TABLE IF EXISTS " + TABLE_PLAYER);
+		db.execSQL("DROP TABLE IF EXISTS " + TABLE_STATS);
+		db.execSQL("DROP TABLE IF EXISTS " + TABLE_TIME);
+		db.execSQL("DROP TABLE IF EXISTS " + TABLE_TEAM);
 
 		// create new tables
 		onCreate(db);

@@ -2,7 +2,6 @@ package local.quidstats;
 
 import local.quidstats.helper.DatabaseHelper;
 import local.quidstats.model.TeamDb;
-import local.stattaker.R;
 import android.app.ActionBar;
 import android.app.Activity;
 import android.content.Context;

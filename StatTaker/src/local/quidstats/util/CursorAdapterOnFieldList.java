@@ -3,11 +3,10 @@ package local.quidstats.util;
 
 import local.quidstats.FragmentHolderWork;
 import local.quidstats.FragmentWorkPlayers;
+import local.quidstats.R;
 import local.quidstats.helper.DatabaseHelper;
-import local.stattaker.R;
 import android.content.Context;
 import android.database.Cursor;
-import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;

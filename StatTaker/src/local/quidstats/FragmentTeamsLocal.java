@@ -7,7 +7,6 @@ import java.util.UUID;
 
 import local.quidstats.model.GameDb;
 import local.quidstats.model.TeamDb;
-import local.stattaker.R;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;

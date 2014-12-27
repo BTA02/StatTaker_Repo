@@ -1,7 +1,7 @@
 package local.quidstats.util;
 
+import local.quidstats.R;
 import local.quidstats.helper.DatabaseHelper;
-import local.stattaker.R;
 import android.content.Context;
 import android.database.Cursor;
 import android.view.LayoutInflater;

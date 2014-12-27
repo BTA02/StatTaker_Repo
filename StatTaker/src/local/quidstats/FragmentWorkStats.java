@@ -3,9 +3,7 @@ package local.quidstats;
 import java.util.List;
 
 import local.quidstats.helper.DatabaseHelper;
-import local.quidstats.model.GameDb;
 import local.quidstats.model.PlayerDb;
-import local.stattaker.R;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;

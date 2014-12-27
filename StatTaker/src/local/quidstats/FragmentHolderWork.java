@@ -5,7 +5,6 @@ import java.util.Stack;
 import local.quidstats.helper.DatabaseHelper;
 import local.quidstats.model.GameDb;
 import local.quidstats.util.Action;
-import local.stattaker.R;
 import android.app.ActionBar;
 import android.app.AlertDialog;
 import android.content.Context;
