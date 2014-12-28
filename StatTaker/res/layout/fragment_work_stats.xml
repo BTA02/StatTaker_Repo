@@ -3,118 +3,135 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical" >
-    
+
     <HorizontalScrollView
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content">
-	    <ScrollView
-	        android:layout_width="wrap_content"
-	        android:layout_height="wrap_content"
-	        android:layout_weight="0.8" >
-	
-	        <TableLayout
-	            android:id="@+id/stats"
-	            android:layout_width="match_parent"
-	            android:layout_height="wrap_content" >
-	
-	            <TableRow
-	                android:id="@+id/stats_header"
-	                android:layout_width="wrap_content"
-	                android:layout_height="wrap_content" >
-	
-	                <TextView
-	                    android:id="@+id/stats_header_number"
-	                    android:layout_width="wrap_content"
-	                    android:layout_height="wrap_content"
-	                    android:paddingRight="5dp"
-	                    android:text="Number" />
-	
-	                <TextView
-	                    android:id="@+id/stats_header_lname"
-	                    android:layout_width="wrap_content"
-	                    android:layout_height="wrap_content"
-	                    android:paddingRight="5dp"
-	                    android:text="Last" />
-	
-	                <TextView
-	                    android:id="@+id/stats_header_shots"
-	                    android:layout_width="wrap_content"
-	                    android:layout_height="wrap_content"
-	                    android:paddingRight="5dp"
-	                    android:text="Shots" />
-	
-	                <TextView
-	                    android:id="@+id/stats_header_goals"
-	                    android:layout_width="wrap_content"
-	                    android:layout_height="wrap_content"
-	                    android:paddingRight="5dp"
-	                    android:text="Goals" />
-	
-	                <TextView
-	                    android:id="@+id/stats_header_assists"
-	                    android:layout_width="wrap_content"
-	                    android:layout_height="wrap_content"
-	                    android:paddingRight="5dp"
-	                    android:text="Assists" />
-	
-	                <TextView
-	                    android:id="@+id/stats_header_steals"
-	                    android:layout_width="wrap_content"
-	                    android:layout_height="wrap_content"
-	                    android:paddingRight="5dp"
-	                    android:text="Steals" />
-	
-	                <TextView
-	                    android:id="@+id/stats_header_turnovers"
-	                    android:layout_width="wrap_content"
-	                    android:layout_height="wrap_content"
-	                    android:paddingRight="5dp"
-	                    android:text="TOs" />
-	
-	                <TextView
-	                    android:id="@+id/stats_header_saves"
-	                    android:layout_width="wrap_content"
-	                    android:layout_height="wrap_content"
-	                    android:paddingRight="5dp"
-	                    android:text="Saves" />
-	
-	                <TextView
-	                    android:id="@+id/stats_header_snitches"
-	                    android:layout_width="wrap_content"
-	                    android:layout_height="wrap_content"
-	                    android:paddingRight="5dp"
-	                    android:text="Snitch" />
-	
-	                <TextView
-	                    android:id="@+id/stats_header_plus"
-	                    android:layout_width="wrap_content"
-	                    android:layout_height="wrap_content"
-	                    android:paddingRight="5dp"
-	                    android:text="Plus" />
-	
-	                <TextView
-	                    android:id="@+id/stats_header_minus"
-	                    android:layout_width="wrap_content"
-	                    android:layout_height="wrap_content"
-	                    android:paddingRight="5dp"
-	                    android:text="Minus" />
-	                
-	                <TextView
-	                    android:id="@+id/stats_header_minutes"
-	                    android:layout_width="wrap_content"
-	                    android:layout_height="wrap_content"
-	                    android:paddingRight="5dp"
-	                    android:text="Minutes" />
-	                
-	            </TableRow>
-	        </TableLayout>
-	    </ScrollView>
-	</HorizontalScrollView>
-    
-    <Button
-        android:id="@+id/stats_refresh_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text = "Refresh stats" />
+        android:layout_height="wrap_content" >
+
+        <ScrollView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.8" >
+
+            <TableLayout
+                android:id="@+id/stats"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" >
+
+                <TableRow
+                    android:id="@+id/stats_header"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" >
+
+                    <TextView
+                        android:id="@+id/stats_header_number"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:paddingRight="5dp"
+                        android:text="Number" />
+
+                    <TextView
+                        android:id="@+id/stats_header_lname"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:paddingRight="5dp"
+                        android:text="Last" />
+
+                    <TextView
+                        android:id="@+id/stats_header_shots"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:paddingRight="5dp"
+                        android:text="Shots" />
+
+                    <TextView
+                        android:id="@+id/stats_header_goals"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:paddingRight="5dp"
+                        android:text="Goals" />
+
+                    <TextView
+                        android:id="@+id/stats_header_assists"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:paddingRight="5dp"
+                        android:text="Assists" />
+
+                    <TextView
+                        android:id="@+id/stats_header_steals"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:paddingRight="5dp"
+                        android:text="Steals" />
+
+                    <TextView
+                        android:id="@+id/stats_header_turnovers"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:paddingRight="5dp"
+                        android:text="TOs" />
+
+                    <TextView
+                        android:id="@+id/stats_header_saves"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:paddingRight="5dp"
+                        android:text="Saves" />
+
+                    <TextView
+                        android:id="@+id/stats_header_snitches"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:paddingRight="5dp"
+                        android:text="Snitch" />
+
+                    <TextView
+                        android:id="@+id/stats_header_plus"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:paddingRight="5dp"
+                        android:text="Plus" />
+
+                    <TextView
+                        android:id="@+id/stats_header_minus"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:paddingRight="5dp"
+                        android:text="Minus" />
+
+                    <TextView
+                        android:id="@+id/stats_header_minutes"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:paddingRight="5dp"
+                        android:text="Minutes" />
+                </TableRow>
+            </TableLayout>
+        </ScrollView>
+    </HorizontalScrollView>
+
+    <LinearLayout
+        android:id="@+id/stats_bottom_bar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" >
+
+        <Button
+            android:id="@+id/stats_refresh_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Refresh stats" />
+
+        <TextView
+            android:id="@+id/stats_swipe_left"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="10"
+            android:gravity="center"
+            android:text="Swipe left to record stats"
+            android:textColor="@color/dark_gray"
+            android:textSize="15sp"
+            android:textStyle="italic" />
+    </LinearLayout>
 
 </LinearLayout>

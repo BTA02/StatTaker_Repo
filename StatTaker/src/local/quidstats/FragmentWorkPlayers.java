@@ -296,7 +296,7 @@ public class FragmentWorkPlayers extends ListFragment
 	{
 		db.updateStat(fragmentHolder.gId, playerId, 1, statColumn);
 		Action toAdd = new Action();
-		toAdd.setDatabaseColumn(DatabaseHelper.COL_SHOTS);
+		toAdd.setDatabaseColumn(statColumn);
 		toAdd.setGameId(fragmentHolder.gId);
 		toAdd.setPlayerId(playerId);
 		toAdd.setValueAdded(1);// because I'll want to subtract this

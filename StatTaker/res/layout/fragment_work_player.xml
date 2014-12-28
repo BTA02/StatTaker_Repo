@@ -106,6 +106,16 @@
             android:layout_marginLeft="30dp"
             android:text="Undo" />
 
+        <TextView
+            android:id="@+id/player_swipe_right"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="Swipe right to see stats"
+            android:textColor="@color/dark_gray"
+            android:textSize="15sp"
+            android:textStyle="italic" />
+
         <Button
             android:id="@+id/redo_button"
             android:layout_width="wrap_content"
