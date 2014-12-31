@@ -876,6 +876,11 @@ public class DatabaseHelper extends SQLiteOpenHelper
 		
 		
 	}
+	
+	public void deleteGame(String gameId)
+	{
+		getDB().delete(TABLE_GAME, COL_ID + " = ?", new String[] {gameId});
+	}
 
 	//-----------------------------------------------------------
 	//-----------------------------------------------------------

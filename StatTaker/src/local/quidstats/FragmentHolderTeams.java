@@ -14,7 +14,7 @@ import android.view.Menu;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 
-public class FragmentHolderMain extends FragmentActivity
+public class FragmentHolderTeams extends FragmentActivity
 {
 
 	// TODOs

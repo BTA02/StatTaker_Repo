@@ -26,7 +26,7 @@ public class FragmentTeamsOnline extends Fragment
 {
 	String TAG = "FragmentOnlineTeam";
 
-	FragmentHolderMain ma;
+	FragmentHolderTeams ma;
 
 	ListView onlineTeams;
 	List<TeamDb> oTeams;
@@ -49,7 +49,7 @@ public class FragmentTeamsOnline extends Fragment
 	public void onActivityCreated(Bundle savedInstanceState)
 	{
 		super.onActivityCreated(savedInstanceState);
-		ma = (FragmentHolderMain) getActivity();
+		ma = (FragmentHolderTeams) getActivity();
 		if (ma.isNetworkAvailable())
 		{
 			populateOnlineTeams();

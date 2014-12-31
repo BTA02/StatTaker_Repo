@@ -8,7 +8,9 @@ import java.util.UUID;
 import local.quidstats.model.GameDb;
 import local.quidstats.model.TeamDb;
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.DialogInterface;
+import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
@@ -21,14 +23,13 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
-import android.widget.ListAdapter;
 import android.widget.ListView;
 
 public class FragmentTeamsLocal extends Fragment
 {
 	String TAG = "FragmentLocalTeam";
 
-	FragmentHolderMain ma;
+	FragmentHolderTeams ma;
 	ListView currentTeams;
 	List<TeamDb> teamList;
 
@@ -47,7 +48,7 @@ public class FragmentTeamsLocal extends Fragment
 	public void onActivityCreated(Bundle savedInstanceState)
 	{
 		super.onActivityCreated(savedInstanceState);
-		ma = (FragmentHolderMain) getActivity();
+		ma = (FragmentHolderTeams) getActivity();
 
 		populateLocalList();
 	}
@@ -98,7 +99,6 @@ public class FragmentTeamsLocal extends Fragment
 				final View newGameView = dialogFactory.inflate(
 						R.layout.custom_new_game_alert, null);
 				AlertDialog.Builder alert = new AlertDialog.Builder(ma.context);
-				alert.create();
 
 				alert.setView(newGameView);
 				alert.setTitle("Options");
@@ -153,7 +153,7 @@ public class FragmentTeamsLocal extends Fragment
 						.findViewById(R.id.new_game_list);
 				List<GameDb> gameList = new ArrayList<GameDb>();
 				gameList = ma.db.getAllGamesForTeam(team.getId());
-				final ListAdapter listAdapter = new ArrayAdapter(ma.context,
+				final ArrayAdapter<GameDb> listAdapter = new ArrayAdapter<GameDb>(ma.context,
 						R.layout.custom_player_list, gameList);
 				oldGames.setAdapter(listAdapter);
 				oldGames.setOnItemClickListener(new OnItemClickListener()
@@ -168,8 +168,9 @@ public class FragmentTeamsLocal extends Fragment
 						Intent i = new Intent(ma.context,
 								FragmentHolderWork.class);
 						i.putExtra("gameId", gameClicked.getId());
-
 						startActivity(i);
+						//I want to close the dialog here...
+						
 					}
 
 				});
@@ -181,13 +182,38 @@ public class FragmentTeamsLocal extends Fragment
 					public boolean onItemLongClick(AdapterView<?> parent,
 							View view, int position, long id)
 					{
-						//delete game code goes here, I don't really care to do it now
-						return false;
+						final GameDb gameClicked = (GameDb) listAdapter
+								.getItem(position);
+						//now, launch "do you wish to delete" dialog
+						AlertDialog.Builder delBuilder = new AlertDialog.Builder(ma.context);
+						delBuilder.setTitle("Delete game?");
+						delBuilder.setNegativeButton("Cancel", new OnClickListener()
+						{
+							@Override
+							public void onClick(DialogInterface dialog,
+									int which)
+							{
+								//Do nothing
+								dialog.dismiss();
+							}
+						});
+						delBuilder.setPositiveButton("Yes", new OnClickListener()
+						{
+							@Override
+							public void onClick(DialogInterface dialog, int which)
+							{
+								listAdapter.remove(gameClicked);
+								ma.db.deleteGame(gameClicked.getId());
+								listAdapter.notifyDataSetChanged();
+								dialog.dismiss();
+							}
+						});
+						delBuilder.show();
+						return true;
 					}
 
 				});
 				alert.show();
-
 			}
 
 		});
