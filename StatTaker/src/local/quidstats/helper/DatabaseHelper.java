@@ -23,7 +23,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 	private static final String TAG = "DatabaseHelper";
 
 	// Database Version
-	private static final int DATABASE_VERSION = 62;
+	private static final int DATABASE_VERSION = 63;
 
 	// Database Name
 	private static final String DATABASE_NAME = "quidditchGames";
@@ -257,10 +257,13 @@ public class DatabaseHelper extends SQLiteOpenHelper
 	//I can update all references to this team to just have the name?
 	//I can also just store team name ONLY when doing stuff
 	//I'll have to think about this
+	//I also need to delete stats...
 	public void deleteTeam(String teamId)
 	{
-		getDB().delete(TABLE_TEAM, COL_ID + " = ?", new String[]{ teamId } );
-		getDB().delete(TABLE_GAME, COL_HOME_TEAM + " = ?", new String[]{ teamId } );
+		String[] whereArgs = new String[] { teamId };
+		getDB().delete(TABLE_TEAM, COL_ID + " = ?", whereArgs);
+		getDB().delete(TABLE_GAME, COL_HOME_TEAM + " = ?", whereArgs);
+		getDB().delete(TABLE_STATS, COL_GAMEID + " = ?", whereArgs);
 	}
 
 	public List<PlayerDb> getActivePlayers(String teamId)
@@ -880,6 +883,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 	public void deleteGame(String gameId)
 	{
 		getDB().delete(TABLE_GAME, COL_ID + " = ?", new String[] {gameId});
+		getDB().delete(TABLE_STATS, COL_GAMEID + " = ?", new String[] {gameId});
 	}
 
 	//-----------------------------------------------------------
