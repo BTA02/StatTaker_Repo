@@ -248,10 +248,8 @@ public class EditTeam extends Activity
 	public void populatePlayerList()
 	{
 		currentPlayers = (ListView) findViewById(R.id.edit_player_list);
-		List<PlayerDb> playerList = new ArrayList<PlayerDb>();
-		playerList = db.getAllPlayersFromTeam(team.getId(), 0);
-		Collections.sort(playerList, new PlayerDb.OrderByLastName());
 		Cursor c = db.getAllPlayersFromTeamCursor(team.getId(), 0);
+		
 		final CursorAdapterEditPlayerList listAdapter = new CursorAdapterEditPlayerList(
 				context, c, 0);
 		currentPlayers.setAdapter(listAdapter);

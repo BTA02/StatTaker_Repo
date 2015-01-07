@@ -463,7 +463,9 @@ public class DatabaseHelper extends SQLiteOpenHelper
 					+ TABLE_TEAM + "." + COL_PLAYERID + " = "
 					+ TABLE_PLAYER + "." + COL_ID
 					+ " AND " + TABLE_TEAM + "." + COL_ID + " = '"
-					+ teamId + "'";
+					+ teamId + "'"
+					+ " ORDER BY "
+					+ COL_FNAME + " ASC";
 
 		}
 		else //active players only, not done
@@ -480,7 +482,9 @@ public class DatabaseHelper extends SQLiteOpenHelper
 					+ TABLE_PLAYER + "." + COL_ID
 					+ " AND " + TABLE_PLAYER + "." + COL_ACTIVE + " = 1"
 					+ " AND " + TABLE_TEAM + "." + COL_ID + " = '"
-					+ teamId + "'";
+					+ teamId + "'"
+					+ " ORDER BY "
+					+ COL_FNAME + " ASC";
 		}
 		Cursor c = getDB().rawQuery(query, null);
 		if(c.moveToFirst())
