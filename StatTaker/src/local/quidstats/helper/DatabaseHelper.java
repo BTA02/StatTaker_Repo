@@ -133,9 +133,9 @@ public class DatabaseHelper extends SQLiteOpenHelper
 			+ COL_TIME_OUT + " INTEGER)";
 
 	private static final String CREATE_TABLE_TEAM = "CREATE TABLE " + TABLE_TEAM
-			+ "(" + COL_ID + " TEXT, "
-			+ COL_TEAM_NAME + " TEXT, "
-			+ COL_PLAYERID + " TEXT, "
+			+ "(" + COL_ID + " TEXT, " //id of the team
+			+ COL_TEAM_NAME + " TEXT, " // name of the team
+			+ COL_PLAYERID + " TEXT, " // id of a player on the team
 			+ COL_ACTIVE + ")";//each row is just an entry in a roster
 	//row looks like:
 	//"892-3011-df9a902", "University of Michigan, "582-2811-pa8f123", 1 (active)
@@ -155,7 +155,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 	@Override
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) 
 	{
-		// on upgrade drop older tables
+		/* Drop code, switch to maintain code */
 		db.execSQL("DROP TABLE IF EXISTS " + TABLE_GAME);
 		db.execSQL("DROP TABLE IF EXISTS " + TABLE_PLAYER);
 		db.execSQL("DROP TABLE IF EXISTS " + TABLE_STATS);
@@ -357,7 +357,16 @@ public class DatabaseHelper extends SQLiteOpenHelper
 		}
 	}
 	
-
+	// -------------------------------------------------------------------------
+	
+	public void removePlayerFromTeam(String playerId, String teamId)
+	{
+		// Should just remove a team from the roster
+		String[] whereArgs = new String[] {teamId, playerId};
+		getDB().delete(TABLE_TEAM, COL_ID + " =? AND " + COL_PLAYERID + " = ?", 
+				whereArgs);
+	}
+	
 	//-----------------------------------------------------------
 	//-----------------------------------------------------------
 	//----------------Players------------------------------------

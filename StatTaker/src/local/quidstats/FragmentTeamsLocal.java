@@ -8,7 +8,6 @@ import java.util.UUID;
 import local.quidstats.model.GameDb;
 import local.quidstats.model.TeamDb;
 import android.app.AlertDialog;
-import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;

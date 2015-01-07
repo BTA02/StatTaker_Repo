@@ -24,6 +24,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
@@ -273,7 +274,42 @@ public class EditTeam extends Activity
 						.getColumnIndex(DatabaseHelper.COL_ID)));
 				editDialog(tempPlayer).show();
 			}
+		});
+		
+		currentPlayers.setOnItemLongClickListener(new OnItemLongClickListener()
+		{
 
+			@Override
+			public boolean onItemLongClick(AdapterView<?> parent, View view,
+					final int position, long id)
+			{
+				AlertDialog.Builder delBuilder = new AlertDialog.Builder(context);
+				delBuilder.setTitle("Remove player from roster?");
+				delBuilder.setNegativeButton("Cancel", new DialogInterface.OnClickListener()
+				{
+					@Override
+					public void onClick(DialogInterface dialog,
+							int which)
+					{
+						//Do nothing
+						dialog.dismiss();
+					}
+				});
+				delBuilder.setPositiveButton("Yes", new DialogInterface.OnClickListener()
+				{
+					@Override
+					public void onClick(DialogInterface dialog, int which)
+					{
+						Cursor c = (Cursor) listAdapter.getItem(position);
+						String playerId = c.getString(c.getColumnIndex(DatabaseHelper.COL_ID));
+						db.removePlayerFromTeam(playerId, teamId);
+						Cursor newCursor = db.getAllPlayersFromTeamCursor(team.getId(), 0);
+						listAdapter.swapCursor(newCursor);
+					}
+				});
+				delBuilder.show();
+				return true;
+			}
 		});
 	}
 
@@ -341,6 +377,8 @@ public class EditTeam extends Activity
 
 						db.updatePlayerInfo(updatedPlayer);
 						populatePlayerList();
+						updateActiveCount();
+						
 					}
 
 				});
@@ -415,6 +453,12 @@ public class EditTeam extends Activity
 				});
 
 		return addRosterBuilder;
+	}
+	
+	Builder removePlayer(final String playerId)
+	{
+		return null;
+		
 	}
 
 }
