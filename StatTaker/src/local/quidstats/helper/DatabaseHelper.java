@@ -23,7 +23,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 	private static final String TAG = "DatabaseHelper";
 
 	// Database Version
-	private static final int DATABASE_VERSION = 63;
+	private static final int DATABASE_VERSION = 64;
 
 	// Database Name
 	private static final String DATABASE_NAME = "quidditchGames";
@@ -59,6 +59,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 	public static final String COL_GAME_TIME = "gameTime";
 	public static final String COL_HOME_SCORE = "homeScore";
 	public static final String COL_AWAY_SCORE = "awayScore";
+	public static final String COL_TIME_MAP = "timeMap";
 
 	// TEAM Table = column names
 	public static final String COL_TEAMID = "t_id";
@@ -93,16 +94,16 @@ public class DatabaseHelper extends SQLiteOpenHelper
 
 
 	// Table Create Statements
+	
 	// GAME table create statement
-	// I also need to make sure I can add the proper gameId to each player
-	//I think this will work
 	private static final String CREATE_TABLE_GAME = "CREATE TABLE "
 			+ TABLE_GAME + "(" + COL_ID + " TEXT, " 
 			+ COL_HOME_TEAM + " TEXT, " 
 			+ COL_AWAY_TEAM + " TEXT, " 
 			+ COL_GAME_TIME + " INT, "
 			+ COL_HOME_SCORE + " INT, "
-			+ COL_AWAY_SCORE + " INT)";
+			+ COL_AWAY_SCORE + " INT, "
+			+ COL_TIME_MAP + " BLOB)";
 
 	private static final String CREATE_TABLE_PLAYER = "CREATE TABLE " + TABLE_PLAYER
 			+ "(" + COL_ID + " TEXT, " 
@@ -156,6 +157,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) 
 	{
 		/* Drop code, switch to maintain code */
+		// Not quite. Good enough for testing, should be better for real
 		db.execSQL("DROP TABLE IF EXISTS " + TABLE_GAME);
 		db.execSQL("DROP TABLE IF EXISTS " + TABLE_PLAYER);
 		db.execSQL("DROP TABLE IF EXISTS " + TABLE_STATS);
@@ -633,7 +635,6 @@ public class DatabaseHelper extends SQLiteOpenHelper
 
 		SQLiteDatabase db1 = this.getWritableDatabase();
 		ContentValues values1 = new ContentValues();
-		long qq;
 
 		for (int i = 0; i < activePlayers.size(); i++)
 		{
@@ -659,7 +660,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 			{
 				values1.put(COL_ONFIELD, 0);
 			}
-			qq = db1.insert(TABLE_STATS, null, values1);
+			db1.insert(TABLE_STATS, null, values1);
 		}
 		return gId;
 	}
@@ -683,6 +684,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 				g.setGameTimeSeconds(c.getInt(c.getColumnIndex(COL_GAME_TIME)));
 				g.setHomeScore(c.getInt(c.getColumnIndex(COL_HOME_SCORE)));
 				g.setAwayScore(c.getInt(c.getColumnIndex(COL_AWAY_SCORE)));
+				g.setTimeMap(c.getBlob(c.getColumnIndex(COL_TIME_MAP)));
 
 				gamesList.add(g);
 			}
@@ -709,15 +711,14 @@ public class DatabaseHelper extends SQLiteOpenHelper
 			ret.setGameTimeSeconds(c.getInt(c.getColumnIndex(COL_GAME_TIME)));
 			ret.setHomeScore(c.getInt(c.getColumnIndex(COL_HOME_SCORE)));
 			ret.setHomeTeam(c.getString(c.getColumnIndex(COL_HOME_TEAM)));
+			ret.setTimeMap(c.getBlob(c.getColumnIndex(COL_TIME_MAP)));
 		}
 		
 		return ret;
 	}
 
 	public Cursor getOnFieldPlayersFromGameCursor(String gameId)
-	{
-		List<PlayerDb> playerList = new ArrayList<PlayerDb>();
-		
+	{		
 		String query = "SELECT "
 				+ TABLE_PLAYER + "." + COL_ID + ", "
 				+ TABLE_PLAYER + "." + COL_NUMBER + ", "
@@ -736,7 +737,6 @@ public class DatabaseHelper extends SQLiteOpenHelper
 		Cursor c = getDB().rawQuery(query, null);
 		if (c.moveToFirst())
 		{
-			
 			return c;
 		}
 		
@@ -891,6 +891,14 @@ public class DatabaseHelper extends SQLiteOpenHelper
 		getDB().update(TABLE_GAME, values, COL_ID + " = '" + gameId + "'" , null);
 		
 		
+	}
+	
+	public void updateTimeMap(String gameId, Map<Integer, List<PlayerDb> > timeMap_)
+	{
+		ContentValues values = new ContentValues();
+		byte[] timeMapBytes = GameDb.timeMapToBytes(timeMap_);
+		values.put(COL_TIME_MAP, timeMapBytes);
+		getDB().update(TABLE_GAME, values, COL_ID + " = ?", new String[] {gameId} );
 	}
 	
 	public void deleteGame(String gameId)

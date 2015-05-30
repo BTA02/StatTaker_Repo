@@ -26,7 +26,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="local.quidstats.RecordGameActivity"
+            android:name="local.quidstats.GameActivity"
             android:label="@string/app_name"
             android:screenOrientation="portrait" >
         </activity>

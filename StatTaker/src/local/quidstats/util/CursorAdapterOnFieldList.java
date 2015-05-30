@@ -1,7 +1,7 @@
 package local.quidstats.util;
 
 
-import local.quidstats.RecordGameActivity;
+import local.quidstats.GameActivity;
 import local.quidstats.RecordStatsFragment;
 import local.quidstats.R;
 import local.quidstats.helper.DatabaseHelper;
@@ -45,7 +45,7 @@ public class CursorAdapterOnFieldList extends CursorAdapter
 		fnameTV.setText(cursor.getString(cursor.getColumnIndex(DatabaseHelper.COL_FNAME)));
 		lnameTV.setText(cursor.getString(cursor.getColumnIndex(DatabaseHelper.COL_LNAME)));
 		
-		final RecordGameActivity fragmentAct = (RecordGameActivity) context;
+		final GameActivity fragmentAct = (GameActivity) context;
 		final RecordStatsFragment pFrag = (RecordStatsFragment) fragmentAct.playerFrag;
 		subButton.setOnClickListener(new OnClickListener()
 		{

@@ -126,7 +126,7 @@ public class LocalTeamsFragment extends Fragment
 								// everyone who is "active"
 								// to the "onField" stuff
 								Intent i = new Intent(ma.context,
-										RecordGameActivity.class);
+										GameActivity.class);
 								i.putExtra("gameId", gId);
 								startActivity(i);
 							}
@@ -165,7 +165,7 @@ public class LocalTeamsFragment extends Fragment
 						GameDb gameClicked = (GameDb) listAdapter
 								.getItem(position);
 						Intent i = new Intent(ma.context,
-								RecordGameActivity.class);
+								GameActivity.class);
 						i.putExtra("gameId", gameClicked.getId());
 						startActivity(i);
 						//I want to close the dialog here...

@@ -1,9 +1,12 @@
 package local.quidstats;
 
+import java.util.List;
+import java.util.Map;
 import java.util.Stack;
 
 import local.quidstats.helper.DatabaseHelper;
 import local.quidstats.model.GameDb;
+import local.quidstats.model.PlayerDb;
 import local.quidstats.util.Action;
 import android.app.ActionBar;
 import android.app.AlertDialog;
@@ -17,7 +20,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
-public class RecordGameActivity extends FragmentActivity
+public class GameActivity extends FragmentActivity
 {
 	DatabaseHelper db;
 	Context mContext;

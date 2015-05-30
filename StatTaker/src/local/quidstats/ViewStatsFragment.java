@@ -22,7 +22,7 @@ public class ViewStatsFragment extends Fragment
 
 	DatabaseHelper db;
 
-	RecordGameActivity fm;
+	GameActivity fm;
 
 	TableLayout table;
 
@@ -82,7 +82,7 @@ public class ViewStatsFragment extends Fragment
 
 	public void updateStats()
 	{
-		fm = (RecordGameActivity) getActivity();
+		fm = (GameActivity) getActivity();
 		db = fm.db;
 		table = (TableLayout) rootView.findViewById(R.id.stats);
 		int size = table.getChildCount();
