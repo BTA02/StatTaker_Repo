@@ -29,7 +29,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class FragmentWorkPlayers extends ListFragment
+public class RecordStatsFragment extends ListFragment
 {
 
 	DatabaseHelper db;
@@ -46,7 +46,7 @@ public class FragmentWorkPlayers extends ListFragment
 
 	Timer timer = new Timer();
 	ListAdapter listAdapter;
-	FragmentHolderWork fragmentHolder;
+	RecordGameActivity fragmentHolder;
 	View rootView;
 
 	Cursor c = null;
@@ -72,7 +72,7 @@ public class FragmentWorkPlayers extends ListFragment
 	{
 		super.onActivityCreated(savedInstanceState);
 
-		fragmentHolder = (FragmentHolderWork) getActivity();
+		fragmentHolder = (RecordGameActivity) getActivity();
 		db = new DatabaseHelper(fragmentHolder.mContext);
 		fragmentHolder.playerFrag = this;
 

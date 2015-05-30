@@ -17,7 +17,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
-public class FragmentHolderWork extends FragmentActivity
+public class RecordGameActivity extends FragmentActivity
 {
 	DatabaseHelper db;
 	Context mContext;

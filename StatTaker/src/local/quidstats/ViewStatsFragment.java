@@ -16,13 +16,13 @@ import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
 
-public class FragmentWorkStats extends Fragment
+public class ViewStatsFragment extends Fragment
 {
 	View rootView;
 
 	DatabaseHelper db;
 
-	FragmentHolderWork fm;
+	RecordGameActivity fm;
 
 	TableLayout table;
 
@@ -82,7 +82,7 @@ public class FragmentWorkStats extends Fragment
 
 	public void updateStats()
 	{
-		fm = (FragmentHolderWork) getActivity();
+		fm = (RecordGameActivity) getActivity();
 		db = fm.db;
 		table = (TableLayout) rootView.findViewById(R.id.stats);
 		int size = table.getChildCount();

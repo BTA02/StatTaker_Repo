@@ -22,11 +22,11 @@ import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
 
-public class FragmentTeamsOnline extends Fragment
+public class OnlineTeamsFragment extends Fragment
 {
 	String TAG = "FragmentOnlineTeam";
 
-	FragmentHolderTeams ma;
+	MainActivity ma;
 
 	ListView onlineTeams;
 	List<TeamDb> oTeams;
@@ -49,7 +49,7 @@ public class FragmentTeamsOnline extends Fragment
 	public void onActivityCreated(Bundle savedInstanceState)
 	{
 		super.onActivityCreated(savedInstanceState);
-		ma = (FragmentHolderTeams) getActivity();
+		ma = (MainActivity) getActivity();
 		if (ma.isNetworkAvailable())
 		{
 			populateOnlineTeams();

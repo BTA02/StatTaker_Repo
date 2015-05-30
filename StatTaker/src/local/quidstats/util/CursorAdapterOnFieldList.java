@@ -1,8 +1,8 @@
 package local.quidstats.util;
 
 
-import local.quidstats.FragmentHolderWork;
-import local.quidstats.FragmentWorkPlayers;
+import local.quidstats.RecordGameActivity;
+import local.quidstats.RecordStatsFragment;
 import local.quidstats.R;
 import local.quidstats.helper.DatabaseHelper;
 import android.content.Context;
@@ -45,8 +45,8 @@ public class CursorAdapterOnFieldList extends CursorAdapter
 		fnameTV.setText(cursor.getString(cursor.getColumnIndex(DatabaseHelper.COL_FNAME)));
 		lnameTV.setText(cursor.getString(cursor.getColumnIndex(DatabaseHelper.COL_LNAME)));
 		
-		final FragmentHolderWork fragmentAct = (FragmentHolderWork) context;
-		final FragmentWorkPlayers pFrag = (FragmentWorkPlayers) fragmentAct.playerFrag;
+		final RecordGameActivity fragmentAct = (RecordGameActivity) context;
+		final RecordStatsFragment pFrag = (RecordStatsFragment) fragmentAct.playerFrag;
 		subButton.setOnClickListener(new OnClickListener()
 		{
 

@@ -20,9 +20,9 @@ public class MyAdapter extends FragmentPagerAdapter
 		switch (position)
 		{
 			case 0:
-				return new FragmentWorkPlayers();
+				return new RecordStatsFragment();
 			case 1:
-				return new FragmentWorkStats();
+				return new ViewStatsFragment();
 		}
 		return null;
 		

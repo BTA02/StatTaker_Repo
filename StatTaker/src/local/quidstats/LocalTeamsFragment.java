@@ -24,11 +24,11 @@ import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
 
-public class FragmentTeamsLocal extends Fragment
+public class LocalTeamsFragment extends Fragment
 {
 	String TAG = "FragmentLocalTeam";
 
-	FragmentHolderTeams ma;
+	MainActivity ma;
 	ListView currentTeams;
 	List<TeamDb> teamList;
 
@@ -47,7 +47,7 @@ public class FragmentTeamsLocal extends Fragment
 	public void onActivityCreated(Bundle savedInstanceState)
 	{
 		super.onActivityCreated(savedInstanceState);
-		ma = (FragmentHolderTeams) getActivity();
+		ma = (MainActivity) getActivity();
 
 		populateLocalList();
 	}
@@ -126,7 +126,7 @@ public class FragmentTeamsLocal extends Fragment
 								// everyone who is "active"
 								// to the "onField" stuff
 								Intent i = new Intent(ma.context,
-										FragmentHolderWork.class);
+										RecordGameActivity.class);
 								i.putExtra("gameId", gId);
 								startActivity(i);
 							}
@@ -165,7 +165,7 @@ public class FragmentTeamsLocal extends Fragment
 						GameDb gameClicked = (GameDb) listAdapter
 								.getItem(position);
 						Intent i = new Intent(ma.context,
-								FragmentHolderWork.class);
+								RecordGameActivity.class);
 						i.putExtra("gameId", gameClicked.getId());
 						startActivity(i);
 						//I want to close the dialog here...

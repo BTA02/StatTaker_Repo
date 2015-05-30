@@ -19,9 +19,9 @@ public class PagerAdapterMainPage extends FragmentPagerAdapter
 		switch (position)
 		{
 			case 0:
-				return new FragmentTeamsLocal();
+				return new LocalTeamsFragment();
 			case 1:
-				return new FragmentTeamsOnline();
+				return new OnlineTeamsFragment();
 		}
 		return null;
 	}
