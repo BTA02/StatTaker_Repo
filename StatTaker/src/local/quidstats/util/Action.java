@@ -41,11 +41,11 @@ public class Action
 	{
 		this.playerSubbedOut = playerSubbedOut;
 	}
-	public int getTimeSwitched()
+	public int getTime()
 	{
 		return timeOfAction;
 	}
-	public void setTimeSwitched(int timeSwitched)
+	public void setTime(int timeSwitched)
 	{
 		this.timeOfAction = timeSwitched;
 	}

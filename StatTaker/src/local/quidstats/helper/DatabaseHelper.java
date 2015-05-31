@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.UUID;
 
 import local.quidstats.model.GameDb;
+import local.quidstats.model.MetaStatDb;
 import local.quidstats.model.PlayerDb;
 import local.quidstats.model.TeamDb;
 import android.content.ContentValues;
@@ -24,7 +25,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 	private static final String TAG = "DatabaseHelper";
 
 	// Database Version
-	private static final int DATABASE_VERSION = 64;
+	private static final int DATABASE_VERSION = 65;
 
 	// Database Name
 	private static final String DATABASE_NAME = "quidditchGames";
@@ -70,9 +71,9 @@ public class DatabaseHelper extends SQLiteOpenHelper
 	
 	// META STAT Tables - column names
 	public static final String COL_META_STAT_ID = "m_id";
-	public static final String COL_COUNT = "count";
 	public static final String COL_META_STAT_TYPE = "type";
-	public static final String COL_META_STAT_WHEN = "when";
+	public static final String COL_META_STAT_WHEN = "timeOf";
+	public static final String COL_META_STAT_SUBBED = "subbed";
 
 	// STAT Table = column names
 	public static final String COL_STATID = "s_id";
@@ -121,10 +122,10 @@ public class DatabaseHelper extends SQLiteOpenHelper
 	
 	private static final String CREATE_TABLE_META_STAT = "CREATE TABLE " + TABLE_META_STAT
 			+ "(" + COL_ID + " TEXT, "
-			+ COL_COUNT + " INTEGER, "
-			+ COL_META_STAT_TYPE + " INTEGER, "
+			+ COL_META_STAT_TYPE + " TEXT, "
 			+ COL_META_STAT_WHEN + " INTEGER, " //in seconds
 			+ COL_GAMEID + " TEXT, "
+			+ COL_META_STAT_SUBBED + " TEXT, "
 			+ COL_PLAYERID + " TEXT)";
 
 	private static final String CREATE_TABLE_STAT = "CREATE TABLE " + TABLE_STATS
@@ -700,7 +701,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 				g.setGameTimeSeconds(c.getInt(c.getColumnIndex(COL_GAME_TIME)));
 				g.setHomeScore(c.getInt(c.getColumnIndex(COL_HOME_SCORE)));
 				g.setAwayScore(c.getInt(c.getColumnIndex(COL_AWAY_SCORE)));
-				g.setTimeMap(c.getBlob(c.getColumnIndex(COL_TIME_MAP)));
+				g.setTimeArray(c.getBlob(c.getColumnIndex(COL_TIME_MAP)));
 
 				gamesList.add(g);
 			}
@@ -727,7 +728,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 			ret.setGameTimeSeconds(c.getInt(c.getColumnIndex(COL_GAME_TIME)));
 			ret.setHomeScore(c.getInt(c.getColumnIndex(COL_HOME_SCORE)));
 			ret.setHomeTeam(c.getString(c.getColumnIndex(COL_HOME_TEAM)));
-			ret.setTimeMap(c.getBlob(c.getColumnIndex(COL_TIME_MAP)));
+			ret.setTimeArray(c.getBlob(c.getColumnIndex(COL_TIME_MAP)));
 		}
 		
 		return ret;
@@ -928,9 +929,51 @@ public class DatabaseHelper extends SQLiteOpenHelper
 	//----------------Meta Stats---------------------------------
 	//-----------------------------------------------------------
 	
+	public void addEventToMetaStats(String gameId, String playerId, String type, int time, String playerIdSub)
+	{
+		ContentValues values = new ContentValues();
+		values.put(COL_PLAYERID, playerId);
+		values.put(COL_GAMEID, gameId);
+		values.put(COL_META_STAT_TYPE, type);
+		values.put(COL_META_STAT_WHEN, time);
+		values.put(COL_META_STAT_SUBBED, playerIdSub);
+		
+		getDB().insert(TABLE_META_STAT, null, values);
+	}
 	
+	public void undoEventInMetaStatsTable(String gameId, String playerId, int type, int time, String playerIdSub)
+	{
+		// Remove whatever line this data points to
+		String str = COL_GAMEID + " = ? AND " + COL_PLAYERID + " = ? AND " + COL_META_STAT_TYPE + " = ? AND "
+				+ COL_META_STAT_WHEN + " = ? AND " + COL_META_STAT_SUBBED + " = ?";
+		String[] whereArgs = new String[]{gameId, playerId, String.valueOf(type), String.valueOf(time), playerIdSub};
+		getDB().delete(TABLE_META_STAT, str, whereArgs);
+		
+	}
 	
-	
+	public List<MetaStatDb> getAllMetaStats(String gameId)
+	{
+		String query = "SELECT * FROM " + TABLE_META_STAT + " WHERE "
+				+ COL_GAMEID + " = ? ORDER BY " + COL_META_STAT_WHEN;
+		
+		Cursor c = getDB().rawQuery(query, new String[] {gameId});
+		List<MetaStatDb> ret = new ArrayList<MetaStatDb>();
+		if (c.moveToFirst())
+		{
+			do
+			{
+				MetaStatDb object = new MetaStatDb();
+				object.setPlayerId(c.getString(c.getColumnIndex(COL_PLAYERID)));
+				object.setPlayerSubbedIn(c.getString(c.getColumnIndex(COL_META_STAT_SUBBED)));
+				object.setStatType(c.getString(c.getColumnIndex(COL_META_STAT_TYPE)));
+				object.setTimeOfAction(c.getInt(c.getColumnIndex(COL_META_STAT_WHEN)));
+				ret.add(object);
+			}
+			while (c.moveToNext());
+		}
+		
+		return ret;
+	}
 	
 	
 

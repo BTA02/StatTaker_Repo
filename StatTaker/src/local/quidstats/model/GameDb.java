@@ -90,7 +90,7 @@ public class GameDb //row data for a game table
 		return awayTeam;
 	}
 
-	public SparseArray<List<PlayerDb> > getTimeMap()
+	public SparseArray<List<PlayerDb> > getTimeArray()
 	{
 		return timeArray;
 	}
@@ -105,7 +105,7 @@ public class GameDb //row data for a game table
 		this.timeArray = timeMap;
 	}
 
-	public void setTimeMap(byte[] timeMap_)
+	public void setTimeArray(byte[] timeMap_)
 	{
 		if (timeMap_ == null)
 		{

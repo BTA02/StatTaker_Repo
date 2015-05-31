@@ -1,7 +1,13 @@
 package local.quidstats;
 
+import java.util.List;
+
+import local.quidstats.helper.DatabaseHelper;
+import local.quidstats.model.MetaStatDb;
+import local.quidstats.model.PlayerDb;
 import android.app.Activity;
 import android.os.Bundle;
+import android.util.SparseArray;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.LinearLayout;
@@ -10,6 +16,10 @@ public class AdvancedStats extends Activity
 {
 	private String gameId;
 	private LinearLayout mParentLayout;
+	private List<MetaStatDb> metaStats;
+	private SparseArray<List<PlayerDb> > mTimeArray;
+	private DatabaseHelper db;
+	
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
@@ -20,6 +30,11 @@ public class AdvancedStats extends Activity
 		mParentLayout = (LinearLayout) findViewById(R.id.advanced_stats_parent_layout);
 		Bundle b = getIntent().getExtras();
 		gameId = b.getString("gameId");
+		
+		db = new DatabaseHelper(this);
+		
+		metaStats = db.getAllMetaStats(gameId);
+		mTimeArray = db.getGameInfo(gameId).getTimeArray();
 		
 		calAndDispTopChaser();
 		calcAndDispTopChaserMin();
