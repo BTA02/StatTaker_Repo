@@ -5,9 +5,10 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.StreamCorruptedException;
 import java.util.List;
 import java.util.Map;
+
+import android.util.SparseArray;
 
 
 public class GameDb //row data for a game table
@@ -20,7 +21,7 @@ public class GameDb //row data for a game table
 	private int gameTimeSeconds;
 	private int homeScore;
 	private int awayScore;
-	private Map<Integer, List<PlayerDb> > timeMap;
+	private SparseArray<List<PlayerDb> > timeArray;
 
 
 	public String getId()
@@ -89,19 +90,19 @@ public class GameDb //row data for a game table
 		return awayTeam;
 	}
 
-	public Map<Integer, List<PlayerDb> > getTimeMap()
+	public SparseArray<List<PlayerDb> > getTimeMap()
 	{
-		return timeMap;
+		return timeArray;
 	}
 
 	public byte[] getTimeMapBytes()
 	{
-		return timeMapToBytes(timeMap);
+		return timeArrayToBytes(timeArray);
 	}
 
-	public void setTimeMap(Map<Integer, List<PlayerDb> > timeMap)
+	public void setTimeMap(SparseArray<List<PlayerDb> > timeMap)
 	{
-		this.timeMap = timeMap;
+		this.timeArray = timeMap;
 	}
 
 	public void setTimeMap(byte[] timeMap_)
@@ -115,7 +116,7 @@ public class GameDb //row data for a game table
 		try
 		{
 			in = new ObjectInputStream(byteIn);
-			timeMap = (Map<Integer, List<PlayerDb>>) in.readObject();
+			timeArray = (SparseArray<List<PlayerDb>>) in.readObject();
 		}
 		catch (IOException | ClassNotFoundException e)
 		{
@@ -123,7 +124,7 @@ public class GameDb //row data for a game table
 		}
 	}
 	
-	public static byte[] timeMapToBytes(Map<Integer, List<PlayerDb> > timeMap_)
+	public static byte[] timeArrayToBytes(SparseArray<List<PlayerDb> > timeMap_)
 	{
 		ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
 		ObjectOutputStream out;

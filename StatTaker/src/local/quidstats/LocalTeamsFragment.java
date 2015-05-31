@@ -196,6 +196,16 @@ public class LocalTeamsFragment extends Fragment
 								dialog.dismiss();
 							}
 						});
+						delBuilder.setNeutralButton("Advanced Stats", new OnClickListener()
+						{
+							@Override
+							public void onClick(DialogInterface dialog, int which)
+							{
+								Intent i = new Intent(ma.context, AdvancedStats.class);
+								i.putExtra("gameId", gameClicked.getId());
+								startActivity(i);
+							}
+						});
 						delBuilder.setPositiveButton("Yes", new OnClickListener()
 						{
 							@Override

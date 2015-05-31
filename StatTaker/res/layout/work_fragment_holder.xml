@@ -16,13 +16,13 @@
         android:id="@+id/player_list"
         android:name="local.quidstats.RecordStatsFragment"
         android:layout_width="match_parent"
-        android:layout_height="209dp" />
+        android:layout_height="match_parent" />
     
     <fragment
         android:id="@+id/stats"
         android:name="local.quidstats.ViewStatsFragment"
         android:layout_width="match_parent"
-        android:layout_height="204dp" />
+        android:layout_height="match_parent" />
     
     </android.support.v4.view.ViewPager> 
     

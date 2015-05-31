@@ -16,6 +16,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteDatabase.CursorFactory;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
+import android.util.SparseArray;
 
 public class DatabaseHelper extends SQLiteOpenHelper
 {
@@ -49,6 +50,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 	public static final String TABLE_PLAYER = "playerTable";
 	public static final String TABLE_GAME = "gameTable";
 	public static final String TABLE_TEAM = "teamTable";
+	public static final String TABLE_META_STAT = "metaStatsTable";
 	public static final String TABLE_STATS = "statsTable";
 	public static final String TABLE_TIME = "timeTable";
 
@@ -65,6 +67,12 @@ public class DatabaseHelper extends SQLiteOpenHelper
 	public static final String COL_TEAMID = "t_id";
 	public static final String COL_TEAM_NAME = "teamName";
 	public static final String COL_ACTIVE = "active";
+	
+	// META STAT Tables - column names
+	public static final String COL_META_STAT_ID = "m_id";
+	public static final String COL_COUNT = "count";
+	public static final String COL_META_STAT_TYPE = "type";
+	public static final String COL_META_STAT_WHEN = "when";
 
 	// STAT Table = column names
 	public static final String COL_STATID = "s_id";
@@ -110,6 +118,14 @@ public class DatabaseHelper extends SQLiteOpenHelper
 			+ COL_NUMBER + " TEXT, " 
 			+ COL_FNAME + " TEXT, " 
 			+ COL_LNAME + " TEXT)";
+	
+	private static final String CREATE_TABLE_META_STAT = "CREATE TABLE " + TABLE_META_STAT
+			+ "(" + COL_ID + " TEXT, "
+			+ COL_COUNT + " INTEGER, "
+			+ COL_META_STAT_TYPE + " INTEGER, "
+			+ COL_META_STAT_WHEN + " INTEGER, " //in seconds
+			+ COL_GAMEID + " TEXT, "
+			+ COL_PLAYERID + " TEXT)";
 
 	private static final String CREATE_TABLE_STAT = "CREATE TABLE " + TABLE_STATS
 			+ "(" + COL_ID + " TEXT, "
@@ -148,6 +164,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 	{
 		db.execSQL(CREATE_TABLE_GAME);
 		db.execSQL(CREATE_TABLE_PLAYER);
+		db.execSQL(CREATE_TABLE_META_STAT);
 		db.execSQL(CREATE_TABLE_STAT);
 		db.execSQL(CREATE_TABLE_TIME);
 		db.execSQL(CREATE_TABLE_TEAM);
@@ -160,6 +177,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 		// Not quite. Good enough for testing, should be better for real
 		db.execSQL("DROP TABLE IF EXISTS " + TABLE_GAME);
 		db.execSQL("DROP TABLE IF EXISTS " + TABLE_PLAYER);
+		db.execSQL("DROP TABLE IF EXISTS " + TABLE_META_STAT);
 		db.execSQL("DROP TABLE IF EXISTS " + TABLE_STATS);
 		db.execSQL("DROP TABLE IF EXISTS " + TABLE_TIME);
 		db.execSQL("DROP TABLE IF EXISTS " + TABLE_TEAM);
@@ -251,9 +269,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 		values.put(COL_TEAM_NAME, teamName);
 		values.put(COL_PLAYERID, ""); //null player, so I can access the first row whenever
 
-		long num = getDB().insert(TABLE_TEAM, null, values);
-
-		
+		getDB().insert(TABLE_TEAM, null, values);
 	}// addTeam
 
 	//I can update all references to this team to just have the name?
@@ -877,7 +893,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 	
 	public void updateScore(String gameId, String who, int newVal)
 	{	
-		int newScore = 0;
+		
 		ContentValues values = new ContentValues();
 		if (who.equals("opponent"))
 		{
@@ -893,10 +909,10 @@ public class DatabaseHelper extends SQLiteOpenHelper
 		
 	}
 	
-	public void updateTimeMap(String gameId, Map<Integer, List<PlayerDb> > timeMap_)
+	public void updateTimeMap(String gameId, SparseArray<List<PlayerDb> > timeMap_)
 	{
 		ContentValues values = new ContentValues();
-		byte[] timeMapBytes = GameDb.timeMapToBytes(timeMap_);
+		byte[] timeMapBytes = GameDb.timeArrayToBytes(timeMap_);
 		values.put(COL_TIME_MAP, timeMapBytes);
 		getDB().update(TABLE_GAME, values, COL_ID + " = ?", new String[] {gameId} );
 	}
@@ -906,6 +922,17 @@ public class DatabaseHelper extends SQLiteOpenHelper
 		getDB().delete(TABLE_GAME, COL_ID + " = ?", new String[] {gameId});
 		getDB().delete(TABLE_STATS, COL_GAMEID + " = ?", new String[] {gameId});
 	}
+	
+	//-----------------------------------------------------------
+	//-----------------------------------------------------------
+	//----------------Meta Stats---------------------------------
+	//-----------------------------------------------------------
+	
+	
+	
+	
+	
+	
 
 	//-----------------------------------------------------------
 	//-----------------------------------------------------------
@@ -927,16 +954,41 @@ public class DatabaseHelper extends SQLiteOpenHelper
 		return 0;
 
 	}
-	//Stop passing "Sub" as the column, dumb-ass
-	//Unless I don't actually need to update the stat?
+
 	public void updateStat(String gameId, String playerId, int valToAdd, String column)
 	{
 		ContentValues values = new ContentValues();
 		values.put(column, (getStatValue(gameId, playerId, column) + valToAdd));
 
-		int i = getDB().update(TABLE_STATS, values, COL_GAMEID + " = ? AND " + COL_PLAYERID + " = ?", 
+		getDB().update(TABLE_STATS, values, COL_GAMEID + " = ? AND " + COL_PLAYERID + " = ?", 
 				new String[] {gameId, playerId} );
 		
+	}
+	
+	public void updateMetaStat(String gameId, String playerId, boolean add, int type, int time)
+	{
+		/*
+		String countQuery = "SELECT  * FROM " + TABLE_NAME;
+	    SQLiteDatabase db = this.getReadableDatabase();
+	    Cursor cursor = db.rawQuery(countQuery, null);
+	    int cnt = cursor.getCount();
+	    cursor.close();
+	    
+		if (add)
+		{
+			ContentValues values = new ContentValues();
+			values.put(COL_PLAYERID, playerId);
+			values.put(COL_META_STAT_TYPE, type);
+			values.put(COL_META_STAT_WHEN, time);
+			values.put(COL_GAMEID, gameId);
+			getDB().insert(TABLE_META_STAT, null, values);
+		}
+		else
+		{
+			//delete the last row
+			
+		}
+		*/
 	}
 	
 	public void subOut(String gameId, String playerIdOut, String playerIdIn, int location)
