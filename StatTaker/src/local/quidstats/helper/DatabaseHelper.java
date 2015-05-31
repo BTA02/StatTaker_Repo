@@ -25,7 +25,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 	private static final String TAG = "DatabaseHelper";
 
 	// Database Version
-	private static final int DATABASE_VERSION = 65;
+	private static final int DATABASE_VERSION = 66;
 
 	// Database Name
 	private static final String DATABASE_NAME = "quidditchGames";
@@ -910,7 +910,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 		
 	}
 	
-	public void updateTimeMap(String gameId, SparseArray<List<PlayerDb> > timeMap_)
+	public void updateTimeMap(String gameId, SparseArray<List<String> > timeMap_)
 	{
 		ContentValues values = new ContentValues();
 		byte[] timeMapBytes = GameDb.timeArrayToBytes(timeMap_);

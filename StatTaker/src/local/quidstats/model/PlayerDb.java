@@ -1,9 +1,10 @@
 package local.quidstats.model;
 
+import java.io.Serializable;
 import java.util.Comparator;
 
 
-public class PlayerDb //row in the player table
+public class PlayerDb
 {
 	String playerId;
 	String number;

@@ -17,7 +17,7 @@ public class AdvancedStats extends Activity
 	private String gameId;
 	private LinearLayout mParentLayout;
 	private List<MetaStatDb> metaStats;
-	private SparseArray<List<PlayerDb> > mTimeArray;
+	private SparseArray<List<String> > mTimeArray;
 	private DatabaseHelper db;
 	
 

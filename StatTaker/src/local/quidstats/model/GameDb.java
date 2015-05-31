@@ -1,12 +1,11 @@
 package local.quidstats.model;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import android.util.SparseArray;
 
@@ -21,7 +20,7 @@ public class GameDb //row data for a game table
 	private int gameTimeSeconds;
 	private int homeScore;
 	private int awayScore;
-	private SparseArray<List<PlayerDb> > timeArray;
+	private SparseArray<List<String> > timeArray;
 
 
 	public String getId()
@@ -90,7 +89,7 @@ public class GameDb //row data for a game table
 		return awayTeam;
 	}
 
-	public SparseArray<List<PlayerDb> > getTimeArray()
+	public SparseArray<List<String> > getTimeArray()
 	{
 		return timeArray;
 	}
@@ -100,7 +99,7 @@ public class GameDb //row data for a game table
 		return timeArrayToBytes(timeArray);
 	}
 
-	public void setTimeMap(SparseArray<List<PlayerDb> > timeMap)
+	public void setTimeMap(SparseArray<List<String> > timeMap)
 	{
 		this.timeArray = timeMap;
 	}
@@ -111,34 +110,65 @@ public class GameDb //row data for a game table
 		{
 			return;
 		}
-		ByteArrayInputStream byteIn = new ByteArrayInputStream(timeMap_);
-		ObjectInputStream in;
+		SparseArray<List<String>> ret = new SparseArray<List<String> >();
 		try
 		{
-			in = new ObjectInputStream(byteIn);
-			timeArray = (SparseArray<List<PlayerDb>>) in.readObject();
+			JSONArray outerArray = new JSONArray(new String(timeMap_));
+			for (int i = 0; i < outerArray.length(); i++)
+			{
+				List<String> list = new ArrayList<String>();
+				JSONArray innerArray = (JSONArray) outerArray.get(i);
+				for (int j = 0; j < innerArray.length(); j++)
+				{
+					JSONObject obj = (JSONObject) innerArray.get(j);
+					list.add(obj.getString("_id"));
+				}
+				ret.put(i, list);
+			}
 		}
-		catch (IOException | ClassNotFoundException e)
+		catch (JSONException e)
 		{
 			e.printStackTrace();
 		}
+		
 	}
-	
-	public static byte[] timeArrayToBytes(SparseArray<List<PlayerDb> > timeMap_)
+
+	public static byte[] timeArrayToBytes(SparseArray<List<String> > timeMap_)
 	{
-		ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
-		ObjectOutputStream out;
-		try
+		if (timeMap_ == null)
 		{
-			out = new ObjectOutputStream(byteOut);
-			out.writeObject(timeMap_);
-			return byteOut.toByteArray();
-		}
-		catch (IOException e)
-		{
-			e.printStackTrace();
 			return null;
 		}
+		JSONArray outerArray = new JSONArray();
+		for(int i = 0; i < timeMap_.size(); i++) 
+		{
+			JSONArray innerArray = new JSONArray();
+			int key = timeMap_.keyAt(i);
+			List<String> list = (List<String>) timeMap_.get(key);
+			for (String p : list)
+			{
+				JSONObject json = new JSONObject();
+				try
+				{
+					json.put("_id", p);
+					innerArray.put(json);
+				}
+				catch (JSONException e)
+				{
+					e.printStackTrace();
+				}
+			}
+			try
+			{
+				outerArray.put(i, innerArray);
+			}
+			catch (JSONException e)
+			{
+				e.printStackTrace();
+			}
+		}
+		return outerArray.toString().getBytes();
+		
 	}
 }
 
