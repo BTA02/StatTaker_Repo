@@ -87,13 +87,9 @@ public class OnlineTeamsFragment extends Fragment
 		teamsDialog.show();
 		new Thread(new Runnable()
 		{
-
 			@Override
 			public void run()
 			{
-				// TODO Auto-generated method stub
-
-
 				try
 				{
 					objects = query.find();
@@ -107,7 +103,7 @@ public class OnlineTeamsFragment extends Fragment
 				for (int i = 0; i < objects.size(); i++)
 				{
 					String teamName = objects.get(i).getString("team_name");
-					String teamId = objects.get(i).getString("team_id");
+					String teamId = objects.get(i).getObjectId();
 					TeamDb teamToAdd = new TeamDb(teamId, teamName);
 					if (! ma.db.teamExists(teamId) && !containsTeam(teamToAdd.getId()))
 					{
@@ -182,11 +178,11 @@ public class OnlineTeamsFragment extends Fragment
 			String id = objects.get(i).getObjectId();
 			String fname = objects.get(i).getString("fname");
 			String lname = objects.get(i).getString("lname");
-			String number = objects.get(i).getString("number");
+			//String number = objects.get(i).getString("number");
 			//check if player exists
 			if (!ma.db.playerExists(id))
 			{
-				ma.db.addPlayer(id, number, fname, lname);
+				ma.db.addPlayer(id, "", fname, lname);
 			}
 			ma.db.addPlayerToTeam(id, newTeamId);
 		}

@@ -25,7 +25,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 	private static final String TAG = "DatabaseHelper";
 
 	// Database Version
-	private static final int DATABASE_VERSION = 66;
+	private static final int DATABASE_VERSION = 67;
 
 	// Database Name
 	private static final String DATABASE_NAME = "quidditchGames";
@@ -621,6 +621,26 @@ public class DatabaseHelper extends SQLiteOpenHelper
 		
 		return false;
 	}
+	
+	public PlayerDb getPlayerById(String id)
+	{
+		String query = "SELECT * FROM " + TABLE_PLAYER + " WHERE "
+				+ COL_ID + " = ?";
+		Cursor c = getDB().rawQuery(query, new String[] {id});
+		if (c.moveToFirst())
+		{
+			PlayerDb ret = new PlayerDb();
+			ret.setFname(c.getString(c.getColumnIndex(COL_FNAME)));
+			ret.setLname(c.getString(c.getColumnIndex(COL_LNAME)));
+			ret.setNumber(c.getString(c.getColumnIndex(COL_NUMBER)));
+			ret.setPlayerId(c.getString(c.getColumnIndex(COL_ID)));
+			
+			return ret;
+		}
+		
+		return null;
+		
+	}
 
 	//-----------------------------------------------------------
 	//-----------------------------------------------------------
@@ -915,7 +935,8 @@ public class DatabaseHelper extends SQLiteOpenHelper
 		ContentValues values = new ContentValues();
 		byte[] timeMapBytes = GameDb.timeArrayToBytes(timeMap_);
 		values.put(COL_TIME_MAP, timeMapBytes);
-		getDB().update(TABLE_GAME, values, COL_ID + " = ?", new String[] {gameId} );
+		int i = getDB().update(TABLE_GAME, values, COL_ID + " = ?", new String[] {gameId} );
+		System.out.println(i);
 	}
 	
 	public void deleteGame(String gameId)

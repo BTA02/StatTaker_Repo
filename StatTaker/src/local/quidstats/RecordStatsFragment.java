@@ -1,9 +1,11 @@
 package local.quidstats;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import local.quidstats.helper.DatabaseHelper;
 import local.quidstats.model.GameDb;
@@ -17,39 +19,51 @@ import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
 import android.util.Log;
+import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.Button;
-import android.widget.ListAdapter;
+import android.widget.Chronometer;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class RecordStatsFragment extends ListFragment
-{
+public class RecordStatsFragment extends ListFragment implements 
+	View.OnClickListener,
+	OnItemLongClickListener {
+	private DatabaseHelper db;
+	private String TAG = "FragmentPlayerList";
 
-	DatabaseHelper db;
-	String TAG = "FragmentPlayerList";
-
-	ListView currentPlayers;
-	Button awaySnitch;
-	Button homeSnitch;
-	Button undoButton;
-	Button redoButton;
-	TextView homeScore;
-	TextView awayScore;
+	private Button mAwaySnitch;
+	private Button mHomeSnitch;
+	private Button undoButton;
+	
+	private Button redoButton;
+	private TextView homeScore;
+	private TextView awayScore;
 	TextView time;
 
-	Timer timer = new Timer();
-	ListAdapter listAdapter;
-	RecordGameActivity fragmentHolder;
-	View rootView;
+	private Timer timer = new Timer();
+	private GameActivity fragmentHolder;
+	private List<PlayerDb> playersOnPitch;
+	private SparseArray<List<String> > mTimeArray;
+	private Cursor c = null;
+	private GameDb mGameInfo;
+	private AtomicInteger mCurTime;
 
-	Cursor c = null;
+
+	@Override
+	public void onCreate(Bundle savedInstanceState)
+	{
+		super.onCreate(savedInstanceState);
+		playersOnPitch = new ArrayList<PlayerDb>();
+		mTimeArray = new SparseArray<List<String> >();
+		mCurTime = new AtomicInteger(0);
+
+	}
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -60,8 +74,8 @@ public class RecordStatsFragment extends ListFragment
 		homeScore = (TextView) rootView.findViewById(R.id.home_score);
 		awayScore = (TextView) rootView.findViewById(R.id.away_score);
 		time = (TextView) rootView.findViewById(R.id.time);
-		awaySnitch = (Button) rootView.findViewById(R.id.away_snitch);
-		homeSnitch = (Button) rootView.findViewById(R.id.home_snitch);
+		mAwaySnitch = (Button) rootView.findViewById(R.id.away_snitch);
+		mHomeSnitch = (Button) rootView.findViewById(R.id.home_snitch);
 		undoButton = (Button) rootView.findViewById(R.id.undo_button);
 		redoButton = (Button) rootView.findViewById(R.id.redo_button);
 
@@ -72,292 +86,33 @@ public class RecordStatsFragment extends ListFragment
 	{
 		super.onActivityCreated(savedInstanceState);
 
-		fragmentHolder = (RecordGameActivity) getActivity();
-		db = new DatabaseHelper(fragmentHolder.mContext);
+
+		fragmentHolder = (GameActivity) getActivity();
+		db = new DatabaseHelper(getActivity());
 		fragmentHolder.playerFrag = this;
 
-		homeScore.setText(fragmentHolder.gInfo.getHomeScore() + "");
-		awayScore.setText(fragmentHolder.gInfo.getAwayScore() + "");
-		int totalSeconds = fragmentHolder.gInfo.getGameTimeSeconds();
+		mGameInfo = db.getGameInfo(fragmentHolder.gId);
+
+		homeScore.setText(mGameInfo.getHomeScore() + "");
+		awayScore.setText(mGameInfo.getAwayScore() + "");
+		mCurTime.set(mGameInfo.getGameTimeSeconds());
 
 		for (int i = 0; i < 7; i++)
 		{
-			fragmentHolder.timeSubbedIn[i] = totalSeconds;
-			fragmentHolder.sinceRefresh[i] = totalSeconds;
+			fragmentHolder.timeSubbedIn[i] = mCurTime.get();
+			fragmentHolder.sinceRefresh[i] = mCurTime.get();
 		}
-		displayTime(totalSeconds, time);
-
-		fragmentHolder.running = false;
-		time.setOnClickListener(new OnClickListener()
-		{
-
-			@Override
-			public void onClick(View v)
-			{
-				switchTime(v);
-			}
-
-		});
-
 		populateList();
-
-		getListView().setOnItemLongClickListener(new OnItemLongClickListener()
-		{
-
-			@Override
-			public boolean onItemLongClick(AdapterView<?> arg0, View arg1,
-					int arg2, long arg3)
-			{
-				if (c != null)
-				{
-					c.moveToPosition(arg2);
-					AlertDialog.Builder subBuilder = subDialog(fragmentHolder.gId, c
-							.getString(c.getColumnIndex(DatabaseHelper.COL_ID)));
-					subBuilder.show();
-				}
-				return true;
-			}
-
-		});
+		fragmentHolder.running = false;
+		getListView().setOnItemLongClickListener(this);
+		awayScore.setOnClickListener(this);
+		mAwaySnitch.setOnClickListener(this);
+		mHomeSnitch.setOnClickListener(this);
+		undoButton.setOnClickListener(this);
+		redoButton.setOnClickListener(this);
+		time.setOnClickListener(this);
 		
-		awayScore.setOnClickListener(new OnClickListener()
-		{
-			@Override
-			public void onClick(View v)
-			{
-				opponentScored();
-			}
-		});
-
-		awaySnitch.setOnClickListener(new OnClickListener()
-		{
-			@Override
-			public void onClick(View v)
-			{
-				opponentSnitch();
-			}
-		});
-
-		homeSnitch.setOnClickListener(new OnClickListener()
-		{
-
-			@Override
-			public void onClick(View v)
-			{
-				homeSnitch();
-			}
-
-		});
-
-		undoButton.setOnClickListener(new OnClickListener()
-		{
-			@Override
-			public void onClick(View v)
-			{
-				if (fragmentHolder.undoStack.size() == 0)
-				{
-					Toast toast = Toast.makeText(getActivity(),
-							"Nothing to Undo", Toast.LENGTH_SHORT);
-					toast.show();
-				}
-				else
-				{
-					Action a = fragmentHolder.undoStack.pop();
-					String col = a.getDatabaseColumn();
-					// for opponents
-					if (a.getPlayerId().equals("AWAY"))
-					{
-						// do away team shit
-						if (a.getDatabaseColumn().equals(
-								DatabaseHelper.COL_AWAY_SCORE))
-						{
-							updateScore("opponent", -10);
-							// get rid of the minuses
-							List<PlayerDb> onFieldPlayers = db
-									.getOnFieldPlayersFromGame(fragmentHolder.gId);
-							for (int i = 0; i < onFieldPlayers.size(); i++)
-							{
-								db.updateStat(fragmentHolder.gId, onFieldPlayers.get(i)
-										.getPlayerId(), -1,
-										DatabaseHelper.COL_MINUSES);
-							}
-						}
-						else
-						{
-							updateScore("opponent", -(a.getValueAdded()));
-						}
-					}
-					// for home team...
-					else
-					{
-						if (a.getDatabaseColumn().equals(
-								DatabaseHelper.COL_TOTAL_TIME))
-						{
-							int curTime = db.getGameTime(fragmentHolder.gId);
-							int timeChange = curTime - a.getTimeSwitched();
-							// actually change who is in the game
-							db.subOut(fragmentHolder.gId, a.getPlayerId(),
-									a.getPlayerSubbedOut(), a.getValueAdded());
-							db.updateStat(fragmentHolder.gId, a.getPlayerId(), -timeChange,
-									DatabaseHelper.COL_TOTAL_TIME);
-							db.updateStat(fragmentHolder.gId, a.getPlayerSubbedOut(),
-									timeChange, DatabaseHelper.COL_TOTAL_TIME);
-							populateList();
-						}
-						else
-						{
-							db.updateStat(fragmentHolder.gId, a.getPlayerId(),
-									-(a.getValueAdded()), col);
-							if (col.equals(DatabaseHelper.COL_GOALS))
-							{
-								db.updateStat(fragmentHolder.gId, a.getPlayerId(), -1,
-										DatabaseHelper.COL_SHOTS);
-								List<PlayerDb> onFieldPlayers = db
-										.getOnFieldPlayersFromGame(fragmentHolder.gId);
-								for (int i = 0; i < onFieldPlayers.size(); i++)
-								{
-									db.updateStat(fragmentHolder.gId, onFieldPlayers.get(i)
-											.getPlayerId(),
-											-(a.getValueAdded()),
-											DatabaseHelper.COL_PLUSSES);
-								}
-								updateScore("homeTeam", -10);
-							}
-							else if (col.equals(DatabaseHelper.COL_SNITCHES))
-							{
-								updateScore("homeTeam", -30);
-							}
-						}
-					}
-					fragmentHolder.redoStack.push(a);
-					// Clear the stack on certain undos
-				}
-			}
-		});
-
-		redoButton.setOnClickListener(new OnClickListener()
-		{
-			@Override
-			public void onClick(View v)
-			{
-				if (fragmentHolder.redoStack.size() == 0)
-				{
-					Toast toast = Toast.makeText(getActivity(),
-							"Nothing to Redo", Toast.LENGTH_SHORT);
-					toast.show();
-				}
-				else
-				{
-					redoAction();
-				}
-			}
-		});
-
-	}
-
-	public void opponentScored()
-	{
-		List<PlayerDb> onFieldPlayers = db.getOnFieldPlayersFromGame(fragmentHolder.gId);
-		for (int i = 0; i < onFieldPlayers.size(); i++)
-		{
-			db.updateStat(fragmentHolder.gId, onFieldPlayers.get(i).getPlayerId(), 1,
-					DatabaseHelper.COL_MINUSES);
-		}
-		Action toAdd = new Action();
-		toAdd.setDatabaseColumn(DatabaseHelper.COL_AWAY_SCORE);
-		toAdd.setGameId(fragmentHolder.gId);
-		toAdd.setPlayerId("AWAY");
-		toAdd.setValueAdded(10);// because I'll want to subtract this
-		fragmentHolder.undoStack.add(toAdd);
-
-		updateScore("opponent", 10);
-	}
-
-	public void opponentSnitch()
-	{
-		updateScore("opponent", 30);
-		Action toAdd = new Action();
-		toAdd.setDatabaseColumn("away_snitch");
-		toAdd.setGameId(fragmentHolder.gId);
-		toAdd.setPlayerId("AWAY");
-		toAdd.setValueAdded(30);// because I'll want to subtract this
-		fragmentHolder.undoStack.add(toAdd);
-	}
-
-	public void homeSnitch()
-	{
-		// assign to a player
-		// launch a list of players
-		AlertDialog.Builder snitchBuilder = snitchDialog(fragmentHolder.gId);
-		snitchBuilder.show();
-	}
-
-	public void homeStat(String playerId, String statColumn)
-	{
-		db.updateStat(fragmentHolder.gId, playerId, 1, statColumn);
-		Action toAdd = new Action();
-		toAdd.setDatabaseColumn(statColumn);
-		toAdd.setGameId(fragmentHolder.gId);
-		toAdd.setPlayerId(playerId);
-		toAdd.setValueAdded(1);// because I'll want to subtract this
-		fragmentHolder.undoStack.add(toAdd);
-		if (statColumn.equals(DatabaseHelper.COL_GOALS))
-		{
-			db.updateStat(fragmentHolder.gId, playerId, 1, DatabaseHelper.COL_SHOTS);
-			List<PlayerDb> onFieldPlayers = db
-					.getOnFieldPlayersFromGame(fragmentHolder.gId);
-			for (int i = 0; i < onFieldPlayers.size(); i++)
-			{
-				db.updateStat(fragmentHolder.gId, onFieldPlayers.get(i).getPlayerId(), 1,
-						DatabaseHelper.COL_PLUSSES);
-			}
-			updateScore("homeTeam", 10);
-		}
-		else if (statColumn.equals(DatabaseHelper.COL_SNITCHES))
-		{
-			db.updateScore(fragmentHolder.gId, "homeTeam", 30);
-		}
-	}
-
-	public void redoAction()
-	{
-		Action a = fragmentHolder.redoStack.pop();
-		// for a substitution
-		if (a.getDatabaseColumn().equals(DatabaseHelper.COL_TOTAL_TIME))
-		{
-			int curTime = db.getGameTime(fragmentHolder.gId);
-			int timeChange = curTime - a.getTimeSwitched();
-			// actually change who is in the game
-			db.subOut(fragmentHolder.gId, a.getPlayerSubbedOut(), a.getPlayerId(),
-					a.getValueAdded());
-			db.updateStat(fragmentHolder.gId, a.getPlayerId(), timeChange,
-					DatabaseHelper.COL_TOTAL_TIME);
-			db.updateStat(fragmentHolder.gId, a.getPlayerSubbedOut(), -timeChange,
-					DatabaseHelper.COL_TOTAL_TIME);
-			populateList();
-			fragmentHolder.undoStack.push(a);
-		}
-		if (a.getPlayerId().equals("AWAY"))
-		{
-			if (a.getDatabaseColumn().equals(DatabaseHelper.COL_AWAY_SCORE))
-			{
-				opponentScored();
-				return;
-			}
-			else
-				// caught snitch
-			{
-				opponentSnitch();
-				return;
-			}
-		}
-		// Something we did...
-		if (a.getDatabaseColumn().equals("home_snitch"))
-		{
-			homeSnitch();
-			return;
-		}
-		homeStat(a.getPlayerId(), a.getDatabaseColumn());
+		displayTime(mCurTime.get(), time);
 	}
 
 	@Override
@@ -386,7 +141,7 @@ public class RecordStatsFragment extends ListFragment
 		statsBuilder.setCancelable(true);
 
 		CharSequence[] items = { "Shot", "Goal", "Assist", "Steal", "Turnover",
-				"Save"};
+		"Save"};
 
 		statsBuilder.setItems(items, new DialogInterface.OnClickListener()
 		{
@@ -465,9 +220,9 @@ public class RecordStatsFragment extends ListFragment
 				subOutAct.setGameId(fragmentHolder.gId);
 				subOutAct.setPlayerId(list.get(which).getPlayerId());
 				subOutAct.setPlayerSubbedOut(playerId);
-				subOutAct.setTimeSwitched(db.getGameTime(fragmentHolder.gId));
+				subOutAct.setTime(db.getGameTime(fragmentHolder.gId));
 				int spotOnList = db.getListLocation(fragmentHolder.gId, playerId);
-				subOutAct.setValueAdded(spotOnList); // location WRONG!
+				subOutAct.setValueAdded(spotOnList);
 				if (spotOnList > 0)
 				{
 					db.subOut(fragmentHolder.gId, playerId, list.get(which).getPlayerId(),
@@ -522,6 +277,9 @@ public class RecordStatsFragment extends ListFragment
 				db.updateStat(fragmentHolder.gId, list.get(which).getPlayerId(), 1,
 						DatabaseHelper.COL_SNITCHES);
 				fragmentHolder.undoStack.add(toAdd);
+				
+				db.addEventToMetaStats(mGameInfo.getId(), list.get(which).getPlayerId(), 
+						DatabaseHelper.COL_SNITCHES, toAdd.getTime(), "");
 
 			}
 		});
@@ -538,6 +296,8 @@ public class RecordStatsFragment extends ListFragment
 			displayPopup("You should activiate some players");
 		}
 		setListAdapter(onFieldAdapter);
+
+		playersOnPitch = db.getOnFieldPlayersFromGame(fragmentHolder.gId);
 	}
 
 	public void showMessage(String name, String action)
@@ -557,34 +317,32 @@ public class RecordStatsFragment extends ListFragment
 				@Override
 				public void run()
 				{
-					// update the game time, and the view
-					final TextView clock = (TextView) v;
-					//Countdown latch on this, I think?
-					db.updateTime(fragmentHolder.gId, 1); // update every second
-					//Unlock?
-					int totalSeconds = db.getGameTime(fragmentHolder.gId);
-					int minutes = totalSeconds / 60;
-					int seconds = totalSeconds % 60;
-					String gameTime = minutes + ":" + seconds;
-					if (seconds < 10)
-					{
-						gameTime = minutes + ":0" + seconds;
-					}
-					// add one second to every player on the field
+					int t = mCurTime.addAndGet(1);
+					db.updateTime(fragmentHolder.gId, 1);
 					List<PlayerDb> players = db
 							.getOnFieldPlayersFromGame(fragmentHolder.gId);
+					List<String> playersOnPitchIds = new ArrayList<String>();
 					for (int i = 0; i < players.size(); i++)
 					{
+						// add time to each player
 						db.updateStat(fragmentHolder.gId, players.get(i).getPlayerId(), 1,
 								DatabaseHelper.COL_TOTAL_TIME);
+						playersOnPitchIds.add(players.get(i).getPlayerId());
 					}
-					final String gT = gameTime; // cause it needs to be final
+					if (mTimeArray == null)
+					{
+						mTimeArray = new SparseArray<List<String> >();
+					}
+					
+					mTimeArray.put(t, playersOnPitchIds);
+					final TextView clock = (TextView) v;
+					
 					getActivity().runOnUiThread(new Runnable()
 					{
 						@Override
 						public void run()
 						{
-							clock.setText(gT);
+							displayTime(mCurTime.get(), clock);
 						}
 					});
 				}
@@ -599,32 +357,26 @@ public class RecordStatsFragment extends ListFragment
 		}
 	}
 
+
 	public void updateTime(int location)
 	{
 		int totalSeconds = db.getGameTime(fragmentHolder.gId);
 		int timeOnField = totalSeconds - fragmentHolder.timeSubbedIn[location];
 	}
 
-	public void onPause()
+	@Override
+	public void onResume()
 	{
-		super.onPause();
-		// stop clock
-		// updateTimeStat
+		super.onResume();
+		mTimeArray = db.getGameInfo(fragmentHolder.gId).getTimeArray();
 	}
 
-	public void displayTime(int time, TextView timeTV)
+	@Override
+	public void onPause()
 	{
-		int minutes = time / 60;
-		int seconds = time % 60;
-		String gameTime = minutes + ":" + seconds;
-		if (seconds < 10)
-		{
-			gameTime = minutes + ":0" + seconds;
-		}
-		if (minutes != 0 || seconds != 0)
-		{
-			timeTV.setText(gameTime);
-		}
+		db.updateTimeMap(fragmentHolder.gId, mTimeArray);
+		super.onPause();
+
 	}
 
 	public void updateScore(String who, int howMany)
@@ -657,4 +409,269 @@ public class RecordStatsFragment extends ListFragment
 	{
 		Toast.makeText(fragmentHolder.mContext, textToShow, Toast.LENGTH_LONG).show();
 	}
+
+	@Override
+	public void onClick(View v)
+	{
+		switch (v.getId())
+		{
+			case R.id.home_score:
+				break;
+			case R.id.away_score:
+				opponentScored();
+				break;
+			case R.id.time:
+				switchTime(v);
+				break;
+			case R.id.away_snitch:
+				opponentSnitch();
+				break;
+			case R.id.home_snitch:
+				homeSnitch();
+				break;
+			case R.id.undo_button:
+				if (fragmentHolder.undoStack.size() == 0)
+				{
+					Toast toast = Toast.makeText(getActivity(),
+							"Nothing to Undo", Toast.LENGTH_SHORT);
+					toast.show();
+				}
+				else
+				{
+					Action a = fragmentHolder.undoStack.pop();
+					String col = a.getDatabaseColumn();
+					// for opponents
+					if (a.getPlayerId().equals("AWAY"))
+					{
+						// do away team shit
+						if (a.getDatabaseColumn().equals(
+								DatabaseHelper.COL_AWAY_SCORE))
+						{
+							updateScore("opponent", -10);
+							// get rid of the minuses
+							List<PlayerDb> onFieldPlayers = db
+									.getOnFieldPlayersFromGame(fragmentHolder.gId);
+							for (int i = 0; i < onFieldPlayers.size(); i++)
+							{
+								db.updateStat(fragmentHolder.gId, onFieldPlayers.get(i)
+										.getPlayerId(), -1,
+										DatabaseHelper.COL_MINUSES);
+							}
+						}
+						else
+						{
+							updateScore("opponent", -(a.getValueAdded()));
+						}
+					}
+					// for home team...
+					else
+					{
+						if (a.getDatabaseColumn().equals(
+								DatabaseHelper.COL_TOTAL_TIME))
+						{
+							int curTime = db.getGameTime(fragmentHolder.gId);
+							int timeChange = curTime - a.getTime();
+							// actually change who is in the game
+							db.subOut(fragmentHolder.gId, a.getPlayerId(),
+									a.getPlayerSubbedOut(), a.getValueAdded());
+							db.updateStat(fragmentHolder.gId, a.getPlayerId(), -timeChange,
+									DatabaseHelper.COL_TOTAL_TIME);
+							db.updateStat(fragmentHolder.gId, a.getPlayerSubbedOut(),
+									timeChange, DatabaseHelper.COL_TOTAL_TIME);
+							populateList();
+						}
+						else
+						{
+							db.updateStat(fragmentHolder.gId, a.getPlayerId(),
+									-(a.getValueAdded()), col);
+							if (col.equals(DatabaseHelper.COL_GOALS))
+							{
+								db.updateStat(fragmentHolder.gId, a.getPlayerId(), -1,
+										DatabaseHelper.COL_SHOTS);
+								List<PlayerDb> onFieldPlayers = db
+										.getOnFieldPlayersFromGame(fragmentHolder.gId);
+								for (int i = 0; i < onFieldPlayers.size(); i++)
+								{
+									db.updateStat(fragmentHolder.gId, onFieldPlayers.get(i)
+											.getPlayerId(),
+											-(a.getValueAdded()),
+											DatabaseHelper.COL_PLUSSES);
+								}
+								updateScore("homeTeam", -10);
+							}
+							else if (col.equals(DatabaseHelper.COL_SNITCHES))
+							{
+								updateScore("homeTeam", -30);
+							}
+						}
+					}
+					fragmentHolder.redoStack.push(a);
+					// Clear the stack on certain undos
+				}
+				break;
+			case R.id.redo_button:
+				if (fragmentHolder.redoStack.size() == 0)
+				{
+					Toast toast = Toast.makeText(getActivity(),
+							"Nothing to Redo", Toast.LENGTH_SHORT);
+					toast.show();
+				}
+				else
+				{
+					redoAction();
+				}
+				break;
+		}
+
+	}
+
+	public void opponentScored()
+	{
+		List<PlayerDb> onFieldPlayers = db.getOnFieldPlayersFromGame(fragmentHolder.gId);
+		for (int i = 0; i < onFieldPlayers.size(); i++)
+		{
+			db.updateStat(fragmentHolder.gId, onFieldPlayers.get(i).getPlayerId(), 1,
+					DatabaseHelper.COL_MINUSES);
+		}
+		Action toAdd = new Action();
+		toAdd.setDatabaseColumn(DatabaseHelper.COL_AWAY_SCORE);
+		toAdd.setGameId(fragmentHolder.gId);
+		toAdd.setTime(db.getGameTime(mGameInfo.getId()));
+		toAdd.setPlayerId("AWAY");
+		toAdd.setValueAdded(10);// because I'll want to subtract this
+		fragmentHolder.undoStack.add(toAdd);
+
+		updateScore("opponent", 10);
+		
+		db.addEventToMetaStats(mGameInfo.getId(), "", "away_goal", toAdd.getTime(), "");
+	}
+
+	public void opponentSnitch()
+	{
+		updateScore("opponent", 30);
+		Action toAdd = new Action();
+		toAdd.setDatabaseColumn("away_snitch");
+		toAdd.setGameId(fragmentHolder.gId);
+		toAdd.setTime(db.getGameTime(mGameInfo.getId()));
+		toAdd.setPlayerId("AWAY");
+		toAdd.setValueAdded(30);// because I'll want to subtract this
+		fragmentHolder.undoStack.add(toAdd);
+		
+		db.addEventToMetaStats(mGameInfo.getId(), "", "away_snitch", toAdd.getTime(), "");
+	}
+
+	public void homeSnitch()
+	{
+		AlertDialog.Builder snitchBuilder = snitchDialog(fragmentHolder.gId);
+		snitchBuilder.show();
+	}
+
+	public void homeStat(String playerId, String statColumn)
+	{
+		int curTime = db.getGameTime(mGameInfo.getId());
+		db.updateStat(fragmentHolder.gId, playerId, 1, statColumn);
+		Action toAdd = new Action();
+		toAdd.setDatabaseColumn(statColumn);
+		toAdd.setGameId(fragmentHolder.gId);
+		toAdd.setPlayerId(playerId);
+		toAdd.setTime(curTime);
+		toAdd.setValueAdded(1);// because I'll want to subtract this
+		fragmentHolder.undoStack.add(toAdd);
+
+		db.addEventToMetaStats(mGameInfo.getId(), playerId, statColumn, curTime, "");
+
+		// Do the plus/minus for all players
+		if (statColumn.equals(DatabaseHelper.COL_GOALS))
+		{
+			db.addEventToMetaStats(mGameInfo.getId(), playerId, DatabaseHelper.COL_SHOTS, curTime, "");
+			db.updateStat(fragmentHolder.gId, playerId, 1, DatabaseHelper.COL_SHOTS);
+			List<PlayerDb> onFieldPlayers = db
+					.getOnFieldPlayersFromGame(fragmentHolder.gId);
+			for (int i = 0; i < onFieldPlayers.size(); i++)
+			{
+				db.updateStat(fragmentHolder.gId, onFieldPlayers.get(i).getPlayerId(), 1,
+						DatabaseHelper.COL_PLUSSES);
+			}
+			updateScore("homeTeam", 10);
+		}
+		else if (statColumn.equals(DatabaseHelper.COL_SNITCHES))
+		{
+			db.updateScore(fragmentHolder.gId, "homeTeam", 30);
+		}
+
+
+
+	}
+
+	public void redoAction()
+	{
+		Action a = fragmentHolder.redoStack.pop();
+		// for a substitution
+		if (a.getDatabaseColumn().equals(DatabaseHelper.COL_TOTAL_TIME))
+		{
+			int curTime = db.getGameTime(fragmentHolder.gId);
+			int timeChange = curTime - a.getTime();
+			// actually change who is in the game
+			db.subOut(fragmentHolder.gId, a.getPlayerSubbedOut(), a.getPlayerId(),
+					a.getValueAdded());
+			db.updateStat(fragmentHolder.gId, a.getPlayerId(), timeChange,
+					DatabaseHelper.COL_TOTAL_TIME);
+			db.updateStat(fragmentHolder.gId, a.getPlayerSubbedOut(), -timeChange,
+					DatabaseHelper.COL_TOTAL_TIME);
+			populateList();
+			fragmentHolder.undoStack.push(a);
+		}
+		if (a.getPlayerId().equals("AWAY"))
+		{
+			if (a.getDatabaseColumn().equals(DatabaseHelper.COL_AWAY_SCORE))
+			{
+				opponentScored();
+				return;
+			}
+			else
+				// caught snitch
+			{
+				opponentSnitch();
+				return;
+			}
+		}
+		// Something we did...
+		if (a.getDatabaseColumn().equals("home_snitch"))
+		{
+			homeSnitch();
+			return;
+		}
+		homeStat(a.getPlayerId(), a.getDatabaseColumn());
+
+		// Re-add the line to the database
+	}
+
+	@Override
+	public boolean onItemLongClick(AdapterView<?> parent, View view,
+			int position, long id)
+	{
+		if (c != null)
+		{
+			c.moveToPosition(position);
+			AlertDialog.Builder subBuilder = subDialog(fragmentHolder.gId, c
+					.getString(c.getColumnIndex(DatabaseHelper.COL_ID)));
+			subBuilder.show();
+		}
+		return true;
+	}
+
+	public void displayTime(int time, TextView timeTV)
+	{
+		int minutes = time / 60;
+		int seconds = time % 60;
+		String gameTime = minutes + ":" + seconds;
+		if (seconds < 10)
+		{
+			gameTime = minutes + ":0" + seconds;
+		}
+		if (minutes != 0 || seconds != 0)
+		{
+			timeTV.setText(gameTime);
+		}
+	}	
 }

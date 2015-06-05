@@ -130,7 +130,7 @@ public class GameDb //row data for a game table
 		{
 			e.printStackTrace();
 		}
-		
+		timeArray = ret;
 	}
 
 	public static byte[] timeArrayToBytes(SparseArray<List<String> > timeMap_)

@@ -40,13 +40,13 @@
                 android:text="Snitch" />
         </RelativeLayout>
 
-		<Chronometer 
-		    android:id="@+id/chronometer"
+		<TextView
+		    android:id="@+id/time"
 		    android:layout_width="0dp"
 		    android:layout_height="match_parent"
 		    android:layout_weight="1"
 		    android:gravity="center"
-		    android:format="%s"
+		    android:text="Press here to start clock"
 		    android:textSize="30sp"/>
 
         <RelativeLayout
