@@ -1,0 +1,9 @@
+<resources>
+
+    <color name="black_overlay">#66000000</color>
+    <color name="row_background">#bdbdbd</color>
+    <color name="dark_gray">#575757</color>
+
+    <color name="quid_stats_red">#910000</color>
+
+</resources>

@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" >
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical" >
+
+        <!-- No players -->
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="No Players:"
+            android:textSize="30sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="-If there are no players on your screen, you need to activate players. Do this in the Edit Team screen."
+            android:textSize="20sp" />
+        
+        <!-- Clock -->
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Clock:"
+            android:textSize="30sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="-Tap to start/stop clock"
+            android:textSize="20sp" />
+
+        <!-- Seekers -->
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Seekers:"
+            android:textSize="30sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="-Seekers aren&apos;t listed listed on the field. It&apos;s too much work for everyone involved (programmer and recorder)."
+            android:textSize="20sp" />
+
+        <!-- Snitch catches -->
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Snitch catch:"
+            android:textSize="30sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="-Use the snitch button to indicate who caught the snitch."
+            android:textSize="20sp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="-If you select the home side snitch catch (the team you are recording stats for), you will be asked to select the player who caught the snitch. This list will come from players not currently listed on the field"
+            android:textSize="20sp" />
+
+        <!-- Away Team -->
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Away Team:"
+            android:textSize="30sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="-Tap on the away team&apos;s score to add 10 points to it"
+            android:textSize="20sp" />
+        
+        <!-- Stats -->
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Stats:"
+            android:textSize="30sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="-Plus: A plus is given to ALL players on the field when the home team scores."
+            android:textSize="20sp" />
+        
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="-Minus: A minus is given to ALL players on the field when the away team scores."
+            android:textSize="20sp" />
+        
+        
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="-Plusses and minuses are assigned whenever a goal is recorded for either team. You don't need to do this yourself"
+            android:textSize="20sp" />
+        
+        
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="-If a goal is recorded to a player, a shot is automatically recorded as well. There is no need to add both a shot and a goal when a player shoots and scores."
+            android:textSize="20sp" />
+        
+    </LinearLayout>
+
+</ScrollView>

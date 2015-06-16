@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Quid Stats</string>
+    <string name="action_settings">Settings</string>
+    <string name="action_help">Help</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="title_activity_record_game">RecordGame</string>
+    <string name="title_activity_record_game2">RecordGame2</string>
+    <string name="dummy_button">Dummy Button</string>
+    <string name="dummy_content">DUMMY\nCONTENT</string>
+    <string name="title_activity_view_stats">ViewStatsActivity</string>
+    <string name="title_activity_contact">ContactActivity</string>
+    <string name="title_activity_player_db">PlayerDB</string>
+    <string name="title_activity_create_team">CreateTeam</string>
+    <string name="title_activity_edit">EditActivity</string>
+    <string name="title_activity_add_teams">AddTeams</string>
+    <string name="title_activity_team_page">TeamPage</string>
+    <string name="title_activity_advanced_stats">AdvancedStats</string>
+
+    <string name="new_opponent_name">New Opponent Name</string>
+    <string name="edit_team">Edit Team</string>
+    <string name="view_old_games">View / Resume Old Games</string>
+    <string name="view_team_stats">View Team Stats</string>
+
+    <string-array name="queries_array">
+        <item>Best lineups</item>
+        <item>Best beater pairs</item>
+        <item>Best quaffle players</item>
+        <item>Best quaffle pairs</item>
+        <item>Best chaser / beater pair</item>
+        <item>Best pair</item>
+    </string-array>
+
+</resources>

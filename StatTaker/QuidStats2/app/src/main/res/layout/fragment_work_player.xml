@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
+
+    <LinearLayout
+        android:id="@+id/fragment_work_player_scoreboard"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal" >
+
+        <RelativeLayout
+            android:id="@+id/home_side"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1">
+
+            <TextView
+                android:id="@+id/home_side_title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="HOME"
+                android:gravity="center"
+                android:textSize="15sp"/>
+
+            <TextView
+                android:id="@+id/home_score"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/home_side_title"
+                android:gravity="center"
+                android:text="0"
+                android:textSize="45sp" />
+
+            <Button
+                android:id="@+id/home_snitch"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/home_score"
+                android:gravity="center"
+                style="@android:style/Widget.Holo.Button.Borderless"
+                android:text="Snitch Catch"
+                android:textSize="12sp"
+                android:textColor="#000"/>
+        </RelativeLayout>
+
+		<TextView
+		    android:id="@+id/time"
+		    android:layout_width="0dp"
+		    android:layout_height="match_parent"
+		    android:layout_weight="2"
+		    android:gravity="center"
+		    android:text="Tap to toggle clock"
+		    android:textSize="30sp"/>
+
+        <RelativeLayout
+            android:id="@+id/away_side"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1">
+
+            <TextView
+                android:id="@+id/away_side_title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="AWAY"
+                android:textSize="15sp" />
+
+            <TextView
+                android:id="@+id/away_score"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/away_side_title"
+                android:gravity="center"
+                android:text="0"
+                android:textSize="45sp" />
+
+            <Button
+                android:id="@+id/away_snitch"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/away_score"
+                style="@android:style/Widget.Holo.Button.Borderless"
+                android:text="Snitch Catch"
+                android:textSize="12sp"
+                android:textColor="#000" />
+        </RelativeLayout>
+    </LinearLayout>
+
+    <View
+        android:layout_width="fill_parent"
+        android:layout_height="1dp"
+        android:background="#000" />
+
+    <ListView
+        android:id="@id/android:list"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1" />
+
+    <RelativeLayout
+        android:id="@+id/bottomline"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" >
+
+        <Button
+            android:id="@+id/undo_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_marginLeft="30dp"
+            android:text="Undo" />
+
+        <TextView
+            android:id="@+id/player_swipe_right"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="Swipe right to see stats"
+            android:textColor="@color/dark_gray"
+            android:textSize="15sp"
+            android:textStyle="italic" />
+
+        <Button
+            android:id="@+id/redo_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_marginRight="30dp"
+            android:text="Redo" />
+    </RelativeLayout>
+
+</LinearLayout>
