@@ -1,3 +1,0 @@
-INDEX VERSION 1.126+/Users/andrewaxtell/Documents/Code/repos/StatTaker_Repo/.metadata/.plugins/org.eclipse.jdt.core
-3486999740.index
-794921002.index

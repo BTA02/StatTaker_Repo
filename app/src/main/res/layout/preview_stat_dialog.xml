@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="wrap_content"
+    android:layout_height="match_parent">
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/preview_stat_prev"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="PREV"
+            android:padding="50dp"/>
+
+        <TextView
+            android:id="@+id/preview_stat_next"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="NEXT"
+            android:padding="50dp"/>
+
+        <TextView
+            android:id="@+id/preview_stat_number"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="0/0"
+            android:padding="50dp"/>
+
+        <TextView
+            android:id="@+id/preview_stat_delete"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="DEL"
+            android:padding="50dp"/>
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/preview_stat_action"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="ACTION"
+        android:textSize="20sp"
+        android:gravity="center"
+        android:padding="50dp"/>
+
+    <TextView
+        android:id="@+id/preview_stat_name"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="NAME"
+        android:textSize="20sp"
+        android:gravity="center"
+        android:padding="50dp"/>
+
+    <TextView
+        android:id="@+id/preview_stat_sub_name"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="NAME IN"
+        android:textSize="20sp"
+        android:gravity="center"
+        android:padding="50dp"/>
+
+    <TextView
+        android:id="@+id/preview_stat_time"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="TIME"
+        android:textSize="20sp"
+        android:gravity="center"
+        android:padding="50dp"/>
+
+
+</LinearLayout>
