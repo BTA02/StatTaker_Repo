@@ -36,6 +36,7 @@ import local.quidstats.database.GameDb;
 import local.quidstats.database.MetaStatDb;
 import local.quidstats.database.NewActionDb;
 import local.quidstats.database.PlayerDb;
+import local.quidstats.database.StatDb;
 import local.quidstats.main.AdvancedStats;
 import local.quidstats.main.LocalTeamsFragment;
 
@@ -141,15 +142,6 @@ public class VideoStatsActivity extends Activity implements
         }
     }
 
-
-
-
-
-
-
-
-
-
     @Override
     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
         String gameId = (String) buttonView.getTag();
@@ -188,6 +180,8 @@ public class VideoStatsActivity extends Activity implements
             calcPlusMinusStat(mGamesAdded, new int[][] {{0,1,2,3,4,5},{0,1,2,3,4,5}});
         } else if (curSelection.equals("Individual plus / minus")) {
             calcPlusMinusStat(mGamesAdded, new int[][]{{0,1,2,3,4,5}});
+        } else if (curSelection.equals("Raw stats")) {
+            new CalcRawStatsTask(mGamesAdded).execute(new Object());
         }
     }
 
@@ -198,7 +192,6 @@ public class VideoStatsActivity extends Activity implements
         AsyncTask task = new CalcPlusMinusTask(games, arrs, statsParent);
         task.execute(null);
     }
-
 
     private class CalcPlusMinusTask extends AsyncTask<Object, Void, HashMap> {
 
@@ -397,15 +390,96 @@ public class VideoStatsActivity extends Activity implements
         return sortedKeys;
     }
 
+    private class CalcRawStatsTask extends AsyncTask<Object, Void, Map<String, StatDb>> {
+
+        private List<String> games;
+
+        private CalcRawStatsTask(List<String> games) {
+            this.games = games;
+        }
+
+        @Override
+        protected Map<String, StatDb> doInBackground(Object... params) {
+            Map<String, StatDb> statMap = new HashMap<>();
+            for (String game : games) {
+                List<NewActionDb> actions = getAllActions(game);
+                String[] onField = new String[]{"a","b","c","d","e","f"};
+                int[] timeIn = new int[] {0,0,0,0,0,0};
+                int[] pauses = new int[] {0,0,0,0,0,0};
+                for (NewActionDb action : actions ) {
+                    StatDb fullStats = new StatDb();
+                    if (!action.getPlayerOut().isEmpty()) {
+                        fullStats = statMap.get(action.getPlayerOut());
+                        if (fullStats == null) {
+                            fullStats = new StatDb(action.getPlayerOut());
+                        }
+                    } else if (!action.getPlayerIn().isEmpty()) {
+                        fullStats = statMap.get(action.getPlayerIn());
+                        if (fullStats == null) {
+                            fullStats = new StatDb(action.getPlayerIn());
+                        }
+                    }
+                    switch(action.getActualAction()) {
+                        case SHOT:
+                            fullStats.setShots(fullStats.getShots() + 1);
+                            statMap.put(action.getPlayerOut(), fullStats);
+                            break;
+                        case GOAL:
+                            fullStats.setGoals(fullStats.getGoals() + 1);
+                            fullStats.setShots(fullStats.getShots() + 1);
+                            statMap.put(action.getPlayerOut(), fullStats);
+                            break;
+                        case ASSIST:
+                            fullStats.setAssists(fullStats.getAssists() + 1);
+                            statMap.put(action.getPlayerOut(), fullStats);
+                            break;
+                        case TURNOVER:
+                            fullStats.setTurnovers(fullStats.getTurnovers() + 1);
+                            statMap.put(action.getPlayerOut(), fullStats);
+                            break;
+                        case SUB:
+                            // Skip for now
+                            break;
+                    }
+                }
+            }
+            return statMap;
+        }
+
+        @Override
+        protected void onPostExecute(Map<String, StatDb> stringStatDbMap) {
+            super.onPostExecute(stringStatDbMap);
+            displayRawStats(stringStatDbMap);
+        }
+    }
+
+    private void displayRawStats(Map<String, StatDb> map) {
+        List<StatDb> sortedVals = new ArrayList<>();
+        for (String key : map.keySet()) {
+            int lname = db.getPlayerById(key).getLname();
+            int val = map.get(key).getPlayerId() - map.get(key).second;
+            int index = 0;
+            for (List<Pair<String, Integer> > sortedKey : sortedKeys) {
+                int oldVal = map.get(sortedKey).first - map.get(sortedKey).second;
+                if (oldVal > val) {
+                    index++;
+                } else {
+                    break;
+                }
+            }
+            sortedKeys.add(index, key);
+        }
+    }
+
 
     // Build the entire "timeArray", or get it from the map
     private SparseArray<List<String>> getTimeArray(String gameId) {
-        if (mTimeArrays.get(gameId) != null) {
-            return mTimeArrays.get(gameId);
+        if (mTimeArrays.get(gameId + mTeamId) != null) {
+            return mTimeArrays.get(gameId + mTeamId);
         }
         SparseArray<List<String> > timeArray = new SparseArray<>();
         // Second 0 is where "game start" happens
-        List<NewActionDb> actions = db.getAllActionsFromGame(gameId);
+        List<NewActionDb> actions = db.getAllActionsFromGame(gameId + mTeamId);
 
         List<String> onFieldPlayers = getDummyLineupIds();
         int lastSub = 0;
@@ -436,15 +510,15 @@ public class VideoStatsActivity extends Activity implements
                     break;
             }
         }
-        mTimeArrays.put(gameId, timeArray);
+        mTimeArrays.put(gameId + mTeamId, timeArray);
         return timeArray;
     }
 
     private List<NewActionDb> getAllActions(String gameId) {
-        if (mActionLists.get(gameId) != null) {
-            return mActionLists.get(gameId);
+        if (mActionLists.get(gameId + mTeamId) != null) {
+            return mActionLists.get(gameId + mTeamId);
         }
-        return db.getAllActionsFromGame(gameId);
+        return db.getAllActionsFromGame(gameId + mTeamId);
     }
 
     private List<String> getDummyLineupIds() {

@@ -28,6 +28,7 @@
     <string name="video_stats">Video Stats</string>
 
     <string-array name="queries_array">
+        <item>Raw stats</item>
         <item>Best lineups</item>
         <item>Best beater pairs</item>
         <item>Best quaffle players</item>
