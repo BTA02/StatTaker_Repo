@@ -10,6 +10,7 @@ import android.support.v4.util.Pair;
 import android.util.Log;
 import android.util.SparseArray;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.CompoundButton;
@@ -17,6 +18,8 @@ import android.widget.GridLayout;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.Switch;
+import android.widget.TableLayout;
+import android.widget.TableRow;
 import android.widget.TextView;
 
 import com.parse.ParseObject;
@@ -428,6 +431,15 @@ public class VideoStatsActivity extends Activity implements
                             fullStats.setGoals(fullStats.getGoals() + 1);
                             fullStats.setShots(fullStats.getShots() + 1);
                             statMap.put(action.getPlayerOut(), fullStats);
+                            for(String pId : onField) {
+                                StatDb s = new StatDb();
+                                s = statMap.get(pId);
+                                if (s == null) {
+                                    s = new StatDb(pId);
+                                }
+                                s.setPlusses(s.getPlusses() + 1);
+                                statMap.put(pId, s);
+                            }
                             break;
                         case ASSIST:
                             fullStats.setAssists(fullStats.getAssists() + 1);
@@ -438,7 +450,18 @@ public class VideoStatsActivity extends Activity implements
                             statMap.put(action.getPlayerOut(), fullStats);
                             break;
                         case SUB:
-                            // Skip for now
+                            onField[action.getLoc()] = action.getPlayerIn();
+                            break;
+                        case AWAY_GOAL:
+                            for(String pId : onField) {
+                                StatDb s = new StatDb();
+                                s= statMap.get(pId);
+                                if (s == null) {
+                                    s = new StatDb(pId);
+                                }
+                                s.setMinuses(s.getMinuses() + 1);
+                                statMap.put(pId, s);
+                            }
                             break;
                     }
                 }
@@ -454,21 +477,113 @@ public class VideoStatsActivity extends Activity implements
     }
 
     private void displayRawStats(Map<String, StatDb> map) {
-        List<StatDb> sortedVals = new ArrayList<>();
+        List<StatDb> sortedStats = new ArrayList<>();
         for (String key : map.keySet()) {
-            int lname = db.getPlayerById(key).getLname();
-            int val = map.get(key).getPlayerId() - map.get(key).second;
+            PlayerDb player = db.getPlayerById(key);
+            if (player == null) {
+                continue;
+            }
+            String lname = player.getLname();
+            //int val = map.get(key).getPlayerId() - map.get(key).second;
             int index = 0;
-            for (List<Pair<String, Integer> > sortedKey : sortedKeys) {
-                int oldVal = map.get(sortedKey).first - map.get(sortedKey).second;
-                if (oldVal > val) {
+            for (StatDb oldStat : sortedStats) {
+                String oldName = db.getPlayerById(oldStat.getPlayerId()).getLname();
+                if (oldName.compareTo(lname) < 0) {
                     index++;
                 } else {
                     break;
                 }
             }
-            sortedKeys.add(index, key);
+            sortedStats.add(index, map.get(key));
         }
+
+        // Axtell
+        // Do the displaying
+        int PAD = 10;
+        LinearLayout statsParent = (LinearLayout) findViewById(R.id.video_stats_parent);
+        statsParent.removeAllViews();
+        TableLayout table = new TableLayout(this);
+        TableRow row1 = new TableRow(this);
+        TextView name = new TextView(this);
+        name.setPadding(PAD,0,PAD,0);
+        TextView shots = new TextView(this);
+        shots.setPadding(PAD,0,PAD,0);
+        TextView goals = new TextView(this);
+        goals.setPadding(PAD,0,PAD,0);
+        TextView assists = new TextView(this);
+        assists.setPadding(PAD,0,PAD,0);
+        TextView turnovers = new TextView(this);
+        turnovers.setPadding(PAD,0,PAD,0);
+        TextView plusses = new TextView(this);
+        plusses.setPadding(PAD,0,PAD,0);
+        TextView minuses = new TextView(this);
+        minuses.setPadding(PAD,0,PAD,0);
+
+        name.setText("Name");
+        shots.setText("Shots");
+        goals.setText("Goals");
+        assists.setText("Assisst");
+        turnovers.setText("Turnovers");
+        plusses.setText("Plusses");
+        minuses.setText("Minuses");
+
+
+        row1.addView(name);
+        row1.addView(shots);
+        row1.addView(goals);
+        row1.addView(assists);
+        row1.addView(turnovers);
+        row1.addView(plusses);
+        row1.addView(minuses);
+
+        table.addView(row1);
+
+
+        int i = 0;
+        for(StatDb stat : sortedStats) {
+            TableRow row = new TableRow(this);
+
+            TextView t = new TextView(this);
+            t.setPadding(PAD,0,PAD,0);
+            TextView t1 = new TextView(this);
+            t1.setPadding(PAD,0,PAD,0);
+            TextView t2 = new TextView(this);
+            t2.setPadding(PAD,0,PAD,0);
+            TextView t3 = new TextView(this);
+            t3.setPadding(PAD,0,PAD,0);
+            TextView t4 = new TextView(this);
+            t4.setPadding(PAD,0,PAD,0);
+            TextView t5 = new TextView(this);
+            t5.setPadding(PAD,0,PAD,0);
+            TextView t6 = new TextView(this);
+            t6.setPadding(PAD,0,PAD,0);
+
+            t.setText(db.getPlayerById(stat.getPlayerId()).getLname());
+            t1.setText(String.valueOf(stat.getShots()));
+            t2.setText(String.valueOf(stat.getGoals()));
+            t3.setText(String.valueOf(stat.getAssists()));
+            t4.setText(String.valueOf(stat.getTurnovers()));
+            t5.setText(String.valueOf(stat.getPlusses()));
+            t6.setText(String.valueOf(stat.getMinuses()));
+
+
+            row.addView(t);
+            row.addView(t1);
+            row.addView(t2);
+            row.addView(t3);
+            row.addView(t4);
+            row.addView(t5);
+            row.addView(t6);
+
+            if (i % 2 == 1)
+            {
+                row.setBackgroundResource(R.color.row_background);
+            }
+            table.addView(row);
+            i++;
+        }
+        statsParent.addView(table);
+
     }
 
 
