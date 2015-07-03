@@ -1,5 +1,11 @@
 package local.quidstats.database;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.List;
+
 public class NewActionDb {
 
     private String id;
@@ -73,5 +79,28 @@ public class NewActionDb {
     @Override
     public boolean equals(Object o) {
         return id.equals(((NewActionDb) o).getId());
+    }
+
+    public static String convertActionsToJSON(List<NewActionDb> list) {
+        JSONArray arr = new JSONArray();
+        for (NewActionDb action : list) {
+            JSONObject obj = new JSONObject();
+            try {
+                obj.put("id", action.getId());
+                obj.put("gameId", action.getGameId());
+                obj.put("youtubeTime", action.getYoutubeTime());
+                obj.put("actualAction",action.getActualAction());
+                obj.put("playerOut",action.getPlayerOut());
+                obj.put("playerIn",action.getPlayerIn());
+                obj.put("loc",action.getLoc());
+                arr.put(obj);
+            } catch (JSONException e) {
+                e.printStackTrace();
+                return "";
+            }
+
+        }
+        return arr.toString();
+
     }
 }

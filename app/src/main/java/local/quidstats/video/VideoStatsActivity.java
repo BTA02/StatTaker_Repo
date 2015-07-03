@@ -2,6 +2,8 @@ package local.quidstats.video;
 
 import android.app.ActionBar;
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.AsyncTask;
@@ -13,7 +15,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.CompoundButton;
+import android.widget.EditText;
 import android.widget.GridLayout;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
@@ -21,10 +25,12 @@ import android.widget.Switch;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
 
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -33,6 +39,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import local.quidstats.BuildConfig;
 import local.quidstats.R;
 import local.quidstats.database.DatabaseHelper;
 import local.quidstats.database.GameDb;
@@ -44,6 +51,7 @@ import local.quidstats.main.AdvancedStats;
 import local.quidstats.main.LocalTeamsFragment;
 
 public class VideoStatsActivity extends Activity implements
+        View.OnClickListener,
         AdapterView.OnItemSelectedListener,
         CompoundButton.OnCheckedChangeListener {
 
@@ -58,7 +66,7 @@ public class VideoStatsActivity extends Activity implements
     private Map<String, List<NewActionDb> > mActionLists;
 
     private Spinner mQuerySpinner;
-    private Spinner mGamesSpinner;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -76,7 +84,8 @@ public class VideoStatsActivity extends Activity implements
         mGamesAdded = new ArrayList<>();
 
         mQuerySpinner = (Spinner) findViewById(R.id.video_stats_query_chooser);
-        mGamesSpinner = (Spinner) findViewById(R.id.video_stats_game_chooser);
+        Button uploadButton = (Button) findViewById(R.id.video_stats_upload);
+        uploadButton.setOnClickListener(this);
 
         ArrayAdapter<CharSequence> querySpinnerAdapter = ArrayAdapter.createFromResource(this,
                 R.array.queries_array, android.R.layout.simple_spinner_item);
@@ -89,6 +98,35 @@ public class VideoStatsActivity extends Activity implements
 
         displayAllGames();
     }
+
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.video_stats_upload:
+                final AlertDialog.Builder uploadBuilder = new AlertDialog.Builder(this);
+                final EditText editText = new EditText(this);
+                uploadBuilder.setView(editText);
+                uploadBuilder.setTitle(getResources().getString(R.string.enter_auth_code));
+                uploadBuilder.setPositiveButton("Upload", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        //Background thread for upload
+                        UploadTask task = new UploadTask();
+                        if (mGamesAdded.size() != 1) {
+                            Toast.makeText(getBaseContext(),
+                                    "Please select one game", Toast.LENGTH_SHORT).show();
+                        }
+                        task.execute(mGamesAdded.get(0), editText.getText().toString());
+
+                    }
+                });
+                uploadBuilder.setNegativeButton("Cancel", null);
+                uploadBuilder.show();
+                break;
+        }
+    }
+
+
 
     private void displayAllGames() {
         new getAllGamesTask(this).execute("hello");
@@ -647,7 +685,72 @@ public class VideoStatsActivity extends Activity implements
         return dummy;
     }
 
+    private class UploadTask extends AsyncTask<Object, Void, Boolean> {
+        @Override
+        protected Boolean doInBackground(Object... params) {
+            String vidId = mGamesAdded.get(0);
+            String authCode = params[1].toString();
 
+            if (authCode.isEmpty()) {
+                return false;
+            }
+
+            final ParseQuery<ParseObject> query = ParseQuery.getQuery("Videos");
+            query.setLimit(1000);
+            query.whereEqualTo("vid_id", vidId);
+            List<ParseObject> objects = new ArrayList<ParseObject>();
+
+            try {
+                objects = query.find();
+            } catch (com.parse.ParseException e) {
+                e.printStackTrace();
+            }
+            String objectId = null;
+            String publicAuthCode = null;
+            String privateAuthCode = "aa1";
+            for (int i = 0; i < objects.size(); i++) {
+                if (objects.get(i).getString("team_id").equals(mTeamId)) {
+                    publicAuthCode = objects.get(i).getString("auth_code");
+                    objectId = objects.get(i).getObjectId();
+                }
+            }
+            if (publicAuthCode != null && authCode.equals(publicAuthCode)) {
+                List<NewActionDb> list = getAllActions(vidId);
+                String uploadString = NewActionDb.convertActionsToJSON(list);
+                try{
+                    ParseObject ret = query.get(objectId);
+                    ret.put("events_community", uploadString);
+                    ret.save();
+                } catch (com.parse.ParseException e) {
+                    return false;
+                }
+
+            } else if (privateAuthCode.equals(authCode)) {
+                List<NewActionDb> list = getAllActions(vidId);
+                String uploadString = NewActionDb.convertActionsToJSON(list);
+                try{
+                    ParseObject ret = query.get(objectId);
+                    ret.put("events_json", uploadString);
+                    ret.save();
+                } catch (com.parse.ParseException e) {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        @Override
+        protected void onPostExecute(Boolean aBoolean) {
+            String message = "";
+            if (aBoolean) {
+                message = "Upload successful";
+            } else {
+                message = "Upload unsuccessful";
+            }
+            Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT);
+        }
+    }
 
 
 

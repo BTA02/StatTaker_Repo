@@ -13,14 +13,19 @@
         <Spinner
             android:id="@+id/video_stats_query_chooser"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1" />
+            android:layout_height="match_parent"
+            android:layout_weight="1"/>
 
-        <Spinner
-            android:id="@+id/video_stats_game_chooser"
+        <Button
+            android:id="@+id/video_stats_upload"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="1"/>
+            android:layout_weight="1"
+            android:padding="30dp"
+            style="?android:attr/borderlessButtonStyle"
+            android:layout_gravity="center_vertical"
+            android:text="@string/upload_to_backend" />
+
 
     </LinearLayout>
 
