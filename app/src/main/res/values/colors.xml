@@ -6,4 +6,11 @@
 
     <color name="quid_stats_red">#910000</color>
 
+    <color name="goal_green">#00FF00</color>
+    <color name="assist_purple">#D438CE</color>
+    <color name="shot_blue">#3D38D4</color>
+    <color name="turnover_red">#F24C4C</color>
+    <color name="opponent_goal_black">#000000</color>
+    <color name="snitch_yellow">#E3EE3D</color>
+
 </resources>

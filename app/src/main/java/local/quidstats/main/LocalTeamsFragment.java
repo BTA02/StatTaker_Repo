@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.UUID;
 
 import local.quidstats.R;
+import local.quidstats.database.DatabaseHelper;
 import local.quidstats.database.GameDb;
 import local.quidstats.database.NewActionDb;
 import local.quidstats.database.TeamDb;
@@ -43,10 +44,12 @@ public class LocalTeamsFragment extends Fragment implements
     private TeamDb mTeamSelected;
 
     private MainActivity ma;
-    private ListView currentTeams;
+    private ListView mCurrentTeams;
     private List<TeamDb> teamList;
 
     protected AlertDialog newTeamDialog = null;
+
+    DatabaseHelper db;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -67,6 +70,7 @@ public class LocalTeamsFragment extends Fragment implements
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         ma = (MainActivity) getActivity();
+        db = new DatabaseHelper(getActivity());
 
         populateLocalList();
     }
@@ -79,12 +83,12 @@ public class LocalTeamsFragment extends Fragment implements
     }
 
     void populateLocalList() {
-        currentTeams = (ListView) ma
+        mCurrentTeams = (ListView) getActivity()
                 .findViewById(R.id.fragment_local_teams_list);
-        Cursor c = ma.db.getAllTeamsCursor();
+        Cursor c = db.getAllTeamsCursor();
 
         teamList = new ArrayList<TeamDb>();
-        teamList = ma.db.getAllTeamsList();
+        teamList = db.getAllTeamsList();
 
         teamList.remove(ma.teamRowList);
 
@@ -95,12 +99,13 @@ public class LocalTeamsFragment extends Fragment implements
         ma.listAdapter = new ArrayAdapter<TeamDb>(getActivity(),
                 R.layout.custom_player_list, teamList);
 
-        currentTeams.setAdapter(ma.listAdapter);
-        currentTeams.setOnItemClickListener(new OnItemClickListener() {
+        mCurrentTeams.setAdapter(ma.listAdapter);
+
+        mCurrentTeams.setOnItemClickListener(new OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> arg0, View arg1, int arg2,
                                     long arg3) {
-                mTeamSelected = (TeamDb) currentTeams.getItemAtPosition(arg2);
+                mTeamSelected = (TeamDb) mCurrentTeams.getItemAtPosition(arg2);
                 if (mTeamSelected.getId().equals("aaa-aaa-aaa")) {
                     showNewTeamDialog();
                     return;
@@ -117,7 +122,6 @@ public class LocalTeamsFragment extends Fragment implements
                 final EditText oppo =
                         (EditText) newGameView.findViewById(R.id.selected_team_popup_opponent);
 
-
                 Button createButton =
                         (Button) newGameView.findViewById(R.id.selected_team_popup_create_button);
                 createButton.setOnClickListener(new View.OnClickListener() {
@@ -129,7 +133,7 @@ public class LocalTeamsFragment extends Fragment implements
                         if (opponentName.length() == 0) {
                             opponentName = "Unnamed Opponent " + "(" + mod + ")";
                         }
-                        String gId = ma.db.createNewGame(mTeamSelected.getId(), opponentName);
+                        String gId = db.createNewGame(mTeamSelected.getId(), opponentName);
                         Intent i = new Intent(getActivity(),
                                 GameActivity.class);
                         i.putExtra("gameId", gId);
@@ -165,7 +169,7 @@ public class LocalTeamsFragment extends Fragment implements
                         ListView oldGames = (ListView) oldGamesView
                                 .findViewById(R.id.old_games_list);
                         List<GameDb> oldGamesList = new ArrayList<>();
-                        oldGamesList = ma.db.getAllGamesForTeam(mTeamSelected.getId());
+                        oldGamesList = db.getAllGamesForTeam(mTeamSelected.getId());
                         final ArrayAdapter<GameDb> listAdapter = new ArrayAdapter<>(getActivity(),
                                 R.layout.custom_player_list, oldGamesList);
                         oldGames.setAdapter(listAdapter);
@@ -207,7 +211,7 @@ public class LocalTeamsFragment extends Fragment implements
                                     @Override
                                     public void onClick(DialogInterface dialog, int which) {
                                         listAdapter.remove(gameClicked);
-                                        ma.db.deleteGame(gameClicked.getId());
+                                        db.deleteGame(gameClicked.getId());
                                         listAdapter.notifyDataSetChanged();
                                         dialog.dismiss();
                                     }
@@ -268,6 +272,8 @@ public class LocalTeamsFragment extends Fragment implements
 
     }
 
+
+
     public void showNewTeamDialog() {
         if (newTeamDialog != null && newTeamDialog.isShowing()) {
             return;
@@ -284,7 +290,7 @@ public class LocalTeamsFragment extends Fragment implements
                 new OnClickListener() {
                     public void onClick(DialogInterface dialog, int whichButton) {
                         String newTeamId = UUID.randomUUID().toString();
-                        ma.db.addTeam(newTeamId, input.getText().toString());
+                        db.addTeam(newTeamId, input.getText().toString());
                         Intent i = new Intent(getActivity(), EditTeam.class);
                         i.putExtra("teamId", newTeamId);
                         startActivity(i);
@@ -389,7 +395,7 @@ public class LocalTeamsFragment extends Fragment implements
                                 }
                             }
                             if (events1 != null && !events1.isEmpty()) {
-                                ma.db.addAllActions(events1);
+                                db.addAllActions(events1);
                             }
                             return null;
                         }

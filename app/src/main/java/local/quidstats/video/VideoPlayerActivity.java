@@ -2,6 +2,7 @@ package local.quidstats.video;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.graphics.Color;
 import android.graphics.Point;
 import android.os.Bundle;
 import android.view.Display;
@@ -47,6 +48,8 @@ public class VideoPlayerActivity extends YouTubeBaseActivity implements
     private AlertDialog mPlayerOverlay;
     private AlertDialog mPreviewOverlay;
     private AlertDialog mSubOverlay;
+
+    private static int TOP_BAR_ITEM_WIDTH = 10;
 
 
     @Override
@@ -215,6 +218,7 @@ public class VideoPlayerActivity extends YouTubeBaseActivity implements
     }
 
     private void launchPreviewOverlay(String id) {
+        // Called with "" to begin with
         AlertDialog.Builder prevOverlay = previewDialog(id);
         if ((mPreviewOverlay == null || !mPreviewOverlay.isShowing()) && prevOverlay != null) {
             mPreviewOverlay = prevOverlay.show();
@@ -331,7 +335,8 @@ public class VideoPlayerActivity extends YouTubeBaseActivity implements
         }
         int preIndex;
         if (id.isEmpty()) {
-            preIndex = 0;
+            preIndex = getClosestItemIndex(allActions);
+            //preIndex = 0;
         } else {
             preIndex = allActions.indexOf(db.getNewAction(id));
         }
@@ -408,9 +413,25 @@ public class VideoPlayerActivity extends YouTubeBaseActivity implements
         secs = secs/1000;
         int minutes = (int) secs/60;
         int seconds = (int) secs%60;
-        time.setText(minutes + ":" + seconds);
-
+        if (seconds < 10) {
+            time.setText(minutes + ":0" + seconds);
+        } else {
+            time.setText(minutes + ":" + seconds);
+        }
         return builder;
+    }
+
+    private int getClosestItemIndex(List<NewActionDb> actions) {
+        int ret = 0;
+        for (int i = 0; i < actions.size(); i++) {
+            NewActionDb action = actions.get(i);
+            if (action.getYoutubeTime() <= mPlayer.getCurrentTimeMillis()) {
+                ret = i;
+            } else {
+                break;
+            }
+        }
+        return ret;
     }
 
     AlertDialog.Builder subDialog(final int loc) {
@@ -468,7 +489,7 @@ public class VideoPlayerActivity extends YouTubeBaseActivity implements
     }
 
     private void addVisualCue(int time, String id, NewActionDb.NewAction act) {
-        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(35,
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(TOP_BAR_ITEM_WIDTH,
                 ViewGroup.LayoutParams.MATCH_PARENT);
         int totalMillis = mPlayer.getDurationMillis();
         double percent = (double) time / (double) totalMillis;
@@ -481,7 +502,7 @@ public class VideoPlayerActivity extends YouTubeBaseActivity implements
         TextView view = new TextView(this);
         view.setTag(id);
         view.setBackground(getResources().getDrawable(R.drawable.top_bar_item_shape));
-        //setBackgroundColor(view, act);
+        setBackgroundColor(view, act);
         view.setX(i);
         view.setLayoutParams(params);
 
@@ -521,13 +542,28 @@ public class VideoPlayerActivity extends YouTubeBaseActivity implements
     private void setBackgroundColor(View v, NewActionDb.NewAction a) {
         switch (a) {
             case SHOT:
-
+                v.setBackgroundColor(getResources().getColor(R.color.shot_blue));
+                break;
             case GOAL:
+                v.setBackgroundColor(getResources().getColor(R.color.goal_green));
+                break;
             case ASSIST:
+                v.setBackgroundColor(getResources().getColor(R.color.assist_purple));
+                break;
             case TURNOVER:
+                v.setBackgroundColor(getResources().getColor(R.color.turnover_red));
+                break;
+            case AWAY_GOAL:
+                v.setBackgroundColor(getResources().getColor(R.color.opponent_goal_black));
+                break;
+            case SUB:
+                v.setBackgroundColor(Color.GRAY);
             case START_CLOCK:
+                //v.setBackgroundColor(getResources().getColor(R.color.shot_blue));
             case PAUSE_CLOCK:
+                //v.setBackgroundColor(getResources().getColor(R.color.shot_blue));
             case GAME_END:
+                //v.setBackgroundColor(getResources().getColor(R.color.shot_blue));
 
         }
     }

@@ -22,20 +22,14 @@ public class MainActivity extends FragmentActivity {
 
     DatabaseHelper db;
 
-    Button create_team;
-
     ArrayAdapter<TeamDb> listAdapter;
     ArrayAdapter<TeamDb> listAdapter2;
-
-    Context context = this;
-    Activity activity = this;
 
     TeamDb teamRowList = new TeamDb("aaa-aaa-aaa", "Create new team");
 
     //Fragment stuff
     PagerAdapterMainPage mPagerAdapterMainPage;
     ViewPager mViewPager;
-    ActionBar mActionBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

@@ -70,7 +70,7 @@ public class OnlineTeamsFragment extends Fragment
 
 	public void populateOnlineTeams()
 	{
-		Parse.initialize(ma.context, "RoDlI2ENBnxSWlPvdG2VEsFPRSt06qHJ78nZop77",
+		Parse.initialize(getActivity(), "RoDlI2ENBnxSWlPvdG2VEsFPRSt06qHJ78nZop77",
 				"fbuEyPT9Exq141IZfueUO1asOcbAFaBjJvdAFI1A");
 		ParseAnalytics.trackAppOpened(ma.getIntent());
 
@@ -82,7 +82,7 @@ public class OnlineTeamsFragment extends Fragment
 		query.setLimit(1000);
 
 		//Thread stuffs?
-		teamsDialog = new ProgressDialog(ma.context);
+		teamsDialog = new ProgressDialog(getActivity());
 		teamsDialog.setTitle("Loading Teams");
 		teamsDialog.setCancelable(false);
 		teamsDialog.show();
@@ -112,7 +112,7 @@ public class OnlineTeamsFragment extends Fragment
 					}
 				}
 
-				ma.listAdapter2 = new ArrayAdapter<TeamDb>(ma.context,
+				ma.listAdapter2 = new ArrayAdapter<>(getActivity(),
 						R.layout.custom_player_list, oTeams);
 				getActivity().runOnUiThread(new Runnable()
 				{
@@ -130,7 +130,7 @@ public class OnlineTeamsFragment extends Fragment
 					public void onItemClick(AdapterView<?> parent, View view,
 							final int position, long id)
 					{
-						loadingTeamDialog = new ProgressDialog(ma.context);
+						loadingTeamDialog = new ProgressDialog(getActivity());
 						loadingTeamDialog.setTitle("Downloading team");
 						loadingTeamDialog.setCancelable(false);
 						loadingTeamDialog.show();
