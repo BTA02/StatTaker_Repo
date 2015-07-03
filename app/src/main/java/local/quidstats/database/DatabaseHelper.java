@@ -1292,6 +1292,12 @@ public class DatabaseHelper extends SQLiteOpenHelper
         return ret;
     }
 
+    public void addAllActions(List<NewActionDb> actions) {
+        for (NewActionDb action : actions) {
+            addNewAction(action);
+        }
+    }
+
 
 	// -------------------------------------------------------------------------
 

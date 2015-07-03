@@ -25,6 +25,7 @@
     <string name="view_old_games">View / Resume Old Games</string>
     <string name="view_team_stats">View Team Stats</string>
     <string name="watch_videos">Watch Videos</string>
+    <string name="download_stats">Download Stats</string>
     <string name="video_stats">Video Stats</string>
     <string name="upload_to_backend">Upload to backend</string>
     <string name="enter_auth_code">Enter authorization code</string>

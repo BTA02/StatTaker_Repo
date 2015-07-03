@@ -5,9 +5,9 @@ import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.database.Cursor;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -31,12 +31,13 @@ import java.util.UUID;
 
 import local.quidstats.R;
 import local.quidstats.database.GameDb;
+import local.quidstats.database.NewActionDb;
 import local.quidstats.database.TeamDb;
 import local.quidstats.video.VideoPlayerActivity;
 import local.quidstats.video.VideoStatsActivity;
 
 public class LocalTeamsFragment extends Fragment implements
-    View.OnClickListener {
+        View.OnClickListener {
     String TAG = "FragmentLocalTeam";
 
     private TeamDb mTeamSelected;
@@ -236,10 +237,19 @@ public class LocalTeamsFragment extends Fragment implements
                 watchVids.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        showVideos();
+                        showVideos(true);
                     }
                 });
-                alert.show();
+
+                TextView downloadStats =
+                        (TextView) newGameView.findViewById(R.id.selected_team_download_stats);
+                downloadStats.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        showVideos(false);
+                    }
+                });
+
 
                 TextView vidStats = (TextView) newGameView.findViewById(R.id.selected_team_vid_stats);
                 vidStats.setOnClickListener(new View.OnClickListener() {
@@ -250,6 +260,8 @@ public class LocalTeamsFragment extends Fragment implements
                         startActivity(i);
                     }
                 });
+
+                alert.show();
             }
 
         });
@@ -307,12 +319,12 @@ public class LocalTeamsFragment extends Fragment implements
             case R.id.selected_team_popup_stats:
                 break;
             case R.id.selected_team_videos:
-                showVideos();
+                showVideos(true);
                 break;
         }
     }
 
-    private void showVideos() {
+    private void showVideos(final boolean watchVid) {
         LayoutInflater dialogFactory = LayoutInflater.from(getActivity());
         final View videosListView = dialogFactory.inflate
                 (R.layout.old_games_layout, null);
@@ -342,19 +354,52 @@ public class LocalTeamsFragment extends Fragment implements
         final ArrayAdapter<Video> listAdapter = new ArrayAdapter<>(getActivity(),
                 android.R.layout.simple_list_item_1, videosList);
         oldGames.setAdapter(listAdapter);
+
         oldGames.setOnItemClickListener(new OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view,
                                     int position, long id) {
-                Video videoClicked = listAdapter.getItem(position);
-                Intent i = new Intent(getActivity(), VideoPlayerActivity.class);
-                i.putExtra("videoId", videoClicked.id);
-                i.putExtra("teamId", mTeamSelected.getId());
-                i.putExtra("opponent", videoClicked.description);
-                startActivity(i);
+
+                final Video videoClicked = listAdapter.getItem(position);
+                if (watchVid) {
+                    Intent i = new Intent(getActivity(), VideoPlayerActivity.class);
+                    i.putExtra("videoId", videoClicked.id);
+                    i.putExtra("teamId", mTeamSelected.getId());
+                    i.putExtra("opponent", videoClicked.description);
+                    startActivity(i);
+                }
+                else {
+                    AsyncTask<Void, Void, Void> task = new AsyncTask<Void, Void, Void>() {
+                        @Override
+                        protected Void doInBackground(Void... params) {
+                            final ParseQuery<ParseObject> query = ParseQuery.getQuery("Videos");
+                            query.setLimit(1000);
+                            query.whereEqualTo("vid_id", videoClicked.id);
+                            List<ParseObject> objects = new ArrayList<ParseObject>();
+                            try {
+                                objects = query.find();
+                            } catch (com.parse.ParseException e) {
+                                e.printStackTrace();
+                            }
+                            List<NewActionDb> events1 = null;
+                            for (int i = 0; i < objects.size(); i++) {
+                                if (objects.get(i).getString("team_id").equals(mTeamSelected.getId())) {
+                                    String str = objects.get(i).getString("events_json");
+                                    events1 = NewActionDb.convertJSONToActions(str);
+                                }
+                            }
+                            if (events1 != null && !events1.isEmpty()) {
+                                ma.db.addAllActions(events1);
+                            }
+                            return null;
+                        }
+                    }.execute();
+
+                }
             }
 
         });
+
         alert.show();
     }
 

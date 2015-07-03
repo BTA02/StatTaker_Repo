@@ -4,6 +4,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class NewActionDb {
@@ -17,8 +18,8 @@ public class NewActionDb {
     private int loc;
 
     public static enum NewAction { SHOT, GOAL, ASSIST, TURNOVER, SNITCH_CATCH, START_CLOCK, PAUSE_CLOCK,
-                            GAME_START, GAME_END, GAIN_CONTROL, LOSE_CONTROL, RED_CARD, YELLOW_CARD,
-                            SNITCH_ON_PITCH, SUB, AWAY_GOAL }
+        GAME_START, GAME_END, GAIN_CONTROL, LOSE_CONTROL, RED_CARD, YELLOW_CARD,
+        SNITCH_ON_PITCH, SUB, AWAY_GOAL }
 
     public String getPlayerIn() {
         return playerIn;
@@ -101,6 +102,32 @@ public class NewActionDb {
 
         }
         return arr.toString();
+
+    }
+
+    public static List<NewActionDb> convertJSONToActions(String str) {
+        try {
+            JSONArray arr = new JSONArray(str);
+            List<NewActionDb> ret = new ArrayList<>();
+            for (int i = 0; i < arr.length(); i++) {
+                NewActionDb action = new NewActionDb();
+
+                JSONObject obj = arr.getJSONObject(i);
+                action.setId(obj.get("id").toString());
+                action.setLoc(obj.getInt("loc"));
+                action.setActualAction(NewAction.valueOf(obj.getString("actualAction")));
+                action.setYoutubeTime(obj.getInt("youtubeTime"));
+                action.setGameId(obj.getString("gameId"));
+                action.setPlayerIn(obj.getString("playerIn"));
+                action.setPlayerOut(obj.getString("playerOut"));
+                ret.add(action);
+            }
+            return ret;
+        } catch (JSONException e) {
+            e.printStackTrace();
+            return null;
+        }
+
 
     }
 }
