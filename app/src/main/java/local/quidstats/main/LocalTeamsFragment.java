@@ -395,6 +395,7 @@ public class LocalTeamsFragment extends Fragment implements
                                 }
                             }
                             if (events1 != null && !events1.isEmpty()) {
+                                db.clearAllActionsFromGame(events1.get(0).getGameId());
                                 db.addAllActions(events1);
                             }
                             return null;

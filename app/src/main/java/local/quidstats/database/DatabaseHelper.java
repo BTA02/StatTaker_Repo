@@ -1292,6 +1292,10 @@ public class DatabaseHelper extends SQLiteOpenHelper
         return ret;
     }
 
+    public void clearAllActionsFromGame(String id) {
+        getDB().delete(TABLE_VIDEO, COL_GAMEID + " = ?", new String[] {id});
+    }
+
     public void addAllActions(List<NewActionDb> actions) {
         for (NewActionDb action : actions) {
             addNewAction(action);
