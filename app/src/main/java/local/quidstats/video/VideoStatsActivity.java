@@ -216,7 +216,7 @@ public class VideoStatsActivity extends Activity implements
         } else if (curSelection.equals("Raw stats")) {
             new CalcRawStatsTask(mGamesAdded).execute(new Object());
         } else if (curSelection.equals("Quaffle trios")) {
-            calcPlusMinusStat(mGamesAdded, new int[][] {{0,1,2,3}, {0,1,2,3}, {0,1,2,3}});
+            calcPlusMinusStat(mGamesAdded, new int[][]{{0, 1, 2, 3}, {0, 1, 2, 3}, {0, 1, 2, 3}});
         }
     }
 
@@ -233,6 +233,7 @@ public class VideoStatsActivity extends Activity implements
         private List<String> games;
         private int[][] arrs;
         private LinearLayout statsParent;
+        private HashMap<List<Pair<String, Integer>>, Integer> mTimeOfGroupMap;
 
         public CalcPlusMinusTask(List<String> g, int[][] a, LinearLayout s) {
             games = g;
@@ -308,8 +309,41 @@ public class VideoStatsActivity extends Activity implements
                         }
                     }
                 }
-                
+                boolean paused = true;
+                for (int i = 0; i < timeArray.size()+1; i++) {
+                    List<String> lineUp = timeArray.get(i);
+                    if (lineUp == null) {
+                        continue;
+                    }
+                    int curPaused = db.pauseAction(gameId + mTeamId, i);
+                    if (curPaused == -1) {
+                        paused = true;
+                    } else if (curPaused == 1) {
+                        paused = false;
+                    }
+                    if (paused) {
+                        continue;
+                    }
+                    lineUp = AdvancedStats.sortByPosition(lineUp);
+                    for (List<Integer> combo : allCombos) {
+                        List<Pair<String, Integer>> subLineup = new ArrayList<>();
+                        for (Integer ii : combo) {
+                            Pair temp = new Pair(lineUp.get(ii),
+                                    AdvancedStats.getPositionFromArrPosition(ii));
+                            subLineup.add(temp);
+                        }
+                        // Get the plus/minus value of the given combo
+                        Integer timeInt = timeOfGroupMap.get(subLineup);
+                        if (timeInt == null) {
+                            timeInt = 0;
+                        }
+                        timeInt++;
+                        timeOfGroupMap.put(subLineup, timeInt);
+                    }
+                }
+
             }
+            mTimeOfGroupMap = timeOfGroupMap;
             return plusMinusMap;
         }
 
@@ -317,14 +351,15 @@ public class VideoStatsActivity extends Activity implements
         protected void onPostExecute(HashMap hashMap) {
             super.onPostExecute(hashMap);
             HashMap<List<Pair<String, Integer>>, Pair<Integer, Integer>> map = hashMap;
-            displayStatMap(map, statsParent);
+            displayStatMap(map, statsParent, mTimeOfGroupMap);
         }
 
 
     }
 
     private void displayStatMap(HashMap<List<Pair<String, Integer> >, Pair<Integer, Integer>> map,
-                                LinearLayout statsParent) {
+                                LinearLayout statsParent,
+                                HashMap<List<Pair<String, Integer> >, Integer> timeOfGroupMap) {
         // Displaying just got a lot easier
         // Do this in the background
         statsParent.removeAllViews();
@@ -381,6 +416,12 @@ public class VideoStatsActivity extends Activity implements
             }
             statsParent.addView(totalStatVal);
 
+            int timeForGroup = timeOfGroupMap.get(entry);
+            TextView totalTime = new TextView(this);
+            String pretty = getPrettyTimeFromSeconds(timeForGroup);
+            totalTime.setText(pretty);
+            statsParent.addView(totalTime);
+
             LinearLayout.LayoutParams params =
                     new LinearLayout.LayoutParams(ActionBar.LayoutParams.MATCH_PARENT, 1);
             View divider = new View(this);
@@ -392,6 +433,17 @@ public class VideoStatsActivity extends Activity implements
             beaterHeader = false;
         }
 
+    }
+
+    public static String getPrettyTimeFromSeconds(int seconds) {
+        int dispMinutes = seconds / 60;
+        int dispSeconds = seconds % 60;
+        String ret;
+        if (dispSeconds < 10) {
+            return (dispMinutes + ":0" + dispSeconds);
+        } else {
+            return (dispMinutes + ":" + dispSeconds);
+        }
     }
 
     private void displaySectionHeader(int section, LinearLayout statsParent) {

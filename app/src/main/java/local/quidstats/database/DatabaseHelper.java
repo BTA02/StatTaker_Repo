@@ -1302,6 +1302,60 @@ public class DatabaseHelper extends SQLiteOpenHelper
         }
     }
 
+    public List<NewActionDb> getActionsAtTime(String id, int time) {
+        List<NewActionDb> ret = new ArrayList<>();
+        int lowerBoundMillis = time * 1000;
+        int upperBoundMillis = (time+1) * 1000;
+
+        String query = "SELECT * FROM " + TABLE_VIDEO + " WHERE "
+                + COL_GAMEID + " = ?" + " AND "
+                + COL_VID_TIME + " >= " + lowerBoundMillis + " AND "
+                + COL_VID_TIME + " <= " + upperBoundMillis
+                + " ORDER BY " + COL_VID_TIME + " ASC";
+        Cursor c = getDB().rawQuery(query, new String[] {id});
+        if (c.moveToFirst()) {
+            do {
+                NewActionDb toAdd = new NewActionDb();
+                toAdd.setPlayerIn(c.getString(c.getColumnIndex(COL_PLAYER_IN)));
+                toAdd.setPlayerOut(c.getString(c.getColumnIndex(COL_PLAYER_OUT)));
+                toAdd.setGameId(c.getString(c.getColumnIndex(COL_GAMEID)));
+                toAdd.setYoutubeTime(c.getInt(c.getColumnIndex(COL_VID_TIME)));
+
+                int aa = c.getInt(c.getColumnIndex(COL_ACTION));
+                NewActionDb.NewAction dd = NewActionDb.NewAction.values()[aa];
+                toAdd.setActualAction(dd);
+
+                toAdd.setId(c.getString(c.getColumnIndex(COL_ID)));
+                toAdd.setLoc(c.getInt(c.getColumnIndex(COL_LOCATION)));
+                ret.add(toAdd);
+            } while (c.moveToNext());
+        }
+        c.close();
+        return ret;
+    }
+
+    //Return -1 on a pause_clock
+    //Return 0 on nothing
+    //Return 1 on a resume or start clock
+    public int pauseAction(String gameId, int time) {
+        List<NewActionDb> actions = getActionsAtTime(gameId, time);
+        for (NewActionDb action : actions) {
+            switch (action.getActualAction()) {
+                case GAME_START:
+                    return 1;
+                case START_CLOCK:
+                    return 1;
+                case PAUSE_CLOCK:
+                    return -1;
+                case GAME_END:
+                    return -1;
+                default:
+                    break;
+            }
+        }
+        return 0;
+    }
+
 
 	// -------------------------------------------------------------------------
 
