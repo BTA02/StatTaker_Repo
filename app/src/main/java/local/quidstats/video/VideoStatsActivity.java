@@ -283,10 +283,6 @@ public class VideoStatsActivity extends Activity implements
                     lineUp = AdvancedStats.sortByPosition(lineUp);
 
                     for (List<Integer> combo : allCombos) {
-                        // Sublineup is the lineup I am looking at to evaluate
-                        // EX: Axtell, 0
-                        //     ZSchepers, 2
-                        //     Witt, 2
                         List<Pair<String, Integer>> subLineup = new ArrayList<>();
                         for (Integer ii : combo) {
                             Pair temp = new Pair(lineUp.get(ii),
@@ -311,6 +307,7 @@ public class VideoStatsActivity extends Activity implements
                 }
                 boolean paused = true;
                 for (int i = 0; i < timeArray.size()+1; i++) {
+
                     List<String> lineUp = timeArray.get(i);
                     if (lineUp == null) {
                         continue;
@@ -340,6 +337,7 @@ public class VideoStatsActivity extends Activity implements
                         timeInt++;
                         timeOfGroupMap.put(subLineup, timeInt);
                     }
+
                 }
 
             }
@@ -355,6 +353,48 @@ public class VideoStatsActivity extends Activity implements
         }
 
 
+    }
+
+    private HashMap<List<Pair<String, Integer>>, Integer> calcTimeForGroup(
+            HashMap<List<Pair<String, Integer>>, Integer> curMap,
+            SparseArray<List<String>> timeArray,
+            Set<List<Integer>> allCombos, String gameId) {
+        HashMap<List<Pair<String, Integer>>, Integer> newMap =
+                new HashMap<List<Pair<String, Integer>>, Integer>(curMap);
+        boolean paused = true;
+        for (int i = 0; i < timeArray.size(); i++) {
+            List<String> lineUp = timeArray.get(i);
+            if (lineUp == null) {
+                continue;
+            }
+            int curPaused = db.pauseAction(gameId + mTeamId, i);
+            if (curPaused == -1) {
+                paused = true;
+            } else if (curPaused == 1) {
+                paused = false;
+            }
+            if (paused) {
+                continue;
+            }
+            lineUp = AdvancedStats.sortByPosition(lineUp);
+            for (List<Integer> combo : allCombos) {
+                List<Pair<String, Integer>> subLineup = new ArrayList<>();
+                for (Integer ii : combo) {
+                    Pair temp = new Pair(lineUp.get(ii),
+                            AdvancedStats.getPositionFromArrPosition(ii));
+                    subLineup.add(temp);
+                }
+                // Get the plus/minus value of the given combo
+                Integer timeInt = curMap.get(subLineup);
+                if (timeInt == null) {
+                    timeInt = 0;
+                }
+                timeInt++;
+                curMap.put(subLineup, timeInt);
+            }
+
+        }
+        return newMap;
     }
 
     private void displayStatMap(HashMap<List<Pair<String, Integer> >, Pair<Integer, Integer>> map,
