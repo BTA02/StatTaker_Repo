@@ -213,10 +213,10 @@ public class VideoStatsActivity extends Activity implements
             calcPlusMinusStat(mGamesAdded, new int[][]{{0,1,2,3},{4,5}});
         } else if (curSelection.equals("Best pair")) {
             calcPlusMinusStat(mGamesAdded, new int[][] {{0,1,2,3,4,5},{0,1,2,3,4,5}});
-        } else if (curSelection.equals("Individual plus / minus")) {
-            calcPlusMinusStat(mGamesAdded, new int[][]{{0,1,2,3,4,5}});
         } else if (curSelection.equals("Raw stats")) {
             new CalcRawStatsTask(mGamesAdded).execute(new Object());
+        } else if (curSelection.equals("Quaffle trios")) {
+            calcPlusMinusStat(mGamesAdded, new int[][] {{0,1,2,3}, {0,1,2,3}, {0,1,2,3}});
         }
     }
 
@@ -244,6 +244,8 @@ public class VideoStatsActivity extends Activity implements
         protected HashMap doInBackground(Object... params) {
             // Map of the plus minuses for each pair
             HashMap<List<Pair<String, Integer>>, Pair<Integer, Integer>> plusMinusMap = new HashMap<>();
+            // Map of on field time
+            HashMap<List<Pair<String, Integer>>, Integer> timeOfGroupMap = new HashMap<>();
             // Loop through selected games
             for (int k = 0; k < games.size(); k++) {
                 // Get game info
@@ -306,6 +308,7 @@ public class VideoStatsActivity extends Activity implements
                         }
                     }
                 }
+                
             }
             return plusMinusMap;
         }

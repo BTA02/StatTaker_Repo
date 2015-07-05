@@ -418,6 +418,15 @@ public class VideoPlayerActivity extends YouTubeBaseActivity implements
         } else {
             time.setText(minutes + ":" + seconds);
         }
+
+        time.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (mPlayer!= null){
+                    mPlayer.seekToMillis(a.getYoutubeTime());
+                }
+            }
+        });
         return builder;
     }
 
