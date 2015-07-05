@@ -416,6 +416,9 @@ public class VideoStatsActivity extends Activity implements
             }
             statsParent.addView(totalStatVal);
 
+            if (timeOfGroupMap.get(entry) == null) {
+                continue;
+            }
             int timeForGroup = timeOfGroupMap.get(entry);
             TextView totalTime = new TextView(this);
             String pretty = getPrettyTimeFromSeconds(timeForGroup);
