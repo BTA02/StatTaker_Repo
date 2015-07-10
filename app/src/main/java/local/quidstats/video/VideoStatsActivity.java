@@ -355,6 +355,14 @@ public class VideoStatsActivity extends Activity implements
 
     }
 
+    private Map calcTime() {
+        Map timeOnField = new HashMap<>();
+        for (String game : mGamesAdded) {
+            SparseArray<List<String>> timeArray = getTimeArray(game);
+        }
+        return null;
+    }
+
     private HashMap<List<Pair<String, Integer>>, Integer> calcTimeForGroup(
             HashMap<List<Pair<String, Integer>>, Integer> curMap,
             SparseArray<List<String>> timeArray,
@@ -487,6 +495,10 @@ public class VideoStatsActivity extends Activity implements
         } else {
             return (dispMinutes + ":" + dispSeconds);
         }
+    }
+
+    public static String getPrettyTimeFromMilliseconds(int milliseconds) {
+        return getPrettyTimeFromSeconds(milliseconds / 1000);
     }
 
     private void displaySectionHeader(int section, LinearLayout statsParent) {

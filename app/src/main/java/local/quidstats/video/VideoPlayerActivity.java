@@ -393,7 +393,10 @@ public class VideoPlayerActivity extends YouTubeBaseActivity implements
         TextView action = (TextView) addSubView.findViewById(R.id.preview_stat_action);
         TextView name1 = (TextView) addSubView.findViewById(R.id.preview_stat_name);
         TextView name2 = (TextView) addSubView.findViewById(R.id.preview_stat_sub_name);
-        TextView time = (TextView) addSubView.findViewById(R.id.preview_stat_time);
+        final TextView time = (TextView) addSubView.findViewById(R.id.preview_stat_time);
+        TextView minus = (TextView) addSubView.findViewById(R.id.preview_stat_adjust_minus);
+        TextView plus = (TextView) addSubView.findViewById(R.id.preview_stat_adjust_plus);
+
 
         action.setText(a.getActualAction().toString());
 
@@ -427,8 +430,26 @@ public class VideoPlayerActivity extends YouTubeBaseActivity implements
                 }
             }
         });
+        minus.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                a.setYoutubeTime(a.getYoutubeTime() - 1000);
+                db.updateNewActionTime(a);
+                time.setText(VideoStatsActivity.getPrettyTimeFromMilliseconds(a.getYoutubeTime()));
+            }
+        });
+        plus.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                a.setYoutubeTime(a.getYoutubeTime() + 1000);
+                db.updateNewActionTime(a);
+                time.setText(VideoStatsActivity.getPrettyTimeFromMilliseconds(a.getYoutubeTime()));
+            }
+        });
         return builder;
     }
+
+    //public static String getPrettyTime
 
     private int getClosestItemIndex(List<NewActionDb> actions) {
         int ret = 0;

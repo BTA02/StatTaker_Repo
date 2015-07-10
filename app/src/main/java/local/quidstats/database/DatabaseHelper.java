@@ -1356,6 +1356,12 @@ public class DatabaseHelper extends SQLiteOpenHelper
         return 0;
     }
 
+    public void updateNewActionTime(NewActionDb a) {
+        ContentValues values = new ContentValues();
+        values.put(COL_VID_TIME, a.getYoutubeTime());
+        getDB().update(TABLE_VIDEO, values, COL_ID + " = ?", new String[]{a.getId()});
+    }
+
 
 	// -------------------------------------------------------------------------
 
