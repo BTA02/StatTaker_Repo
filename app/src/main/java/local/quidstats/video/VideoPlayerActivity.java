@@ -1,12 +1,17 @@
 package local.quidstats.video;
 
 import android.app.AlertDialog;
+import android.app.Fragment;
 import android.content.DialogInterface;
 import android.graphics.Color;
 import android.graphics.Point;
 import android.os.Bundle;
+import android.support.v4.view.GestureDetectorCompat;
+import android.util.Log;
 import android.view.Display;
+import android.view.GestureDetector;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -34,11 +39,14 @@ public class VideoPlayerActivity extends YouTubeBaseActivity implements
         YouTubePlayer.OnInitializedListener,
         View.OnClickListener,
         DialogInterface.OnClickListener,
-        AdapterView.OnItemClickListener {
+        AdapterView.OnItemClickListener,
+        GestureDetector.OnGestureListener,
+        GestureDetector.OnDoubleTapListener {
 
     private YouTubePlayer mPlayer;
     private RelativeLayout mTopBar;
     private View mSideBar;
+    private boolean mCompact;
 
     private String mVideoId;
     private String mActualVideoId;
@@ -48,6 +56,8 @@ public class VideoPlayerActivity extends YouTubeBaseActivity implements
     private AlertDialog mPlayerOverlay;
     private AlertDialog mPreviewOverlay;
     private AlertDialog mSubOverlay;
+
+    private GestureDetectorCompat mDetector;
 
     private static int TOP_BAR_ITEM_WIDTH = 10;
 
@@ -62,11 +72,12 @@ public class VideoPlayerActivity extends YouTubeBaseActivity implements
         mSideBar = (View) findViewById(R.id.layout_side_bar);
         mTopBar.setOnClickListener(this);
         mSideBar.setOnClickListener(this);
-        YouTubePlayerFragment youTubePlayerFragment =
-                (YouTubePlayerFragment) getFragmentManager().findFragmentById(R.id.youtube_fragment);
-
+        mCompact = false;
+        YouTubePlayerFragment youTubePlayerFragment = (YouTubePlayerFragment)
+                getFragmentManager().findFragmentById(R.id.youtube_fragment);
 
         youTubePlayerFragment.initialize(DeveloperKey.DEVELOPER_KEY, this);
+
         db = new DatabaseHelper(this);
         String opponentName = "Unnamed opponent";
         if (getIntent() != null) {
@@ -83,9 +94,20 @@ public class VideoPlayerActivity extends YouTubeBaseActivity implements
             getActionBar().hide();
         }
 
+        mDetector = new GestureDetectorCompat(this, this);
+        mDetector.setOnDoubleTapListener(this);
+        View v = youTubePlayerFragment.getView();
+
+        if (v != null) {
+            v.setOnTouchListener(new View.OnTouchListener() {
+                @Override
+                public boolean onTouch(View v, MotionEvent event) {
+                    return mDetector.onTouchEvent(event);
+                }
+            });
+
+        }
     }
-
-
 
     @Override
     public void onInitializationFailure(YouTubePlayer.Provider provider, YouTubeInitializationResult youTubeInitializationResult) {
@@ -203,6 +225,7 @@ public class VideoPlayerActivity extends YouTubeBaseActivity implements
     }
 
     private void launchStatsOverlay() {
+        mPlayer.pause();
         AlertDialog.Builder overlay = overlayDialog();
         if (mStatsOverlay == null || !mStatsOverlay.isShowing()) {
             mStatsOverlay = overlay.show();
@@ -219,6 +242,7 @@ public class VideoPlayerActivity extends YouTubeBaseActivity implements
 
     private void launchPreviewOverlay(String id) {
         // Called with "" to begin with
+        mPlayer.pause();
         AlertDialog.Builder prevOverlay = previewDialog(id);
         if ((mPreviewOverlay == null || !mPreviewOverlay.isShowing()) && prevOverlay != null) {
             mPreviewOverlay = prevOverlay.show();
@@ -598,6 +622,11 @@ public class VideoPlayerActivity extends YouTubeBaseActivity implements
         }
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+    }
 
     @Override
     protected void onStop() {
@@ -605,5 +634,95 @@ public class VideoPlayerActivity extends YouTubeBaseActivity implements
         mPlayer.release();
     }
 
+    @Override
+    public boolean onDown(MotionEvent e) {
+        Log.d("TEST", "hitting here");
+        return true;
+    }
 
+    @Override
+    public void onShowPress(MotionEvent e) {
+
+    }
+
+    @Override
+    public boolean onSingleTapUp(MotionEvent e) {
+        return true;
+    }
+
+    @Override
+    public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
+        return false;
+    }
+
+    @Override
+    public void onLongPress(MotionEvent e) {
+        mCompact = !mCompact;
+        if (!mCompact) {
+            mPlayer.setPlayerStyle(YouTubePlayer.PlayerStyle.DEFAULT);
+        } else {
+            mPlayer.setPlayerStyle(YouTubePlayer.PlayerStyle.CHROMELESS);
+        }
+    }
+
+    @Override
+    public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+
+        if (velocityX > 500) {
+            if (mCompact) {
+                mPlayer.seekRelativeMillis(30000);
+            } else {
+                launchPreviewOverlay("");
+            }
+            return true;
+        } else if (velocityX < -500) {
+            if (mCompact) {
+                mPlayer.seekRelativeMillis(30000);
+            } else {
+                launchStatsOverlay();
+            }
+            return true;
+
+        }
+        return false;
+
+    }
+
+    @Override
+    public boolean onSingleTapConfirmed(MotionEvent e) {
+        if (mCompact) {
+            if (mPlayer.isPlaying()) {
+                mPlayer.pause();
+            } else {
+                mPlayer.play();
+            }
+        }
+        return true;
+    }
+
+    @Override
+    public boolean onDoubleTap(MotionEvent e) {
+        mCompact = !mCompact;
+        if (!mCompact) {
+            mPlayer.setPlayerStyle(YouTubePlayer.PlayerStyle.DEFAULT);
+        } else {
+            mPlayer.setPlayerStyle(YouTubePlayer.PlayerStyle.CHROMELESS);
+        }
+        return true;
+    }
+
+    @Override
+    public boolean onDoubleTapEvent(MotionEvent e) {
+        return true;
+    }
+
+    private void switchMode(boolean compact) {
+        if (compact) {
+            mTopBar.setVisibility(View.GONE);
+            mSideBar.setVisibility(View.GONE);
+        } else {
+            mTopBar.setVisibility(View.VISIBLE);
+            mSideBar.setVisibility(View.VISIBLE);
+        }
+    }
 }
