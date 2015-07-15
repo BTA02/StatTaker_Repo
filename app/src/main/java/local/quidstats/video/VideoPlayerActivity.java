@@ -11,6 +11,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
@@ -83,6 +84,12 @@ public class VideoPlayerActivity extends YouTubeBaseActivity implements
             getActionBar().hide();
         }
 
+        launchControlsLeftOverlay();
+        //launchControlsRightOverlay();
+
+        mTopBar.setVisibility(View.GONE);
+        mSideBar.setVisibility(View.GONE);
+
     }
 
 
@@ -99,6 +106,7 @@ public class VideoPlayerActivity extends YouTubeBaseActivity implements
             player.cueVideo(mActualVideoId);
         }
         mPlayer = player;
+        //mPlayer.setPlayerStyle(YouTubePlayer.PlayerStyle.CHROMELESS);
     }
 
     private void drawVisualCues() {
@@ -202,6 +210,16 @@ public class VideoPlayerActivity extends YouTubeBaseActivity implements
         launchSubOverlay(position);
     }
 
+    private void launchControlsRightOverlay() {
+        AlertDialog.Builder overlay = rightControlsDialog();
+        overlay.show();
+    }
+
+    private void launchControlsLeftOverlay() {
+        AlertDialog.Builder overlay = leftControlsDialog();
+        overlay.show();
+    }
+
     private void launchStatsOverlay() {
         AlertDialog.Builder overlay = overlayDialog();
         if (mStatsOverlay == null || !mStatsOverlay.isShowing()) {
@@ -232,8 +250,74 @@ public class VideoPlayerActivity extends YouTubeBaseActivity implements
         }
     }
 
+    AlertDialog.Builder leftControlsDialog() {
+        LayoutInflater dialogFactory = LayoutInflater.from(this);
+        View overlayView = dialogFactory.inflate(R.layout.left_controls_dialog_layout, null);
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+
+        builder.setView(overlayView);
+        builder.setCancelable(false);
+
+        ImageView fastforward = (ImageView) overlayView.findViewById(R.id.controls_skip_forward);
+        ImageView rewind = (ImageView) overlayView.findViewById(R.id.controls_skip_backward);
+        ImageView play = (ImageView) overlayView.findViewById(R.id.controls_play);
+        ImageView pause = (ImageView) overlayView.findViewById(R.id.controls_pause);
+
+        fastforward.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mPlayer.seekRelativeMillis(30000);
+            }
+        });
+        rewind.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mPlayer.seekRelativeMillis(-30000);
+            }
+        });
+        play.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mPlayer.play();
+            }
+        });
+        pause.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mPlayer.pause();
+            }
+        });
+
+        return builder;
+    }
+
+    AlertDialog.Builder rightControlsDialog() {
+        LayoutInflater dialogFactory = LayoutInflater.from(this);
+        View overlayView = dialogFactory.inflate(R.layout.right_controls_dialog_layout, null);
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+
+        builder.setView(overlayView);
+        builder.setCancelable(false);
+
+        ImageView stat = (ImageView) overlayView.findViewById(R.id.controls_add_stat);
+        ImageView prev = (ImageView) overlayView.findViewById(R.id.controls_preview);
+
+        stat.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                launchStatsOverlay();
+            }
+        });
+        prev.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                launchPreviewOverlay("");
+            }
+        });
+        return builder;
+    }
+
     AlertDialog.Builder overlayDialog() {
-        // setup the dialog
         LayoutInflater dialogFactory = LayoutInflater.from(this);
         View overlayView = dialogFactory.inflate(R.layout.video_player_overlay, null);
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
