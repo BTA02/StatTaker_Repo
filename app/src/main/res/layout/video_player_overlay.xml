@@ -10,6 +10,13 @@
         android:gravity="center">
 
         <TextView
+            android:id="@+id/overlay_clock"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="20dp"
+            android:textSize="20sp"/>
+
+        <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:padding="20dp"
@@ -39,7 +46,7 @@
             android:text="0"
             android:textSize="20sp" />
 
-        </LinearLayout>
+    </LinearLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -63,83 +70,99 @@
 
         </LinearLayout>
 
-        <LinearLayout
-            android:id="@+id/overlay_column_basic_stats"
+        <ScrollView
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
             android:layout_weight="1">
 
-            <TextView
-                android:id="@+id/overlay_shot"
-                style="@style/overlay_list_view"
-                android:text="Shot"/>
+            <LinearLayout
+                android:id="@+id/overlay_column_basic_stats"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical">
 
-            <TextView
-                android:id="@+id/overlay_goal"
-                style="@style/overlay_list_view"
-                android:text="Goal"/>
+                <TextView
+                    android:id="@+id/overlay_shot"
+                    style="@style/overlay_list_view"
+                    android:text="Shot"/>
 
-            <TextView
-                android:id="@+id/overlay_assist"
-                style="@style/overlay_list_view"
-                android:text="Assist"/>
+                <TextView
+                    android:id="@+id/overlay_goal"
+                    style="@style/overlay_list_view"
+                    android:text="Goal"/>
 
-            <TextView
-                android:id="@+id/overlay_turnover"
-                style="@style/overlay_list_view"
-                android:text="Turnover"/>
+                <TextView
+                    android:id="@+id/overlay_assist"
+                    style="@style/overlay_list_view"
+                    android:text="Assist"/>
 
-            <TextView
-                android:id="@+id/overlay_snitch_catch"
-                style="@style/overlay_list_view"
-                android:text="Snitch catch" />
+                <TextView
+                    android:id="@+id/overlay_takeaway"
+                    style="@style/overlay_list_view"
+                    android:text="Takeaway"/>
 
-            <TextView
-                android:id="@+id/overlay_yellow_card"
-                style="@style/overlay_list_view"
-                android:text="Yellow card"/>
+                <TextView
+                    android:id="@+id/overlay_turnover"
+                    style="@style/overlay_list_view"
+                    android:text="Turnover"/>
 
-            <TextView
-                android:id="@+id/overlay_red_card"
-                style="@style/overlay_list_view"
-                android:text="Red card"/>
+                <TextView
+                    android:id="@+id/overlay_snitch_catch"
+                    style="@style/overlay_list_view"
+                    android:text="Snitch catch" />
 
-        </LinearLayout>
+                <TextView
+                    android:id="@+id/overlay_yellow_card"
+                    style="@style/overlay_list_view"
+                    android:text="Yellow card"/>
 
-        <LinearLayout
-            android:id="@+id/overlay_column_extras"
+                <TextView
+                    android:id="@+id/overlay_red_card"
+                    style="@style/overlay_list_view"
+                    android:text="Red card"/>
+
+            </LinearLayout>
+
+        </ScrollView>
+
+        <ScrollView
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
+            android:layout_height="match_parent"
             android:layout_weight="1">
 
-            <TextView
-                android:id="@+id/overlay_start_clock"
-                style="@style/overlay_list_view"
-                android:text="Start clock"/>
+            <LinearLayout
+                android:id="@+id/overlay_column_extras"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical">
 
-            <TextView
-                android:id="@+id/overlay_pause_clock"
-                style="@style/overlay_list_view"
-                android:text="Pause clock"/>
+                <TextView
+                    android:id="@+id/overlay_start_clock"
+                    style="@style/overlay_list_view"
+                    android:text="Start clock"/>
 
-            <TextView
-                android:id="@+id/overlay_snitch"
-                style="@style/overlay_list_view"
-                android:text="Snitch on pitch"/>
+                <TextView
+                    android:id="@+id/overlay_pause_clock"
+                    style="@style/overlay_list_view"
+                    android:text="Pause clock"/>
 
-            <TextView
-                android:id="@+id/overlay_start_game"
-                style="@style/overlay_list_view"
-                android:text="Start game"/>
+                <TextView
+                    android:id="@+id/overlay_snitch"
+                    style="@style/overlay_list_view"
+                    android:text="Snitch on pitch"/>
 
-            <TextView
-                android:id="@+id/overlay_end_game"
-                style="@style/overlay_list_view"
-                android:text="End game"/>
+                <TextView
+                    android:id="@+id/overlay_start_game"
+                    style="@style/overlay_list_view"
+                    android:text="Start game"/>
 
-        </LinearLayout>
+                <TextView
+                    android:id="@+id/overlay_end_game"
+                    style="@style/overlay_list_view"
+                    android:text="End game"/>
+            </LinearLayout>
+
+        </ScrollView>
 
     </LinearLayout>
 

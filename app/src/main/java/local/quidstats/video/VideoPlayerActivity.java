@@ -173,6 +173,13 @@ public class VideoPlayerActivity extends YouTubeBaseActivity implements
             case R.id.overlay_snitch_catch:
                 launchPlayerOverlay(NewActionDb.NewAction.SNITCH_CATCH);
                 break;
+            case R.id.overlay_yellow_card:
+                launchPlayerOverlay(NewActionDb.NewAction.YELLOW_CARD);
+
+                break;
+            case R.id.overlay_red_card:
+                launchPlayerOverlay(NewActionDb.NewAction.RED_CARD);
+                break;
             case R.id.overlay_start_clock:
                 toAdd.setActualAction(NewActionDb.NewAction.START_CLOCK);
                 db.addNewAction(toAdd);
@@ -193,21 +200,16 @@ public class VideoPlayerActivity extends YouTubeBaseActivity implements
                 db.addNewAction(toAdd);
                 addVisualCue(toAdd.getYoutubeTime(), toAdd.getId(), NewActionDb.NewAction.GAME_END);
                 break;
-            case R.id.overlay_yellow_card:
-                toAdd.setActualAction(NewActionDb.NewAction.YELLOW_CARD);
-                db.addNewAction(toAdd);
-                addVisualCue(toAdd.getYoutubeTime(), toAdd.getId(), NewActionDb.NewAction.YELLOW_CARD);
-                break;
-            case R.id.overlay_red_card:
-                toAdd.setActualAction(NewActionDb.NewAction.RED_CARD);
-                db.addNewAction(toAdd);
-                addVisualCue(toAdd.getYoutubeTime(), toAdd.getId(), NewActionDb.NewAction.RED_CARD);
-                break;
+
             case R.id.overlay_away_score:
                 toAdd.setActualAction(NewActionDb.NewAction.AWAY_GOAL);
                 db.addNewAction(toAdd);
                 addVisualCue(toAdd.getYoutubeTime(), toAdd.getId(), NewActionDb.NewAction.AWAY_GOAL);
                 break;
+            case R.id.overlay_takeaway:
+                toAdd.setActualAction(NewActionDb.NewAction.TAKEAWAY);
+                db.addNewAction(toAdd);
+                addVisualCue(toAdd.getYoutubeTime(), toAdd.getId(), NewActionDb.NewAction.TAKEAWAY);
         }
     }
 
@@ -234,7 +236,7 @@ public class VideoPlayerActivity extends YouTubeBaseActivity implements
     }
 
     private void launchPlayerOverlay(NewActionDb.NewAction a) {
-        AlertDialog.Builder fieldPlayers = onFieldDialog(a);
+        AlertDialog.Builder fieldPlayers = onFieldDialog(false, a);
         if (mPlayerOverlay == null || !mPlayerOverlay.isShowing()) {
             mPlayerOverlay = fieldPlayers.show();
         }
@@ -281,6 +283,12 @@ public class VideoPlayerActivity extends YouTubeBaseActivity implements
         TextView tv12 = (TextView) overlayView.findViewById(R.id.overlay_away_score);
         TextView tv13 = (TextView) overlayView.findViewById(R.id.overlay_home_score);
 
+        TextView tv14 = (TextView) overlayView.findViewById(R.id.overlay_clock);
+
+        String lTime = VideoStatsActivity.getPrettyTimeFromMilliseconds(mPlayer.getCurrentTimeMillis());
+        String rTime = VideoStatsActivity.getPrettyTimeFromMilliseconds(mPlayer.getDurationMillis());
+        tv14.setText(lTime + "/" + rTime);
+
 
         tv1.setOnClickListener(this);
         tv2.setOnClickListener(this);
@@ -312,36 +320,72 @@ public class VideoPlayerActivity extends YouTubeBaseActivity implements
 
     // This is the click that launches the onfield players for
     // assigning the stats.
-    AlertDialog.Builder onFieldDialog(final NewActionDb.NewAction a) {
+    AlertDialog.Builder onFieldDialog(boolean sub, final NewActionDb.NewAction a) {
         LayoutInflater dialogFactory = LayoutInflater.from(this);
         final View addSubView = dialogFactory.inflate(
                 android.R.layout.simple_list_item_1, null);
         final AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setView(addSubView);
-        builder.setTitle("Assign to...");
         builder.setCancelable(true);
-
         final List<PlayerDb> list = getOnFieldPlayersAtTime(mPlayer.getCurrentTimeMillis());
         final CharSequence[] playersOnField = new String[list.size()];
         for (int i = 0; i < list.size(); i++) {
             playersOnField[i] = list.get(i).toString();
         }
+        if (!sub) {
+            builder.setTitle("Assign to...");
+            builder.setItems(playersOnField, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    NewActionDb toAdd = new NewActionDb();
+                    toAdd.setId(UUID.randomUUID().toString());
+                    toAdd.setGameId(mVideoId);
+                    toAdd.setActualAction(a);
+                    toAdd.setYoutubeTime(mPlayer.getCurrentTimeMillis());
+                    toAdd.setPlayerOut(list.get(which).getPlayerId());
+                    toAdd.setPlayerIn("");
+                    toAdd.setLoc(-1);
+                    db.addNewAction(toAdd);
+                    addVisualCue(toAdd.getYoutubeTime(), toAdd.getId(), a);
+                    if ((a == NewActionDb.NewAction.YELLOW_CARD ||
+                            a == NewActionDb.NewAction.RED_CARD) && which == 3) {
+                        builder.create().dismiss();
+                        onFieldDialog(true, a);
 
-        builder.setItems(playersOnField, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                NewActionDb toAdd = new NewActionDb();
-                toAdd.setId(UUID.randomUUID().toString());
-                toAdd.setGameId(mVideoId);
-                toAdd.setActualAction(a);
-                toAdd.setYoutubeTime(mPlayer.getCurrentTimeMillis());
-                toAdd.setPlayerOut(list.get(which).getPlayerId());
-                toAdd.setPlayerIn("");
-                toAdd.setLoc(-1);
-                db.addNewAction(toAdd);
-                addVisualCue(toAdd.getYoutubeTime(), toAdd.getId(), a);
-            }
-        });
+                    }
+                }
+            });
+        } else {
+            builder.setTitle("Sub to keeper...");
+            builder.setItems(playersOnField, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    String oldKeeper = list.get(3).getPlayerId();
+                    String newKeeper = list.get(which).getPlayerId();
+
+                    NewActionDb toAdd = new NewActionDb();
+                    toAdd.setId(UUID.randomUUID().toString());
+                    toAdd.setGameId(mVideoId);
+                    toAdd.setActualAction(NewActionDb.NewAction.SUB);
+                    toAdd.setYoutubeTime(mPlayer.getCurrentTimeMillis());
+                    toAdd.setPlayerOut("");
+                    toAdd.setPlayerIn(newKeeper);
+                    toAdd.setLoc(3);
+                    db.addNewAction(toAdd);
+
+                    NewActionDb toAdd1 = new NewActionDb();
+                    toAdd1.setId(UUID.randomUUID().toString());
+                    toAdd1.setGameId(mVideoId);
+                    toAdd1.setActualAction(NewActionDb.NewAction.SUB);
+                    toAdd1.setYoutubeTime(mPlayer.getCurrentTimeMillis());
+                    toAdd1.setPlayerOut("");
+                    toAdd1.setPlayerIn(oldKeeper);
+                    toAdd1.setLoc(which);
+                    db.addNewAction(toAdd1);
+                }
+            });
+            builder.show();
+        }
 
         return builder;
     }
@@ -401,7 +445,7 @@ public class VideoPlayerActivity extends YouTubeBaseActivity implements
             });
         }
 
-        number.setText((index+1) + "/" + allActions.size());
+        number.setText((index + 1) + "/" + allActions.size());
 
 
         delButton.setOnClickListener(new View.OnClickListener() {
@@ -435,7 +479,12 @@ public class VideoPlayerActivity extends YouTubeBaseActivity implements
             name2.setText(p.getFname() + " " + p.getLname());
         } else {
             name2.setVisibility(View.GONE);
+            if (name1.getVisibility() == View.GONE) {
+                name1.setVisibility(View.VISIBLE);
+                name1.setText("");
+            }
         }
+
         double secs = (double) a.getYoutubeTime();
         secs = secs/1000;
         int minutes = (int) secs/60;
@@ -449,7 +498,7 @@ public class VideoPlayerActivity extends YouTubeBaseActivity implements
         time.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (mPlayer!= null){
+                if (mPlayer != null) {
                     mPlayer.seekToMillis(a.getYoutubeTime());
                 }
             }
@@ -472,8 +521,6 @@ public class VideoPlayerActivity extends YouTubeBaseActivity implements
         });
         return builder;
     }
-
-    //public static String getPrettyTime
 
     private int getClosestItemIndex(List<NewActionDb> actions) {
         int ret = 0;
@@ -657,35 +704,28 @@ public class VideoPlayerActivity extends YouTubeBaseActivity implements
 
     @Override
     public void onLongPress(MotionEvent e) {
-        mCompact = !mCompact;
-        if (!mCompact) {
-            mPlayer.setPlayerStyle(YouTubePlayer.PlayerStyle.DEFAULT);
-        } else {
-            mPlayer.setPlayerStyle(YouTubePlayer.PlayerStyle.CHROMELESS);
-        }
+        switchMode();
     }
 
     @Override
     public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
-
-        if (velocityX > 500) {
-            if (mCompact) {
-                mPlayer.seekRelativeMillis(30000);
+        if (mCompact) {
+            if (Math.abs(velocityX) > Math.abs(velocityY)) {
+                if (velocityX > 500) {
+                    mPlayer.seekRelativeMillis(30000);
+                } else if (velocityX < -500) {
+                    mPlayer.seekRelativeMillis(-30000);
+                }
             } else {
-                launchPreviewOverlay("");
-            }
-            return true;
-        } else if (velocityX < -500) {
-            if (mCompact) {
-                mPlayer.seekRelativeMillis(30000);
-            } else {
-                launchStatsOverlay();
-            }
-            return true;
+                if (velocityY > 500) {
+                    launchStatsOverlay();
+                } else if (velocityY < -500) {
+                    launchPreviewOverlay("");
 
+                }
+            }
         }
         return false;
-
     }
 
     @Override
@@ -702,13 +742,7 @@ public class VideoPlayerActivity extends YouTubeBaseActivity implements
 
     @Override
     public boolean onDoubleTap(MotionEvent e) {
-        mCompact = !mCompact;
-        if (!mCompact) {
-            mPlayer.setPlayerStyle(YouTubePlayer.PlayerStyle.DEFAULT);
-        } else {
-            mPlayer.setPlayerStyle(YouTubePlayer.PlayerStyle.CHROMELESS);
-        }
-        return true;
+        return false;
     }
 
     @Override
@@ -716,11 +750,14 @@ public class VideoPlayerActivity extends YouTubeBaseActivity implements
         return true;
     }
 
-    private void switchMode(boolean compact) {
-        if (compact) {
+    private void switchMode() {
+        mCompact = !mCompact;
+        if (mCompact) {
+            mPlayer.setPlayerStyle(YouTubePlayer.PlayerStyle.CHROMELESS);
             mTopBar.setVisibility(View.GONE);
             mSideBar.setVisibility(View.GONE);
         } else {
+            mPlayer.setPlayerStyle(YouTubePlayer.PlayerStyle.DEFAULT);
             mTopBar.setVisibility(View.VISIBLE);
             mSideBar.setVisibility(View.VISIBLE);
         }

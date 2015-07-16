@@ -19,7 +19,7 @@ public class NewActionDb {
 
     public static enum NewAction { SHOT, GOAL, ASSIST, TURNOVER, SNITCH_CATCH, START_CLOCK, PAUSE_CLOCK,
         GAME_START, GAME_END, GAIN_CONTROL, LOSE_CONTROL, RED_CARD, YELLOW_CARD,
-        SNITCH_ON_PITCH, SUB, AWAY_GOAL }
+        SNITCH_ON_PITCH, SUB, AWAY_GOAL, TAKEAWAY }
 
     public String getPlayerIn() {
         return playerIn;
