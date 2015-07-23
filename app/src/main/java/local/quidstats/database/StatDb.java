@@ -9,6 +9,11 @@ public class StatDb
 	int steals;
 	int turnovers;
 	int saves;
+
+    int takeaways;
+    int yellows;
+    int reds;
+
 	int snitches;
 	int plusses;
 	int minuses;
@@ -128,4 +133,27 @@ public class StatDb
     public void setTime(int time) {
         this.time = time;
     }
+
+    public int getTakeaways() {
+        return takeaways;
+    }
+
+    public void setTakeaways(int t) {
+        takeaways = t;
+    }
+    public int getYellows() {
+        return yellows;
+    }
+
+    public void setYellows(int t) {
+        yellows = t;
+    }
+    public int getReds() {
+        return reds;
+    }
+
+    public void setReds(int t) {
+        reds = t;
+    }
+
 }

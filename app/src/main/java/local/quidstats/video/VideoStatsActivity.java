@@ -49,10 +49,6 @@ public class VideoStatsActivity extends Activity implements
         AdapterView.OnItemSelectedListener,
         CompoundButton.OnCheckedChangeListener {
 
-    private static int HEADER_CHASERS = 0;
-    private static int HEADER_KEEPER = 1;
-    private static int HEADER_BEATERS = 2;
-
     private String mTeamId;
     private DatabaseHelper db;
     private List<String> mGamesAdded;
@@ -153,6 +149,7 @@ public class VideoStatsActivity extends Activity implements
                 gameName = objects.get(i).getString("description");
                 vids.add(new LocalTeamsFragment.Video(gameName, gameId));
             }
+            Collections.sort(vids);
             return vids;
         }
 
@@ -591,13 +588,24 @@ public class VideoStatsActivity extends Activity implements
                             fullStats.setTurnovers(fullStats.getTurnovers() + 1);
                             statMap.put(action.getPlayerOut(), fullStats);
                             break;
+                        case TAKEAWAY:
+                            fullStats.setTakeaways(fullStats.getTakeaways() + 1);
+                            statMap.put(action.getPlayerOut(), fullStats);
+                            break;
+                        case YELLOW_CARD:
+                            fullStats.setYellows(fullStats.getYellows() + 1);
+                            statMap.put(action.getPlayerOut(), fullStats);
+                            break;
+                        case RED_CARD:
+                            fullStats.setReds(fullStats.getReds() + 1);
+                            statMap.put(action.getPlayerOut(), fullStats);
+                            break;
                         case SUB:
                             onField[action.getLoc()] = action.getPlayerIn();
                             break;
                         case AWAY_GOAL:
                             for(String pId : onField) {
-                                StatDb s = new StatDb();
-                                s= statMap.get(pId);
+                                StatDb s = statMap.get(pId);
                                 if (s == null) {
                                     s = new StatDb(pId);
                                 }
@@ -639,8 +647,6 @@ public class VideoStatsActivity extends Activity implements
             sortedStats.add(index, map.get(key));
         }
 
-        // Axtell
-        // Do the displaying
         int PAD = 10;
         LinearLayout statsParent = (LinearLayout) findViewById(R.id.video_stats_parent);
         statsParent.removeAllViews();
@@ -656,6 +662,12 @@ public class VideoStatsActivity extends Activity implements
         assists.setPadding(PAD,0,PAD,0);
         TextView turnovers = new TextView(this);
         turnovers.setPadding(PAD,0,PAD,0);
+        TextView takeaways = new TextView(this);
+        takeaways.setPadding(PAD,0,PAD,0);
+        TextView yellowCards = new TextView(this);
+        yellowCards.setPadding(PAD,0,PAD,0);
+        TextView redCards = new TextView(this);
+        redCards.setPadding(PAD,0,PAD,0);
         TextView plusses = new TextView(this);
         plusses.setPadding(PAD,0,PAD,0);
         TextView minuses = new TextView(this);
@@ -664,8 +676,11 @@ public class VideoStatsActivity extends Activity implements
         name.setText("Name");
         shots.setText("Shots");
         goals.setText("Goals");
-        assists.setText("Assisst");
+        assists.setText("Assists");
         turnovers.setText("Turnovers");
+        takeaways.setText("Takeaways");
+        yellowCards.setText("Yellows");
+        redCards.setText("Reds");
         plusses.setText("Plusses");
         minuses.setText("Minuses");
 
@@ -675,6 +690,9 @@ public class VideoStatsActivity extends Activity implements
         row1.addView(goals);
         row1.addView(assists);
         row1.addView(turnovers);
+        row1.addView(takeaways);
+        row1.addView(yellowCards);
+        row1.addView(redCards);
         row1.addView(plusses);
         row1.addView(minuses);
 
@@ -695,6 +713,12 @@ public class VideoStatsActivity extends Activity implements
             t3.setPadding(PAD,0,PAD,0);
             TextView t4 = new TextView(this);
             t4.setPadding(PAD,0,PAD,0);
+            TextView t9 = new TextView(this);
+            t9.setPadding(PAD,0,PAD,0);
+            TextView t7 = new TextView(this);
+            t7.setPadding(PAD,0,PAD,0);
+            TextView t8 = new TextView(this);
+            t8.setPadding(PAD,0,PAD,0);
             TextView t5 = new TextView(this);
             t5.setPadding(PAD,0,PAD,0);
             TextView t6 = new TextView(this);
@@ -705,6 +729,9 @@ public class VideoStatsActivity extends Activity implements
             t2.setText(String.valueOf(stat.getGoals()));
             t3.setText(String.valueOf(stat.getAssists()));
             t4.setText(String.valueOf(stat.getTurnovers()));
+            t9.setText(String.valueOf(stat.getTakeaways()));
+            t7.setText(String.valueOf(stat.getYellows()));
+            t8.setText(String.valueOf(stat.getReds()));
             t5.setText(String.valueOf(stat.getPlusses()));
             t6.setText(String.valueOf(stat.getMinuses()));
 
@@ -714,6 +741,9 @@ public class VideoStatsActivity extends Activity implements
             row.addView(t2);
             row.addView(t3);
             row.addView(t4);
+            row.addView(t9);
+            row.addView(t7);
+            row.addView(t8);
             row.addView(t5);
             row.addView(t6);
 

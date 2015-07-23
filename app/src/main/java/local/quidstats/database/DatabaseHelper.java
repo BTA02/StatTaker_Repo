@@ -1292,8 +1292,35 @@ public class DatabaseHelper extends SQLiteOpenHelper
         return ret;
     }
 
+    public int getSnitchCatchFromGame(int time, String gameId) {
+
+        String query = "SELECT * FROM " + TABLE_VIDEO + " WHERE "
+                + COL_ACTION + " = ? OR "
+                + COL_ACTION + " = ? AND "
+                + COL_GAMEID + " = ?";
+        Cursor c = getDB().rawQuery(query,
+                new String[] {
+                        String.valueOf(NewActionDb.NewAction.SNITCH_CATCH.ordinal()),
+                        String.valueOf(NewActionDb.NewAction.AWAY_SNITCH_CATCH.ordinal()),
+                        gameId
+                }
+        );
+
+        if (c.moveToFirst()) {
+            int aa = c.getInt(c.getColumnIndex(COL_ACTION));
+            NewActionDb.NewAction dd = NewActionDb.NewAction.values()[aa];
+            if (dd == NewActionDb.NewAction.SNITCH_CATCH) {
+                return 0;
+            } else {
+                return 1;
+            }
+        }
+        return -1;
+    }
+
     public void clearAllActionsFromGame(String id) {
-        getDB().delete(TABLE_VIDEO, COL_GAMEID + " = ?", new String[] {id});
+        int i = getDB().delete(TABLE_VIDEO, COL_GAMEID + " = ?", new String[] {id});
+        return;
     }
 
     public void addAllActions(List<NewActionDb> actions) {
@@ -1362,6 +1389,22 @@ public class DatabaseHelper extends SQLiteOpenHelper
         getDB().update(TABLE_VIDEO, values, COL_ID + " = ?", new String[]{a.getId()});
     }
 
+    public boolean getSeekerOnPitch(String gameId, int time) {
+        String query = "SELECT * FROM " + TABLE_VIDEO + " WHERE "
+                + COL_ACTION + " = ? AND "
+                + COL_GAMEID + " = ?";
+        Cursor c = getDB().rawQuery(query,
+                new String[] {String.valueOf(NewActionDb.NewAction.SNITCH_ON_PITCH.ordinal()), gameId});
+        if (c.moveToFirst()) {
+            int timeOfSnitch = c.getInt(c.getColumnIndex(COL_VID_TIME));
+            if (timeOfSnitch <= time) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+        return false;
+    }
 
 	// -------------------------------------------------------------------------
 
@@ -1385,6 +1428,29 @@ public class DatabaseHelper extends SQLiteOpenHelper
         str = "Hello";
 
     }
+
+    // Change values of playerId
+    public void update2() {
+        ContentValues values = new ContentValues();
+        values.put(COL_ID, "vtK6JXIKC9");
+        String[] oldId = new String[]{"433a9fdd-2966-416e-bb56-8819c22b39d8"};
+        getDB().update(TABLE_PLAYER, values, COL_ID + " = ?", oldId);
+    }
+
+    public void update3() {
+        ContentValues values = new ContentValues();
+        values.put(COL_PLAYER_IN, "vtK6JXIKC9");
+        String[] oldId = new String[]{"433a9fdd-2966-416e-bb56-8819c22b39d8"};
+        getDB().update(TABLE_VIDEO, values, COL_PLAYER_IN + " = ?", oldId);
+    }
+
+    public void update4() {
+        ContentValues values = new ContentValues();
+        values.put(COL_PLAYER_OUT, "vtK6JXIKC9");
+        String[] oldId = new String[]{"433a9fdd-2966-416e-bb56-8819c22b39d8"};
+        getDB().update(TABLE_VIDEO, values, COL_PLAYER_OUT + " = ?", oldId);
+    }
+
 
 
 }

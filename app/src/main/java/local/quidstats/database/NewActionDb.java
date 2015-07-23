@@ -17,7 +17,7 @@ public class NewActionDb {
     private String playerIn;
     private int loc;
 
-    public static enum NewAction { SHOT, GOAL, ASSIST, TURNOVER, SNITCH_CATCH, START_CLOCK, PAUSE_CLOCK,
+    public static enum NewAction { SHOT, GOAL, ASSIST, TURNOVER, SNITCH_CATCH, AWAY_SNITCH_CATCH, START_CLOCK, PAUSE_CLOCK,
         GAME_START, GAME_END, GAIN_CONTROL, LOSE_CONTROL, RED_CARD, YELLOW_CARD,
         SNITCH_ON_PITCH, SUB, AWAY_GOAL, TAKEAWAY }
 

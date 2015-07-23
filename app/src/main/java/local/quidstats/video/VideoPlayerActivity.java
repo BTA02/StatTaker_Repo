@@ -5,6 +5,7 @@ import android.app.Fragment;
 import android.content.DialogInterface;
 import android.graphics.Color;
 import android.graphics.Point;
+import android.graphics.Region;
 import android.os.Bundle;
 import android.support.v4.view.GestureDetectorCompat;
 import android.util.Log;
@@ -20,6 +21,7 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.youtube.player.YouTubeBaseActivity;
 import com.google.android.youtube.player.YouTubeInitializationResult;
@@ -171,11 +173,10 @@ public class VideoPlayerActivity extends YouTubeBaseActivity implements
                 launchPlayerOverlay(NewActionDb.NewAction.TURNOVER);
                 break;
             case R.id.overlay_snitch_catch:
-                launchPlayerOverlay(NewActionDb.NewAction.SNITCH_CATCH);
+                launchSnitchCatchOverlay();
                 break;
             case R.id.overlay_yellow_card:
                 launchPlayerOverlay(NewActionDb.NewAction.YELLOW_CARD);
-
                 break;
             case R.id.overlay_red_card:
                 launchPlayerOverlay(NewActionDb.NewAction.RED_CARD);
@@ -190,17 +191,6 @@ public class VideoPlayerActivity extends YouTubeBaseActivity implements
                 db.addNewAction(toAdd);
                 addVisualCue(toAdd.getYoutubeTime(), toAdd.getId(), NewActionDb.NewAction.PAUSE_CLOCK);
                 break;
-            case R.id.overlay_start_game:
-                toAdd.setActualAction(NewActionDb.NewAction.GAME_START);
-                db.addNewAction(toAdd);
-                addVisualCue(toAdd.getYoutubeTime(), toAdd.getId(), NewActionDb.NewAction.GAME_START);
-                break;
-            case R.id.overlay_end_game:
-                toAdd.setActualAction(NewActionDb.NewAction.GAME_END);
-                db.addNewAction(toAdd);
-                addVisualCue(toAdd.getYoutubeTime(), toAdd.getId(), NewActionDb.NewAction.GAME_END);
-                break;
-
             case R.id.overlay_away_score:
                 toAdd.setActualAction(NewActionDb.NewAction.AWAY_GOAL);
                 db.addNewAction(toAdd);
@@ -210,7 +200,19 @@ public class VideoPlayerActivity extends YouTubeBaseActivity implements
                 toAdd.setActualAction(NewActionDb.NewAction.TAKEAWAY);
                 db.addNewAction(toAdd);
                 addVisualCue(toAdd.getYoutubeTime(), toAdd.getId(), NewActionDb.NewAction.TAKEAWAY);
+                break;
+            case R.id.overlay_snitch_on_pitch:
+                toAdd.setActualAction(NewActionDb.NewAction.SNITCH_ON_PITCH);
+                db.addNewAction(toAdd);
+                addVisualCue(toAdd.getYoutubeTime(), toAdd.getId(), NewActionDb.NewAction.SNITCH_ON_PITCH);
+                addSeeker();
+                break;
         }
+    }
+
+    private void addSeeker() {
+        // Pop up the dialog
+        launchSubOverlay(7);
     }
 
     @Override
@@ -258,6 +260,11 @@ public class VideoPlayerActivity extends YouTubeBaseActivity implements
         }
     }
 
+    private void launchSnitchCatchOverlay() {
+        AlertDialog.Builder snitchCatchOverlay = snitchCatch();
+        snitchCatchOverlay.show();
+    }
+
     AlertDialog.Builder overlayDialog() {
         // setup the dialog
         LayoutInflater dialogFactory = LayoutInflater.from(this);
@@ -271,17 +278,14 @@ public class VideoPlayerActivity extends YouTubeBaseActivity implements
         TextView tv2 = (TextView) overlayView.findViewById(R.id.overlay_goal);
         TextView tv3 = (TextView) overlayView.findViewById(R.id.overlay_assist);
         TextView tv4 = (TextView) overlayView.findViewById(R.id.overlay_turnover);
-
-
         TextView tv5 = (TextView) overlayView.findViewById(R.id.overlay_start_clock);
         TextView tv10 = (TextView) overlayView.findViewById(R.id.overlay_pause_clock);
-        TextView tv11 = (TextView) overlayView.findViewById(R.id.overlay_start_game);
-        TextView tv6 = (TextView) overlayView.findViewById(R.id.overlay_end_game);
-        TextView tv7 = (TextView) overlayView.findViewById(R.id.overlay_snitch);
+        TextView tv7 = (TextView) overlayView.findViewById(R.id.overlay_snitch_on_pitch);
         TextView tv8 = (TextView) overlayView.findViewById(R.id.overlay_yellow_card);
         TextView tv9 = (TextView) overlayView.findViewById(R.id.overlay_red_card);
         TextView tv12 = (TextView) overlayView.findViewById(R.id.overlay_away_score);
         TextView tv13 = (TextView) overlayView.findViewById(R.id.overlay_home_score);
+        TextView tv11 = (TextView) overlayView.findViewById(R.id.overlay_snitch_catch);
 
         TextView tv14 = (TextView) overlayView.findViewById(R.id.overlay_clock);
 
@@ -296,12 +300,11 @@ public class VideoPlayerActivity extends YouTubeBaseActivity implements
         tv4.setOnClickListener(this);
         tv5.setOnClickListener(this);
         tv10.setOnClickListener(this);
-        tv11.setOnClickListener(this);
-        tv6.setOnClickListener(this);
         tv7.setOnClickListener(this);
         tv8.setOnClickListener(this);
         tv9.setOnClickListener(this);
         tv12.setOnClickListener(this);
+        tv11.setOnClickListener(this);
 
         ListView playersList = (ListView) overlayView.findViewById(R.id.overlay_onfield_players);
 
@@ -390,6 +393,7 @@ public class VideoPlayerActivity extends YouTubeBaseActivity implements
         return builder;
     }
 
+    // Preview of an action
     AlertDialog.Builder previewDialog(final String id) {
 
         LayoutInflater dialogFactory = LayoutInflater.from(this);
@@ -574,12 +578,63 @@ public class VideoPlayerActivity extends YouTubeBaseActivity implements
         return builder;
     }
 
+    AlertDialog.Builder snitchCatch() {
+
+        LayoutInflater dialogFactory = LayoutInflater.from(this);
+        final View dialogView = dialogFactory.inflate(
+                android.R.layout.simple_list_item_1, null);
+        final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setView(dialogView);
+        builder.setCancelable(true);
+
+        // Get the seeker
+        final List<PlayerDb> list = getOnFieldPlayersAtTime(mPlayer.getCurrentTimeMillis());
+        if (list.size() != 7) {
+            Toast.makeText(getApplicationContext(),
+                    "You should put the snitch on the pitch first", Toast.LENGTH_SHORT).show();
+            return builder;
+        }
+        final PlayerDb seeker = list.get(6);
+        final CharSequence[] seekerOptions = new String[2];
+        seekerOptions[0] = seeker.toString();
+        seekerOptions[1] = "Away team";
+
+        builder.setItems(seekerOptions, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                NewActionDb toAdd = new NewActionDb();
+                toAdd.setId(UUID.randomUUID().toString());
+                toAdd.setGameId(mVideoId);
+                toAdd.setYoutubeTime(mPlayer.getCurrentTimeMillis());
+                toAdd.setPlayerOut(seeker.getPlayerId());
+                toAdd.setPlayerIn("");
+                toAdd.setLoc(-1);
+                if (which == 0) {
+                    toAdd.setActualAction(NewActionDb.NewAction.SNITCH_CATCH);
+                } else {
+                    toAdd.setPlayerOut("");
+                    toAdd.setActualAction(NewActionDb.NewAction.AWAY_SNITCH_CATCH);
+                }
+
+                db.addNewAction(toAdd);
+                addVisualCue(toAdd.getYoutubeTime(), toAdd.getId(), toAdd.getActualAction());
+            }
+        });
+        return builder;
+    }
+
+
+
     private List<PlayerDb> getOnFieldPlayersAtTime(int time) {
         List<PlayerDb> players = db.getAllPlayersFromTeam(mTeamId, 0);
 
         List<NewActionDb> substitutionActions = db.getAllSubActionsFromGame(mVideoId);
-
-        List<PlayerDb> onFieldPlayers = players.subList(0,6);
+        boolean seeker = db.getSeekerOnPitch(mVideoId, time);
+        int listSize = 6;
+        if (seeker) {
+            listSize = 7;
+        }
+        List<PlayerDb> onFieldPlayers = players.subList(0,listSize);
         for (NewActionDb action : substitutionActions) {
             if (action.getYoutubeTime() <= time) {
                 onFieldPlayers.set(action.getLoc(), db.getPlayerById(action.getPlayerIn()));
@@ -621,11 +676,15 @@ public class VideoPlayerActivity extends YouTubeBaseActivity implements
     private void setScoreAtTime(int time, TextView homeScore, TextView awayScore) {
         List<NewActionDb> homeScores = db.getAllHomeScoresFromGame(mVideoId);
         List<NewActionDb> awayScores = db.getAllAwayScoresFromGame(mVideoId);
-
+        int snitchCatch = db.getSnitchCatchFromGame(time, mVideoId);
 
         int home = 0;
         int away = 0;
-
+        if (snitchCatch == 0) {
+            home += 3;
+        } else if (snitchCatch == 1) {
+            away += 3;
+        }
         for (NewActionDb score : homeScores) {
             if (score.getYoutubeTime() <= time) {
                 home++;
@@ -672,7 +731,16 @@ public class VideoPlayerActivity extends YouTubeBaseActivity implements
     @Override
     protected void onResume() {
         super.onResume();
+        mVideoId = getIntent().getExtras().getString("videoId");
+        mActualVideoId = getIntent().getExtras().getString("videoId");
+        mTeamId = getIntent().getExtras().getString("teamId");
+        mVideoId = mVideoId + mTeamId;
+    }
 
+    @Override
+    protected void onPause() {
+        super.onPause();
+        mPlayer.release();
     }
 
     @Override
@@ -680,6 +748,9 @@ public class VideoPlayerActivity extends YouTubeBaseActivity implements
         super.onStop();
         mPlayer.release();
     }
+
+
+    // <editor-fold desc="Tapping stuff">
 
     @Override
     public boolean onDown(MotionEvent e) {
@@ -762,4 +833,5 @@ public class VideoPlayerActivity extends YouTubeBaseActivity implements
             mSideBar.setVisibility(View.VISIBLE);
         }
     }
+    // </editor-fold>
 }

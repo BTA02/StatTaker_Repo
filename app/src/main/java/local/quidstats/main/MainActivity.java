@@ -46,6 +46,9 @@ public class MainActivity extends FragmentActivity {
         //--END FRAGMENT STUFF
 
         db = new DatabaseHelper(this);
+        //db.update2();
+        //db.update3();
+        //db.update4();
 
     }
 

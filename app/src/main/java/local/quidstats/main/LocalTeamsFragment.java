@@ -20,12 +20,15 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.parse.FindCallback;
 import com.parse.Parse;
+import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 
@@ -337,80 +340,89 @@ public class LocalTeamsFragment extends Fragment implements
         AlertDialog.Builder alert = new AlertDialog.Builder(getActivity());
 
         alert.setView(videosListView);
-        ListView oldGames = (ListView) videosListView
+        final ListView games = (ListView) videosListView
                 .findViewById(R.id.old_games_list);
-        List<Video> videosList = new ArrayList<>();
+
+
 
         final ParseQuery<ParseObject> query = ParseQuery.getQuery("Videos");
         query.setLimit(1000);
         query.whereEqualTo("team_id", mTeamSelected.getId());
-        List<ParseObject> objects = new ArrayList<ParseObject>();
-        try {
-            objects = query.find();
-        } catch (com.parse.ParseException e) {
-            e.printStackTrace();
-        }
-        String gameName;
-        String gameId;
-        for (int i = 0; i < objects.size(); i++) {
-            gameId = objects.get(i).getString("vid_id");
-            gameName = objects.get(i).getString("description");
-            videosList.add(new Video(gameName, gameId));
-        }
+
+        Video v = new Video("Loading...", null);
+        List<Video> loadingDisplay = new ArrayList<>();
+        loadingDisplay.add(v);
+
         final ArrayAdapter<Video> listAdapter = new ArrayAdapter<>(getActivity(),
-                android.R.layout.simple_list_item_1, videosList);
-        oldGames.setAdapter(listAdapter);
+                android.R.layout.simple_list_item_1, loadingDisplay);
+        games.setAdapter(listAdapter);
 
-        oldGames.setOnItemClickListener(new OnItemClickListener() {
+        query.findInBackground(new FindCallback<ParseObject>() {
             @Override
-            public void onItemClick(AdapterView<?> parent, View view,
-                                    int position, long id) {
+            public void done(List<ParseObject> objects, ParseException e) {
+               listAdapter.clear();
+               List<Video> videosList = new ArrayList<>();
+               String gameName;
+               String gameId;
+               for (int i = 0; i < objects.size(); i++) {
+                   gameId = objects.get(i).getString("vid_id");
+                   gameName = objects.get(i).getString("description");
+                   videosList.add(new Video(gameName, gameId));
+               }
+               Collections.sort(videosList);
+               listAdapter.addAll(videosList);
+               listAdapter.notifyDataSetChanged();
 
-                final Video videoClicked = listAdapter.getItem(position);
-                if (watchVid) {
-                    Intent i = new Intent(getActivity(), VideoPlayerActivity.class);
-                    i.putExtra("videoId", videoClicked.id);
-                    i.putExtra("teamId", mTeamSelected.getId());
-                    i.putExtra("opponent", videoClicked.description);
-                    startActivity(i);
-                }
-                else {
-                    AsyncTask<Void, Void, Void> task = new AsyncTask<Void, Void, Void>() {
-                        @Override
-                        protected Void doInBackground(Void... params) {
-                            final ParseQuery<ParseObject> query = ParseQuery.getQuery("Videos");
-                            query.setLimit(1000);
-                            query.whereEqualTo("vid_id", videoClicked.id);
-                            List<ParseObject> objects = new ArrayList<ParseObject>();
-                            try {
-                                objects = query.find();
-                            } catch (com.parse.ParseException e) {
-                                e.printStackTrace();
-                            }
-                            List<NewActionDb> events1 = null;
-                            for (int i = 0; i < objects.size(); i++) {
-                                if (objects.get(i).getString("team_id").equals(mTeamSelected.getId())) {
-                                    String str = objects.get(i).getString("events_json");
-                                    events1 = NewActionDb.convertJSONToActions(str);
-                                }
-                            }
-                            if (events1 != null && !events1.isEmpty()) {
-                                db.clearAllActionsFromGame(events1.get(0).getGameId());
-                                db.addAllActions(events1);
-                            }
-                            return null;
-                        }
-                    }.execute();
+               games.setOnItemClickListener(new OnItemClickListener() {
+                   @Override
+                   public void onItemClick(AdapterView<?> parent, View view,
+                                           int position, long id) {
 
-                }
+                       final Video videoClicked = listAdapter.getItem(position);
+                       if (watchVid) {
+                           Intent i = new Intent(getActivity(), VideoPlayerActivity.class);
+                           i.putExtra("videoId", videoClicked.id);
+                           i.putExtra("teamId", mTeamSelected.getId());
+                           i.putExtra("opponent", videoClicked.description);
+                           startActivity(i);
+                       } else {
+                           //This means I'm downloading the stats. Same function
+                           AsyncTask<Void, Void, Void> task = new AsyncTask<Void, Void, Void>() {
+                               @Override
+                               protected Void doInBackground(Void... params) {
+                                   final ParseQuery<ParseObject> query = ParseQuery.getQuery("Videos");
+                                   query.setLimit(1000);
+                                   query.whereEqualTo("vid_id", videoClicked.id);
+                                   List<ParseObject> objects = new ArrayList<ParseObject>();
+                                   try {
+                                       objects = query.find();
+                                   } catch (com.parse.ParseException e) {
+                                       e.printStackTrace();
+                                   }
+                                   List<NewActionDb> events1 = null;
+                                   for (int i = 0; i < objects.size(); i++) {
+                                       if (objects.get(i).getString("team_id").equals(mTeamSelected.getId())) {
+                                           String str = objects.get(i).getString("events_json");
+                                           events1 = NewActionDb.convertJSONToActions(str);
+                                       }
+                                   }
+                                   if (events1 != null && !events1.isEmpty()) {
+                                       db.clearAllActionsFromGame(events1.get(0).getGameId());
+                                       db.addAllActions(events1);
+                                   }
+                                   return null;
+                               }
+                           }.execute();
+                       }
+                   }
+               });
             }
-
         });
 
-        alert.show();
+       alert.show();
     }
 
-    public static class Video {
+    public static class Video implements Comparable {
         public String description;
         public String id;
 
@@ -422,6 +434,12 @@ public class LocalTeamsFragment extends Fragment implements
         @Override
         public String toString() {
             return description;
+        }
+
+        @Override
+        public int compareTo(Object another) {
+            Video a = (Video) another;
+            return this.description.compareTo(a.description);
         }
     }
 }

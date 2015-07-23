@@ -106,10 +106,7 @@
                     style="@style/overlay_list_view"
                     android:text="Turnover"/>
 
-                <TextView
-                    android:id="@+id/overlay_snitch_catch"
-                    style="@style/overlay_list_view"
-                    android:text="Snitch catch" />
+
 
                 <TextView
                     android:id="@+id/overlay_yellow_card"
@@ -147,19 +144,15 @@
                     android:text="Pause clock"/>
 
                 <TextView
-                    android:id="@+id/overlay_snitch"
+                    android:id="@+id/overlay_snitch_on_pitch"
                     style="@style/overlay_list_view"
                     android:text="Snitch on pitch"/>
 
                 <TextView
-                    android:id="@+id/overlay_start_game"
+                    android:id="@+id/overlay_snitch_catch"
                     style="@style/overlay_list_view"
-                    android:text="Start game"/>
+                    android:text="Snitch catch" />
 
-                <TextView
-                    android:id="@+id/overlay_end_game"
-                    style="@style/overlay_list_view"
-                    android:text="End game"/>
             </LinearLayout>
 
         </ScrollView>
