@@ -1,11 +1,9 @@
 package local.quidstats.video;
 
 import android.app.AlertDialog;
-import android.app.Fragment;
 import android.content.DialogInterface;
 import android.graphics.Color;
 import android.graphics.Point;
-import android.graphics.Region;
 import android.os.Bundle;
 import android.support.v4.view.GestureDetectorCompat;
 import android.util.Log;
@@ -16,7 +14,6 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
@@ -35,6 +32,7 @@ import local.quidstats.R;
 import local.quidstats.database.DatabaseHelper;
 import local.quidstats.database.NewActionDb;
 import local.quidstats.database.PlayerDb;
+import local.quidstats.util.VideoOnFieldAdapter;
 
 
 public class VideoPlayerActivity extends YouTubeBaseActivity implements
@@ -169,6 +167,9 @@ public class VideoPlayerActivity extends YouTubeBaseActivity implements
             case R.id.overlay_assist:
                 launchPlayerOverlay(NewActionDb.NewAction.ASSIST);
                 break;
+            case R.id.overlay_takeaway:
+                launchPlayerOverlay(NewActionDb.NewAction.TAKEAWAY);
+                break;
             case R.id.overlay_turnover:
                 launchPlayerOverlay(NewActionDb.NewAction.TURNOVER);
                 break;
@@ -196,11 +197,6 @@ public class VideoPlayerActivity extends YouTubeBaseActivity implements
                 db.addNewAction(toAdd);
                 addVisualCue(toAdd.getYoutubeTime(), toAdd.getId(), NewActionDb.NewAction.AWAY_GOAL);
                 break;
-            case R.id.overlay_takeaway:
-                toAdd.setActualAction(NewActionDb.NewAction.TAKEAWAY);
-                db.addNewAction(toAdd);
-                addVisualCue(toAdd.getYoutubeTime(), toAdd.getId(), NewActionDb.NewAction.TAKEAWAY);
-                break;
             case R.id.overlay_snitch_on_pitch:
                 toAdd.setActualAction(NewActionDb.NewAction.SNITCH_ON_PITCH);
                 db.addNewAction(toAdd);
@@ -212,7 +208,7 @@ public class VideoPlayerActivity extends YouTubeBaseActivity implements
 
     private void addSeeker() {
         // Pop up the dialog
-        launchSubOverlay(7);
+        launchSubOverlay(6);
     }
 
     @Override
@@ -230,7 +226,7 @@ public class VideoPlayerActivity extends YouTubeBaseActivity implements
 
     private void launchStatsOverlay() {
         mPlayer.pause();
-        AlertDialog.Builder overlay = overlayDialog();
+        AlertDialog.Builder overlay = statsDialog();
         if (mStatsOverlay == null || !mStatsOverlay.isShowing()) {
             mStatsOverlay = overlay.show();
         }
@@ -265,7 +261,7 @@ public class VideoPlayerActivity extends YouTubeBaseActivity implements
         snitchCatchOverlay.show();
     }
 
-    AlertDialog.Builder overlayDialog() {
+    AlertDialog.Builder statsDialog() {
         // setup the dialog
         LayoutInflater dialogFactory = LayoutInflater.from(this);
         View overlayView = dialogFactory.inflate(R.layout.video_player_overlay, null);
@@ -277,6 +273,7 @@ public class VideoPlayerActivity extends YouTubeBaseActivity implements
         TextView tv1 = (TextView) overlayView.findViewById(R.id.overlay_shot);
         TextView tv2 = (TextView) overlayView.findViewById(R.id.overlay_goal);
         TextView tv3 = (TextView) overlayView.findViewById(R.id.overlay_assist);
+        TextView tv15 = (TextView) overlayView.findViewById(R.id.overlay_takeaway);
         TextView tv4 = (TextView) overlayView.findViewById(R.id.overlay_turnover);
         TextView tv5 = (TextView) overlayView.findViewById(R.id.overlay_start_clock);
         TextView tv10 = (TextView) overlayView.findViewById(R.id.overlay_pause_clock);
@@ -305,12 +302,12 @@ public class VideoPlayerActivity extends YouTubeBaseActivity implements
         tv9.setOnClickListener(this);
         tv12.setOnClickListener(this);
         tv11.setOnClickListener(this);
+        tv15.setOnClickListener(this);
 
         ListView playersList = (ListView) overlayView.findViewById(R.id.overlay_onfield_players);
 
-
         List<PlayerDb> players = getOnFieldPlayersAtTime(mPlayer.getCurrentTimeMillis());
-        ArrayAdapter adapter = new ArrayAdapter(this, android.R.layout.simple_list_item_1, players);
+        VideoOnFieldAdapter adapter = new VideoOnFieldAdapter(getApplicationContext(), players);
 
         setScoreAtTime(mPlayer.getCurrentTimeMillis(), tv13, tv12);
 
@@ -676,7 +673,7 @@ public class VideoPlayerActivity extends YouTubeBaseActivity implements
     private void setScoreAtTime(int time, TextView homeScore, TextView awayScore) {
         List<NewActionDb> homeScores = db.getAllHomeScoresFromGame(mVideoId);
         List<NewActionDb> awayScores = db.getAllAwayScoresFromGame(mVideoId);
-        int snitchCatch = db.getSnitchCatchFromGame(time, mVideoId);
+        int snitchCatch = db.getSnitchCatchFromGameAtTime(time, mVideoId);
 
         int home = 0;
         int away = 0;

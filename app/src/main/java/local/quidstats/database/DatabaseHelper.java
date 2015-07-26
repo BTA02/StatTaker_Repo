@@ -1292,7 +1292,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
         return ret;
     }
 
-    public int getSnitchCatchFromGame(int time, String gameId) {
+    public int getSnitchCatchFromGameAtTime(int time, String gameId) {
 
         String query = "SELECT * FROM " + TABLE_VIDEO + " WHERE "
                 + COL_ACTION + " = ? OR "
@@ -1307,6 +1307,10 @@ public class DatabaseHelper extends SQLiteOpenHelper
         );
 
         if (c.moveToFirst()) {
+            int timeOfCatch = (c.getInt(c.getColumnIndex(COL_VID_TIME)));
+            if (timeOfCatch > time) {
+                return -1;
+            }
             int aa = c.getInt(c.getColumnIndex(COL_ACTION));
             NewActionDb.NewAction dd = NewActionDb.NewAction.values()[aa];
             if (dd == NewActionDb.NewAction.SNITCH_CATCH) {

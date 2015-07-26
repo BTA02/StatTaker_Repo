@@ -226,7 +226,6 @@ public class VideoStatsActivity extends Activity implements
     }
 
     private class CalcPlusMinusTask extends AsyncTask<Object, Void, HashMap> {
-
         private List<String> games;
         private int[][] arrs;
         private LinearLayout statsParent;
@@ -352,14 +351,6 @@ public class VideoStatsActivity extends Activity implements
 
     }
 
-    private Map calcTime() {
-        Map timeOnField = new HashMap<>();
-        for (String game : mGamesAdded) {
-            SparseArray<List<String>> timeArray = getTimeArray(game);
-        }
-        return null;
-    }
-
     private HashMap<List<Pair<String, Integer>>, Integer> calcTimeForGroup(
             HashMap<List<Pair<String, Integer>>, Integer> curMap,
             SparseArray<List<String>> timeArray,
@@ -405,8 +396,6 @@ public class VideoStatsActivity extends Activity implements
     private void displayStatMap(HashMap<List<Pair<String, Integer> >, Pair<Integer, Integer>> map,
                                 LinearLayout statsParent,
                                 HashMap<List<Pair<String, Integer> >, Integer> timeOfGroupMap) {
-        // Displaying just got a lot easier
-        // Do this in the background
         statsParent.removeAllViews();
 
         boolean chaserHeader = false;
@@ -532,6 +521,8 @@ public class VideoStatsActivity extends Activity implements
         return sortedKeys;
     }
 
+    // <editor-fold desc="Raw stats">
+
     private class CalcRawStatsTask extends AsyncTask<Object, Void, Map<String, StatDb>> {
 
         private List<String> games;
@@ -545,9 +536,9 @@ public class VideoStatsActivity extends Activity implements
             Map<String, StatDb> statMap = new HashMap<>();
             for (String game : games) {
                 List<NewActionDb> actions = getAllActions(game);
-                String[] onField = new String[]{"a","b","c","d","e","f"};
-                int[] timeIn = new int[] {0,0,0,0,0,0};
-                int[] pauses = new int[] {0,0,0,0,0,0};
+                String[] onField = new String[]{"a","b","c","d","e","f","g"};
+                int[] timeIn = new int[] {0,0,0,0,0,0,0};
+                int[] pauses = new int[] {0,0,0,0,0,0,0};
                 for (NewActionDb action : actions ) {
                     StatDb fullStats = new StatDb();
                     if (!action.getPlayerOut().isEmpty()) {
@@ -570,9 +561,9 @@ public class VideoStatsActivity extends Activity implements
                             fullStats.setGoals(fullStats.getGoals() + 1);
                             fullStats.setShots(fullStats.getShots() + 1);
                             statMap.put(action.getPlayerOut(), fullStats);
-                            for(String pId : onField) {
-                                StatDb s = new StatDb();
-                                s = statMap.get(pId);
+                            for(int i = 0; i < onField.length-1; i++) {
+                                String pId = onField[i];
+                                StatDb s = statMap.get(pId);
                                 if (s == null) {
                                     s = new StatDb(pId);
                                 }
@@ -604,7 +595,8 @@ public class VideoStatsActivity extends Activity implements
                             onField[action.getLoc()] = action.getPlayerIn();
                             break;
                         case AWAY_GOAL:
-                            for(String pId : onField) {
+                            for(int i = 0; i < onField.length-1; i++) {
+                                String pId = onField[i];
                                 StatDb s = statMap.get(pId);
                                 if (s == null) {
                                     s = new StatDb(pId);
@@ -758,6 +750,7 @@ public class VideoStatsActivity extends Activity implements
 
     }
 
+    //</editor-fold>
 
     // Build the entire "timeArray", or get it from the map
     private SparseArray<List<String>> getTimeArray(String gameId) {
@@ -779,8 +772,6 @@ public class VideoStatsActivity extends Activity implements
 
             switch (action.getActualAction()) {
                 case SUB:
-                    // Give the players on the field their due
-                    String str = "";
                     List<String> toStore = new ArrayList<>();
                     toStore.addAll(onFieldPlayers);
                     for (int i = lastSub; i < t; i++) {
@@ -790,10 +781,13 @@ public class VideoStatsActivity extends Activity implements
                     onFieldPlayers.set(action.getLoc(), action.getPlayerIn());
                     lastSub = t;
                     break;
-                case GAME_END:
+                case PAUSE_CLOCK:
+                    List<String> toStore1 = new ArrayList<>();
+                    toStore1.addAll(onFieldPlayers);
                     for (int i = lastSub; i < t; i++) {
-                        timeArray.put(i, onFieldPlayers);
+                        timeArray.put(i, toStore1);
                     }
+                    lastSub = t;
                     break;
             }
         }
@@ -816,6 +810,7 @@ public class VideoStatsActivity extends Activity implements
         dummy.add("d");
         dummy.add("e");
         dummy.add("f");
+        dummy.add("g");
         return dummy;
     }
 

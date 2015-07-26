@@ -13,4 +13,8 @@
     <color name="opponent_goal_black">#000000</color>
     <color name="snitch_yellow">#E3EE3D</color>
 
+    <color name="gold">#E5C100</color>
+    <color name="black">#000000</color>
+
+
 </resources>

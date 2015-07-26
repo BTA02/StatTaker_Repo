@@ -104,7 +104,7 @@ public class PlayerDb
 	@Override
 	public String toString()
 	{
-		return this.number + "\t\t" + this.fname + "\t\t" + this.lname + "\t\t\t";
+		return this.number + " " + this.fname + " " + this.lname;
 	}
 
     @Override

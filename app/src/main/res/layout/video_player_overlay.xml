@@ -63,9 +63,8 @@
             <ListView
                 android:id="@+id/overlay_onfield_players"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                style="@style/overlay_list_view">
-
+                android:layout_height="wrap_content"
+                android:padding="20dp">
             </ListView>
 
         </LinearLayout>
