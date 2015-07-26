@@ -623,15 +623,9 @@ public class VideoPlayerActivity extends YouTubeBaseActivity implements
 
 
     private List<PlayerDb> getOnFieldPlayersAtTime(int time) {
-        List<PlayerDb> players = db.getAllPlayersFromTeam(mTeamId, 0);
-
         List<NewActionDb> substitutionActions = db.getAllSubActionsFromGame(mVideoId);
         boolean seeker = db.getSeekerOnPitch(mVideoId, time);
-        int listSize = 6;
-        if (seeker) {
-            listSize = 7;
-        }
-        List<PlayerDb> onFieldPlayers = players.subList(0,listSize);
+        List<PlayerDb> onFieldPlayers = VideoStatsActivity.getDummyLineupPlayers(seeker);
         for (NewActionDb action : substitutionActions) {
             if (action.getYoutubeTime() <= time) {
                 onFieldPlayers.set(action.getLoc(), db.getPlayerById(action.getPlayerIn()));

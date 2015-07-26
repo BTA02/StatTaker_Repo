@@ -12,8 +12,7 @@ public class PlayerDb
 	String lname;
 
 	// Empty constructor
-	public PlayerDb()
-	{
+	public PlayerDb() {
 
 	}
 

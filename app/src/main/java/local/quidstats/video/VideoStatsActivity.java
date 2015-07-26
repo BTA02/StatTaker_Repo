@@ -57,6 +57,10 @@ public class VideoStatsActivity extends Activity implements
 
     private Spinner mQuerySpinner;
 
+    private AsyncTask mPlusMinusTask;
+    private AsyncTask mRawStatsTask;
+    private AsyncTask mSeekerTask;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -187,7 +191,7 @@ public class VideoStatsActivity extends Activity implements
 
     @Override
     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-
+        calcAndDispStats();
     }
 
     @Override
@@ -211,18 +215,39 @@ public class VideoStatsActivity extends Activity implements
         } else if (curSelection.equals("Best pair")) {
             calcPlusMinusStat(mGamesAdded, new int[][] {{0,1,2,3,4,5},{0,1,2,3,4,5}});
         } else if (curSelection.equals("Raw stats")) {
-            new CalcRawStatsTask(mGamesAdded).execute(new Object());
+            calcRawStats();
         } else if (curSelection.equals("Quaffle trios")) {
             calcPlusMinusStat(mGamesAdded, new int[][]{{0, 1, 2, 3}, {0, 1, 2, 3}, {0, 1, 2, 3}});
+        } else if (curSelection.equals("Seeker performance")) {
+            calcSeekerPerformance();
         }
+    }
+
+    private void calcRawStats() {
+        if (mRawStatsTask != null) {
+            mRawStatsTask.cancel(true);
+        }
+        mRawStatsTask = new CalcRawStatsTask(mGamesAdded);
+        mRawStatsTask.execute(new Object());
     }
 
     private void calcPlusMinusStat(List<String> games, int[][] arrs) {
         final LinearLayout statsParent = (LinearLayout) findViewById(R.id.video_stats_parent);
         statsParent.removeAllViews();
 
-        AsyncTask task = new CalcPlusMinusTask(games, arrs, statsParent);
-        task.execute(null);
+        if (mPlusMinusTask != null) {
+            mPlusMinusTask.cancel(true);
+        }
+        mPlusMinusTask = new CalcPlusMinusTask(games, arrs, statsParent);
+        mPlusMinusTask.execute(null);
+    }
+
+    private void calcSeekerPerformance() {
+        if (mSeekerTask != null) {
+            mSeekerTask.cancel(true);
+        }
+        mSeekerTask = new CalcSeekerTask();
+        mSeekerTask.execute();
     }
 
     private class CalcPlusMinusTask extends AsyncTask<Object, Void, HashMap> {
@@ -752,6 +777,13 @@ public class VideoStatsActivity extends Activity implements
 
     //</editor-fold>
 
+    // <editor-fold desc="Seeker task"
+
+    
+
+    // </editor-fold>
+
+
     // Build the entire "timeArray", or get it from the map
     private SparseArray<List<String>> getTimeArray(String gameId) {
         if (mTimeArrays.get(gameId + mTeamId) != null) {
@@ -802,15 +834,30 @@ public class VideoStatsActivity extends Activity implements
         return db.getAllActionsFromGame(gameId + mTeamId);
     }
 
-    private List<String> getDummyLineupIds() {
+    public static List<PlayerDb> getDummyLineupPlayers(boolean seeker) {
+
+        List<PlayerDb> dummy = new ArrayList<>();
+        dummy.add(new PlayerDb("", "", "", "Chaser 1", "", -1, -1));
+        dummy.add(new PlayerDb("", "", "", "Chaser 2", "", -1, -1));
+        dummy.add(new PlayerDb("", "", "", "Chaser 3", "", -1, -1));
+        dummy.add(new PlayerDb("", "", "", "Keeper", "", -1, -1));
+        dummy.add(new PlayerDb("", "", "", "Beater 1", "", -1, -1));
+        dummy.add(new PlayerDb("", "", "", "Beater 2", "", -1, -1));
+        if (seeker) {
+            dummy.add(new PlayerDb("", "", "", "Seeker", "", -1, -1));
+        }
+        return dummy;
+    }
+
+    public static List<String> getDummyLineupIds() {
         List<String> dummy = new ArrayList<>();
-        dummy.add("a");
-        dummy.add("b");
-        dummy.add("c");
-        dummy.add("d");
-        dummy.add("e");
-        dummy.add("f");
-        dummy.add("g");
+        dummy.add("Chaser 1");
+        dummy.add("Chaser 2");
+        dummy.add("Chaser 3");
+        dummy.add("Keeper");
+        dummy.add("Beater 1");
+        dummy.add("Beater 2");
+        dummy.add("Seeker");
         return dummy;
     }
 
