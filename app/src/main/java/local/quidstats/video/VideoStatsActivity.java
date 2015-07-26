@@ -40,6 +40,7 @@ import local.quidstats.R;
 import local.quidstats.database.DatabaseHelper;
 import local.quidstats.database.NewActionDb;
 import local.quidstats.database.PlayerDb;
+import local.quidstats.database.SeekerStats;
 import local.quidstats.database.StatDb;
 import local.quidstats.main.AdvancedStats;
 import local.quidstats.main.LocalTeamsFragment;
@@ -200,6 +201,7 @@ public class VideoStatsActivity extends Activity implements
 
 
     private void calcAndDispStats() {
+        cancelPreviousTasks();
         String curSelection = (String) mQuerySpinner.getSelectedItem();
         if (curSelection.equals("Best lineups")) {
             calcPlusMinusStat(mGamesAdded, new int[][]{{0, 1, 2, 3, 4, 5}, {0, 1, 2, 3, 4, 5}, {0, 1, 2, 3, 4, 5},
@@ -220,6 +222,18 @@ public class VideoStatsActivity extends Activity implements
             calcPlusMinusStat(mGamesAdded, new int[][]{{0, 1, 2, 3}, {0, 1, 2, 3}, {0, 1, 2, 3}});
         } else if (curSelection.equals("Seeker performance")) {
             calcSeekerPerformance();
+        }
+    }
+
+    private void cancelPreviousTasks() {
+        if (mPlusMinusTask != null) {
+            mPlusMinusTask.cancel(true);
+        }
+        if (mRawStatsTask != null) {
+            mRawStatsTask.cancel(true);
+        }
+        if (mSeekerTask != null) {
+            mSeekerTask.cancel(true);
         }
     }
 
@@ -546,7 +560,7 @@ public class VideoStatsActivity extends Activity implements
         return sortedKeys;
     }
 
-    // <editor-fold desc="Raw stats">
+    // <editor-fold desc="Raw stats functions">
 
     private class CalcRawStatsTask extends AsyncTask<Object, Void, Map<String, StatDb>> {
 
@@ -562,8 +576,9 @@ public class VideoStatsActivity extends Activity implements
             for (String game : games) {
                 List<NewActionDb> actions = getAllActions(game);
                 String[] onField = new String[]{"a","b","c","d","e","f","g"};
-                int[] timeIn = new int[] {0,0,0,0,0,0,0};
-                int[] pauses = new int[] {0,0,0,0,0,0,0};
+
+                int startTime = -1;
+
                 for (NewActionDb action : actions ) {
                     StatDb fullStats = new StatDb();
                     if (!action.getPlayerOut().isEmpty()) {
@@ -616,9 +631,6 @@ public class VideoStatsActivity extends Activity implements
                             fullStats.setReds(fullStats.getReds() + 1);
                             statMap.put(action.getPlayerOut(), fullStats);
                             break;
-                        case SUB:
-                            onField[action.getLoc()] = action.getPlayerIn();
-                            break;
                         case AWAY_GOAL:
                             for(int i = 0; i < onField.length-1; i++) {
                                 String pId = onField[i];
@@ -630,6 +642,23 @@ public class VideoStatsActivity extends Activity implements
                                 statMap.put(pId, s);
                             }
                             break;
+                        case SUB:
+                            if (startTime != -1) {
+                                int totalTime = action.getYoutubeTime() - startTime;
+                                addTimeToEachPlayer(statMap, onField, totalTime);
+                                startTime = action.getYoutubeTime();
+                            }
+                            onField[action.getLoc()] = action.getPlayerIn();
+                            break;
+                        case PAUSE_CLOCK:
+                            if (startTime != -1) {
+                                int totalTime = action.getYoutubeTime() - startTime;
+                                addTimeToEachPlayer(statMap, onField, totalTime);
+                                startTime = -1;
+                            }
+                            break;
+                        case START_CLOCK:
+                            startTime = action.getYoutubeTime();
                     }
                 }
             }
@@ -640,6 +669,16 @@ public class VideoStatsActivity extends Activity implements
         protected void onPostExecute(Map<String, StatDb> stringStatDbMap) {
             super.onPostExecute(stringStatDbMap);
             displayRawStats(stringStatDbMap);
+        }
+    }
+
+    private void addTimeToEachPlayer(Map<String, StatDb> statMap, String[] onField, int timeToAdd) {
+        for (int i = 0; i < onField.length; i++) {
+            StatDb fullStats = statMap.get(onField[i]);
+            if (fullStats == null) {
+                fullStats = new StatDb(onField[i]);
+            }
+            fullStats.setTime(fullStats.getTime() + timeToAdd);
         }
     }
 
@@ -689,6 +728,8 @@ public class VideoStatsActivity extends Activity implements
         plusses.setPadding(PAD,0,PAD,0);
         TextView minuses = new TextView(this);
         minuses.setPadding(PAD,0,PAD,0);
+        TextView minutes = new TextView(this);
+        minutes.setPadding(PAD,0,PAD,0);
 
         name.setText("Name");
         shots.setText("Shots");
@@ -700,6 +741,8 @@ public class VideoStatsActivity extends Activity implements
         redCards.setText("Reds");
         plusses.setText("Plusses");
         minuses.setText("Minuses");
+        minutes.setText("Minutes");
+
 
 
         row1.addView(name);
@@ -712,6 +755,7 @@ public class VideoStatsActivity extends Activity implements
         row1.addView(redCards);
         row1.addView(plusses);
         row1.addView(minuses);
+        row1.addView(minutes);
 
         table.addView(row1);
 
@@ -740,6 +784,9 @@ public class VideoStatsActivity extends Activity implements
             t5.setPadding(PAD,0,PAD,0);
             TextView t6 = new TextView(this);
             t6.setPadding(PAD,0,PAD,0);
+            TextView t10 = new TextView(this);
+            t7.setPadding(PAD,0,PAD,0);
+
 
             t.setText(db.getPlayerById(stat.getPlayerId()).getLname());
             t1.setText(String.valueOf(stat.getShots()));
@@ -751,6 +798,7 @@ public class VideoStatsActivity extends Activity implements
             t8.setText(String.valueOf(stat.getReds()));
             t5.setText(String.valueOf(stat.getPlusses()));
             t6.setText(String.valueOf(stat.getMinuses()));
+            t10.setText(getPrettyTimeFromMilliseconds(stat.getTime()));
 
 
             row.addView(t);
@@ -763,6 +811,7 @@ public class VideoStatsActivity extends Activity implements
             row.addView(t8);
             row.addView(t5);
             row.addView(t6);
+            row.addView(t10);
 
             if (i % 2 == 1)
             {
@@ -777,9 +826,47 @@ public class VideoStatsActivity extends Activity implements
 
     //</editor-fold>
 
-    // <editor-fold desc="Seeker task"
+    // <editor-fold desc="Seeker task functions"
 
-    
+    private class CalcSeekerTask extends AsyncTask<Void, Void, Void> {
+        Map snitchStats;
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            snitchStats = new HashMap<String, SeekerStats>();
+        }
+
+        @Override
+        protected Void doInBackground(Void... params) {
+            for (String gameId : mGamesAdded) {
+                SparseArray<List<String>> timeArray = getTimeArray(gameId);
+                List<NewActionDb> actions = db.getAllActionsFromGameAfterSnitch(gameId + mTeamId);
+                for (NewActionDb action : actions) {
+                    switch (action.getActualAction()) {
+                        case SUB:
+                            break;
+                        case SNITCH_CATCH:
+                            break;
+                        case AWAY_SNITCH_CATCH:
+                            break;
+                        case GOAL:
+                            break;
+                        case AWAY_GOAL:
+                            break;
+                    }
+
+                }
+
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            super.onPostExecute(aVoid);
+        }
+    }
 
     // </editor-fold>
 

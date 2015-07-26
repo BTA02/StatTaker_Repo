@@ -1295,15 +1295,15 @@ public class DatabaseHelper extends SQLiteOpenHelper
     public int getSnitchCatchFromGameAtTime(int time, String gameId) {
 
         String query = "SELECT * FROM " + TABLE_VIDEO + " WHERE "
-                + COL_ACTION + " = ? OR "
-                + COL_ACTION + " = ? AND "
-                + COL_GAMEID + " = ?";
+                + COL_GAMEID + " = ? AND "
+                + "(" + COL_ACTION + " = ? OR "
+                + COL_ACTION + " = ?)";
+
         Cursor c = getDB().rawQuery(query,
                 new String[] {
+                        gameId,
                         String.valueOf(NewActionDb.NewAction.SNITCH_CATCH.ordinal()),
-                        String.valueOf(NewActionDb.NewAction.AWAY_SNITCH_CATCH.ordinal()),
-                        gameId
-                }
+                        String.valueOf(NewActionDb.NewAction.AWAY_SNITCH_CATCH.ordinal()) }
         );
 
         if (c.moveToFirst()) {
@@ -1408,6 +1408,57 @@ public class DatabaseHelper extends SQLiteOpenHelper
             }
         }
         return false;
+    }
+
+    public List<NewActionDb> getAllActionsFromGameAfterSnitch(String gameId) {
+        List<NewActionDb> ret = new ArrayList<>();
+        int timeOfSnitchCatch;
+        String query1 = "SELECT * FROM " + TABLE_VIDEO + " WHERE "
+                + COL_GAMEID + " = ? AND "
+                + "(" + COL_ACTION + " = ? OR "
+                + "(" + COL_ACTION + " = ?";
+        Cursor c1 = getDB().rawQuery(query1,
+                new String[] {
+                        gameId,
+                        String.valueOf(NewActionDb.NewAction.SNITCH_CATCH.ordinal()),
+                        String.valueOf(NewActionDb.NewAction.AWAY_SNITCH_CATCH.ordinal()) }
+        );
+
+        if (c1.moveToFirst()) {
+            timeOfSnitchCatch = c1.getInt(c1.getColumnIndex(COL_VID_TIME));
+        } else {
+            return ret;
+        }
+
+
+
+        String query = "SELECT * FROM " + TABLE_VIDEO + " WHERE "
+                + COL_GAMEID + " = ? AND "
+                + COL_VID_TIME + " > ? " +
+                "ORDER BY " + COL_VID_TIME + " ASC";
+        Cursor c = getDB().rawQuery(query, new String[] {gameId, String.valueOf(timeOfSnitchCatch)});
+
+        if (c.moveToFirst()) {
+            do {
+                NewActionDb toAdd = new NewActionDb();
+                toAdd.setId(c.getString(c.getColumnIndex(COL_ID)));
+
+                int aa = c.getInt(c.getColumnIndex(COL_ACTION));
+                NewActionDb.NewAction dd = NewActionDb.NewAction.values()[aa];
+                toAdd.setActualAction(dd);
+
+                toAdd.setPlayerIn(c.getString(c.getColumnIndex(COL_PLAYER_IN)));
+                toAdd.setGameId(c.getString(c.getColumnIndex(COL_GAMEID)));
+                toAdd.setPlayerOut(c.getString(c.getColumnIndex(COL_PLAYER_OUT)));
+                toAdd.setYoutubeTime(c.getInt(c.getColumnIndex(COL_VID_TIME)));
+
+                toAdd.setLoc(c.getInt(c.getColumnIndex(COL_LOCATION)));
+
+                ret.add(toAdd);
+            } while (c.moveToNext());
+        }
+
+        return ret;
     }
 
 	// -------------------------------------------------------------------------
