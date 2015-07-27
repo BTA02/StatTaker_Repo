@@ -58,9 +58,9 @@ public class VideoStatsActivity extends Activity implements
     private Map<String, List<NewActionDb> > mActionLists;
 
     private Spinner mQuerySpinner;
-    private ScrollView mStatsScrollView;
+    private LinearLayout mStatsLinearLayout;
     private LinearLayout mTopLinearLayout;
-    private boolean fullScreenMode;
+    private boolean fullScreenMode = false;
 
     private AsyncTask mPlusMinusTask;
     private AsyncTask mRawStatsTask;
@@ -82,7 +82,18 @@ public class VideoStatsActivity extends Activity implements
         mGamesAdded = new ArrayList<>();
 
         mTopLinearLayout = (LinearLayout) findViewById(R.id.video_stats_selector_layout);
-        mStatsScrollView = (ScrollView) findViewById(R.id.video_stats_scroll_view);
+        mStatsLinearLayout = (LinearLayout) findViewById(R.id.video_stats_parent);
+        mStatsLinearLayout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                fullScreenMode = !fullScreenMode;
+                if (fullScreenMode) {
+                    mTopLinearLayout.setVisibility(View.GONE);
+                } else {
+                    mTopLinearLayout.setVisibility(View.VISIBLE);
+                }
+            }
+        });
 
 
         mQuerySpinner = (Spinner) findViewById(R.id.video_stats_query_chooser);
