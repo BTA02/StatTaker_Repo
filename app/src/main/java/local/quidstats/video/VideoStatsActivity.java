@@ -18,6 +18,7 @@ import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.GridLayout;
 import android.widget.LinearLayout;
+import android.widget.ScrollView;
 import android.widget.Spinner;
 import android.widget.Switch;
 import android.widget.TableLayout;
@@ -57,11 +58,13 @@ public class VideoStatsActivity extends Activity implements
     private Map<String, List<NewActionDb> > mActionLists;
 
     private Spinner mQuerySpinner;
+    private ScrollView mStatsScrollView;
+    private LinearLayout mTopLinearLayout;
+    private boolean fullScreenMode;
 
     private AsyncTask mPlusMinusTask;
     private AsyncTask mRawStatsTask;
     private AsyncTask mSeekerTask;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -77,6 +80,10 @@ public class VideoStatsActivity extends Activity implements
         db = new DatabaseHelper(this);
 
         mGamesAdded = new ArrayList<>();
+
+        mTopLinearLayout = (LinearLayout) findViewById(R.id.video_stats_selector_layout);
+        mStatsScrollView = (ScrollView) findViewById(R.id.video_stats_scroll_view);
+
 
         mQuerySpinner = (Spinner) findViewById(R.id.video_stats_query_chooser);
         Button uploadButton = (Button) findViewById(R.id.video_stats_upload);

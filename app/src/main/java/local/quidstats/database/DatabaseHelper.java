@@ -188,7 +188,6 @@ public class DatabaseHelper extends SQLiteOpenHelper
 	@Override
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) 
 	{
-
 		// Not quite. Good enough for testing, should be better for real
 		db.execSQL("DROP TABLE IF EXISTS " + TABLE_GAME);
 		db.execSQL("DROP TABLE IF EXISTS " + TABLE_PLAYER);
