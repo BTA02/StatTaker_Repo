@@ -256,8 +256,7 @@ public class AdvancedStats extends Activity implements
         final LinearLayout statsParent = (LinearLayout) findViewById(R.id.advanced_stats_parent);
         statsParent.removeAllViews();
 
-        AsyncTask task = new CalcTask(games, arrs, statsParent);
-        task.execute(null);
+        new CalcTask(games, arrs, statsParent).execute(new Object());
         return null;
     }
 

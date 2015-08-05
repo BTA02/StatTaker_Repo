@@ -18,7 +18,6 @@ import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.GridLayout;
 import android.widget.LinearLayout;
-import android.widget.ScrollView;
 import android.widget.Spinner;
 import android.widget.Switch;
 import android.widget.TableLayout;
@@ -63,7 +62,7 @@ public class VideoStatsActivity extends Activity implements
     private boolean fullScreenMode = false;
 
     private AsyncTask mPlusMinusTask;
-    private AsyncTask mRawStatsTask;
+    private AsyncTask<Object, Void, Map<String, StatDb>> mRawStatsTask;
     private AsyncTask mSeekerTask;
 
     @Override
@@ -270,16 +269,14 @@ public class VideoStatsActivity extends Activity implements
         if (mPlusMinusTask != null) {
             mPlusMinusTask.cancel(true);
         }
-        mPlusMinusTask = new CalcPlusMinusTask(games, arrs, statsParent);
-        mPlusMinusTask.execute(null);
+        new CalcPlusMinusTask(games, arrs, statsParent).execute(new Object());
     }
 
     private void calcSeekerPerformance() {
         if (mSeekerTask != null) {
             mSeekerTask.cancel(true);
         }
-        mSeekerTask = new CalcSeekerTask();
-        mSeekerTask.execute();
+        new CalcSeekerTask().execute();
     }
 
     private class CalcPlusMinusTask extends AsyncTask<Object, Void, HashMap> {
@@ -319,7 +316,7 @@ public class VideoStatsActivity extends Activity implements
                         j *= arr.length;
                     }
                     Collections.sort(newList);
-                    Set testSet = new HashSet(newList);
+                    Set<Integer> testSet = new HashSet<Integer>(newList);
                     if (testSet.size() == arrs.length) {
                         allCombos.add(newList);
                     }
@@ -338,22 +335,22 @@ public class VideoStatsActivity extends Activity implements
                     for (List<Integer> combo : allCombos) {
                         List<Pair<String, Integer>> subLineup = new ArrayList<>();
                         for (Integer ii : combo) {
-                            Pair temp = new Pair(lineUp.get(ii),
+                            Pair<String, Integer> temp = new Pair<String, Integer>(lineUp.get(ii),
                                     AdvancedStats.getPositionFromArrPosition(ii));
                             subLineup.add(temp);
                         }
                         // Get the plus/minus value of the given combo
                         Pair<Integer, Integer> p = plusMinusMap.get(subLineup);
                         if (p == null) {
-                            p = new Pair(0, 0);
+                            p = new Pair<Integer, Integer>(0, 0);
                         }
                         Integer pos = p.first;
                         Integer neg = p.second;
                         if (action.getActualAction() == NewActionDb.NewAction.GOAL) {
-                            Pair toPut = new Pair(++pos, neg);
+                            Pair<Integer, Integer> toPut = new Pair<Integer, Integer>(++pos, neg);
                             plusMinusMap.put(subLineup, toPut);
                         } else if (action.getActualAction() == NewActionDb.NewAction.AWAY_GOAL) {
-                            Pair toPut = new Pair(pos, ++neg);
+                            Pair<Integer, Integer> toPut = new Pair<Integer, Integer>(pos, ++neg);
                             plusMinusMap.put(subLineup, toPut);
                         }
                     }
@@ -378,7 +375,7 @@ public class VideoStatsActivity extends Activity implements
                     for (List<Integer> combo : allCombos) {
                         List<Pair<String, Integer>> subLineup = new ArrayList<>();
                         for (Integer ii : combo) {
-                            Pair temp = new Pair(lineUp.get(ii),
+                            Pair<String, Integer> temp = new Pair<String, Integer>(lineUp.get(ii),
                                     AdvancedStats.getPositionFromArrPosition(ii));
                             subLineup.add(temp);
                         }
@@ -433,7 +430,7 @@ public class VideoStatsActivity extends Activity implements
             for (List<Integer> combo : allCombos) {
                 List<Pair<String, Integer>> subLineup = new ArrayList<>();
                 for (Integer ii : combo) {
-                    Pair temp = new Pair(lineUp.get(ii),
+                    Pair<String, Integer> temp = new Pair<String, Integer>(lineUp.get(ii),
                             AdvancedStats.getPositionFromArrPosition(ii));
                     subLineup.add(temp);
                 }
@@ -847,7 +844,7 @@ public class VideoStatsActivity extends Activity implements
     // <editor-fold desc="Seeker task functions"
 
     private class CalcSeekerTask extends AsyncTask<Void, Void, Void> {
-        Map snitchStats;
+        Map<String, SeekerStats> snitchStats;
 
         @Override
         protected void onPreExecute() {
