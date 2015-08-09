@@ -103,7 +103,19 @@ public class PlayerDb
 	@Override
 	public String toString()
 	{
-		return this.number + " " + this.fname + " " + this.lname;
+		StringBuilder stringBuilder = new StringBuilder();
+		if (!this.number.isEmpty()) {
+			stringBuilder.append(this.number);
+			stringBuilder.append(" ");
+		}
+		if (!this.fname.isEmpty()) {
+			stringBuilder.append(this.fname);
+			stringBuilder.append(" ");
+		}
+		if (!this.lname.isEmpty()) {
+			stringBuilder.append(this.lname);
+		}
+		return stringBuilder.toString();
 	}
 
     @Override

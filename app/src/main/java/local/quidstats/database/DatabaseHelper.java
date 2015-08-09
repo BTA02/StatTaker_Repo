@@ -1411,20 +1411,18 @@ public class DatabaseHelper extends SQLiteOpenHelper
 
     public List<NewActionDb> getAllActionsFromGameAfterSnitch(String gameId) {
         List<NewActionDb> ret = new ArrayList<>();
-        int timeOfSnitchCatch;
+        int timeOfSnitchOnPitch;
         String query1 = "SELECT * FROM " + TABLE_VIDEO + " WHERE "
                 + COL_GAMEID + " = ? AND "
-                + "(" + COL_ACTION + " = ? OR "
-                + "(" + COL_ACTION + " = ?";
+				+ COL_ACTION + " = ?";
         Cursor c1 = getDB().rawQuery(query1,
                 new String[] {
                         gameId,
-                        String.valueOf(NewActionDb.NewAction.SNITCH_CATCH.ordinal()),
-                        String.valueOf(NewActionDb.NewAction.AWAY_SNITCH_CATCH.ordinal()) }
+                        String.valueOf(NewActionDb.NewAction.SNITCH_ON_PITCH.ordinal()) }
         );
 
         if (c1.moveToFirst()) {
-            timeOfSnitchCatch = c1.getInt(c1.getColumnIndex(COL_VID_TIME));
+            timeOfSnitchOnPitch = c1.getInt(c1.getColumnIndex(COL_VID_TIME));
         } else {
             return ret;
         }
@@ -1435,7 +1433,9 @@ public class DatabaseHelper extends SQLiteOpenHelper
                 + COL_GAMEID + " = ? AND "
                 + COL_VID_TIME + " > ? " +
                 "ORDER BY " + COL_VID_TIME + " ASC";
-        Cursor c = getDB().rawQuery(query, new String[] {gameId, String.valueOf(timeOfSnitchCatch)});
+        Cursor c = getDB().rawQuery(query,
+				new String[] {gameId,
+				String.valueOf(timeOfSnitchOnPitch)});
 
         if (c.moveToFirst()) {
             do {

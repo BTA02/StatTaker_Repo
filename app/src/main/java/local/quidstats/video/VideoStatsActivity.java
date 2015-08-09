@@ -111,6 +111,24 @@ public class VideoStatsActivity extends Activity implements
         displayAllGames();
     }
 
+    private LinearLayout getStatsParent() {
+        if (mStatsLinearLayout == null) {
+            mStatsLinearLayout = (LinearLayout) findViewById(R.id.video_stats_parent);
+            mStatsLinearLayout.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    fullScreenMode = !fullScreenMode;
+                    if (fullScreenMode) {
+                        mTopLinearLayout.setVisibility(View.GONE);
+                    } else {
+                        mTopLinearLayout.setVisibility(View.VISIBLE);
+                    }
+                }
+            });
+        }
+        return mStatsLinearLayout;
+    }
+
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
@@ -593,7 +611,8 @@ public class VideoStatsActivity extends Activity implements
                 String[] onField = new String[]{"a","b","c","d","e","f","g"};
 
                 int startTime = -1;
-
+                // I think what's happening is that I never add the new "fullStats" object
+                // to the statMab
                 for (NewActionDb action : actions ) {
                     StatDb fullStats = new StatDb();
                     if (!action.getPlayerOut().isEmpty()) {
@@ -692,6 +711,9 @@ public class VideoStatsActivity extends Activity implements
             StatDb fullStats = statMap.get(onField[i]);
             if (fullStats == null) {
                 fullStats = new StatDb(onField[i]);
+                if (onField[i].length() > 1) {
+                    statMap.put(onField[i], fullStats);
+                }
             }
             fullStats.setTime(fullStats.getTime() + timeToAdd);
         }
@@ -844,30 +866,96 @@ public class VideoStatsActivity extends Activity implements
     // <editor-fold desc="Seeker task functions"
 
     private class CalcSeekerTask extends AsyncTask<Void, Void, Void> {
-        Map<String, SeekerStats> snitchStats;
+        Map<String, SeekerStats> mSnitchStats;
 
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-            snitchStats = new HashMap<String, SeekerStats>();
+            mSnitchStats = new HashMap<String, SeekerStats>();
         }
 
         @Override
         protected Void doInBackground(Void... params) {
             for (String gameId : mGamesAdded) {
                 SparseArray<List<String>> timeArray = getTimeArray(gameId);
-                List<NewActionDb> actions = db.getAllActionsFromGameAfterSnitch(gameId + mTeamId);
+                List<NewActionDb> actions = db.getAllActionsFromGame(gameId + mTeamId);
+                int scoreDifferential = 0;
+                int startTime = -1;
                 for (NewActionDb action : actions) {
+                    List<String> onField = timeArray.get(action.getYoutubeTime()/1000);
+                    String seeker = onField.get(6);
+                    SeekerStats stats = mSnitchStats.get(seeker);
+                    if (stats == null) {
+                        stats = new SeekerStats(seeker);
+                        if (!seeker.equals("Seeker")) {
+                            mSnitchStats.put(seeker, stats);
+                        }
+                    }
                     switch (action.getActualAction()) {
+                        case SNITCH_ON_PITCH:
+                        startTime = action.getYoutubeTime();
                         case SUB:
+                            if (seeker.equals("Seeker")) {
+                                startTime = action.getYoutubeTime();
+                                continue;
+                            }
+                            if (startTime != -1) {
+                                int tt = action.getYoutubeTime() - startTime;
+                                stats.gamesSeeked.add(gameId);
+                                stats.timeSeeking += tt;
+                                if (scoreDifferential < -30) {
+                                    stats.osrDownTime += tt;
+                                } else if (scoreDifferential > 30) {
+                                    stats.osrUpTime += tt;
+                                } else {
+                                    stats.isrTime += tt;
+                                }
+                                startTime = action.getYoutubeTime();
+                            }
                             break;
                         case SNITCH_CATCH:
+                            if (scoreDifferential > 30) {
+                                stats.osrUpCatchesFor += 1;
+                            } else if (scoreDifferential < -30) {
+                                stats.osrDownCatchesFor += 1;
+                            } else {
+                                stats.isrCatchesFor += 1;
+                            }
                             break;
                         case AWAY_SNITCH_CATCH:
+                            if (scoreDifferential > 30) {
+                                stats.osrUpCatchesAgainst += 1;
+                            } else if (scoreDifferential < -30) {
+                                stats.osrDownCatchesAgainst += 1;
+                            } else {
+                                stats.isrCatchesAgainst += 1;
+                            }
                             break;
                         case GOAL:
+                            scoreDifferential += 10;
+                            checkSeekerGameType(gameId, stats, scoreDifferential);
                             break;
                         case AWAY_GOAL:
+                            scoreDifferential -= 10;
+                            checkSeekerGameType(gameId, stats, scoreDifferential);
+                            break;
+                        case PAUSE_CLOCK:
+                            if (startTime != -1) {
+                                stats.gamesSeeked.add(gameId);
+                                int tt = action.getYoutubeTime() - startTime;
+                                stats.timeSeeking += tt;
+                                if (scoreDifferential < -30) {
+                                    stats.osrDownTime += tt;
+                                } else if (scoreDifferential > 30) {
+                                    stats.osrUpTime += tt;
+                                } else {
+                                    stats.isrTime += tt;
+                                }
+                                startTime = -1;
+                            }
+                            break;
+                        case START_CLOCK:
+                            startTime = action.getYoutubeTime();
                             break;
                     }
 
@@ -877,9 +965,51 @@ public class VideoStatsActivity extends Activity implements
             return null;
         }
 
+        private void checkSeekerGameType(String gameId, SeekerStats stats, int scoreDifferential) {
+            if (stats.isrGames.contains(gameId)) {
+                return;
+            }
+            if (scoreDifferential > 30) {
+                stats.osrUpGamesTotally.add(gameId);
+            } else if (scoreDifferential < -30) {
+                stats.osrDownGamesTotally.add(gameId);
+            } else {
+                stats.isrGames.add(gameId);
+            }
+        }
+
+
+
         @Override
         protected void onPostExecute(Void aVoid) {
             super.onPostExecute(aVoid);
+            displaySeekerStats(mSnitchStats);
+        }
+    }
+
+    private void displaySeekerStats(Map<String, SeekerStats> seekerMap) {
+        LinearLayout statsParent = getStatsParent();
+        for(Map.Entry<String, SeekerStats> entry : seekerMap.entrySet()) {
+            String playerId = entry.getKey();
+            SeekerStats stats = entry.getValue();
+
+            TextView name = new TextView(this);
+            name.setText(db.getPlayerById(playerId).toString());
+            statsParent.addView(name);
+
+            TextView gamesSeeked = new TextView(this);
+            gamesSeeked.setText("Games seeked: " + stats.gamesSeeked.size());
+            statsParent.addView(gamesSeeked);
+
+            TextView isrGamesSeeked = new TextView(this);
+            isrGamesSeeked.setText("SWIM games: " + stats.isrGames.size());
+            statsParent.addView(isrGamesSeeked);
+
+            TextView isrAvgTime = new TextView(this);
+            double isrAT = stats.isrTime / stats.isrGames.size();
+            isrAvgTime.setText("Average time per game seeking when it matters: " );
+            
+
         }
     }
 
@@ -918,7 +1048,7 @@ public class VideoStatsActivity extends Activity implements
                 case PAUSE_CLOCK:
                     List<String> toStore1 = new ArrayList<>();
                     toStore1.addAll(onFieldPlayers);
-                    for (int i = lastSub; i < t; i++) {
+                    for (int i = lastSub; i <= t; i++) {
                         timeArray.put(i, toStore1);
                     }
                     lastSub = t;
