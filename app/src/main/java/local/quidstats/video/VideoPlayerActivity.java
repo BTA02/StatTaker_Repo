@@ -471,13 +471,17 @@ public class VideoPlayerActivity extends YouTubeBaseActivity implements
 
         if (!a.getPlayerOut().isEmpty()) {
             PlayerDb p = db.getPlayerById(a.getPlayerOut());
-            name1.setText(p.getFname() + " " + p.getLname());
+            if (p != null) {
+                name1.setText(p.getFname() + " " + p.getLname());
+            }
         } else {
             name1.setVisibility(View.GONE);
         }
         if (!a.getPlayerIn().isEmpty()) {
             PlayerDb p = db.getPlayerById(a.getPlayerIn());
-            name2.setText(p.getFname() + " " + p.getLname());
+            if (p != null) {
+                name2.setText(p.getFname() + " " + p.getLname());
+            }
         } else {
             name2.setVisibility(View.GONE);
             if (name1.getVisibility() == View.GONE) {

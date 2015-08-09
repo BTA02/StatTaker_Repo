@@ -84,8 +84,9 @@ public class VideoOnFieldAdapter extends ArrayAdapter {
         }
 
         PlayerDb player = items.get(position);
-        holder.playerName.setText(player.toString());
-
+        if (player != null) {
+            holder.playerName.setText(player.toString());
+        }
         return v;
     }
 

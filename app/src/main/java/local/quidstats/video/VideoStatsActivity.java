@@ -44,6 +44,7 @@ import local.quidstats.database.SeekerStats;
 import local.quidstats.database.StatDb;
 import local.quidstats.main.AdvancedStats;
 import local.quidstats.main.LocalTeamsFragment;
+import local.quidstats.util.MapUtil;
 
 public class VideoStatsActivity extends Activity implements
         View.OnClickListener,
@@ -999,7 +1000,7 @@ public class VideoStatsActivity extends Activity implements
     private void displaySeekerStats(Map<String, SeekerStats> seekerMap) {
         LinearLayout statsParent = getStatsParent();
         statsParent.removeAllViews();
-
+        seekerMap = MapUtil.sortByValue(seekerMap);
         for(Map.Entry<String, SeekerStats> entry : seekerMap.entrySet()) {
             String playerId = entry.getKey();
             SeekerStats stats = entry.getValue();
@@ -1044,6 +1045,11 @@ public class VideoStatsActivity extends Activity implements
 
             displayDivider(getStatsParent());
         }
+    }
+
+    private class SeekerObject {
+        public String key;
+        public SeekerStats val;
     }
 
     // </editor-fold>
