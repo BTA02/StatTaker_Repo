@@ -531,17 +531,21 @@ public class VideoStatsActivity extends Activity implements
             totalTime.setText(pretty);
             statsParent.addView(totalTime);
 
-            LinearLayout.LayoutParams params =
-                    new LinearLayout.LayoutParams(ActionBar.LayoutParams.MATCH_PARENT, 1);
-            View divider = new View(this);
-            divider.setLayoutParams(params);
-            divider.setBackgroundColor(getResources().getColor(R.color.quid_stats_red));
-            statsParent.addView(divider);
+            displayDivider(statsParent);
             chaserHeader = false;
             keeperHeader = false;
             beaterHeader = false;
         }
 
+    }
+
+    private void displayDivider(LinearLayout statsParent) {
+        LinearLayout.LayoutParams params =
+                new LinearLayout.LayoutParams(ActionBar.LayoutParams.MATCH_PARENT, 1);
+        View divider = new View(this);
+        divider.setLayoutParams(params);
+        divider.setBackgroundColor(getResources().getColor(R.color.quid_stats_red));
+        statsParent.addView(divider);
     }
 
     public static String getPrettyTimeFromSeconds(int seconds) {
@@ -866,12 +870,12 @@ public class VideoStatsActivity extends Activity implements
     // <editor-fold desc="Seeker task functions"
 
     private class CalcSeekerTask extends AsyncTask<Void, Void, Void> {
-        Map<String, SeekerStats> mSnitchStats;
+        Map<String, SeekerStats> mSeekerStats;
 
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-            mSnitchStats = new HashMap<String, SeekerStats>();
+            mSeekerStats = new HashMap<String, SeekerStats>();
         }
 
         @Override
@@ -883,12 +887,15 @@ public class VideoStatsActivity extends Activity implements
                 int startTime = -1;
                 for (NewActionDb action : actions) {
                     List<String> onField = timeArray.get(action.getYoutubeTime()/1000);
+                    if (onField == null) {
+                        continue;
+                    }
                     String seeker = onField.get(6);
-                    SeekerStats stats = mSnitchStats.get(seeker);
+                    SeekerStats stats = mSeekerStats.get(seeker);
                     if (stats == null) {
                         stats = new SeekerStats(seeker);
                         if (!seeker.equals("Seeker")) {
-                            mSnitchStats.put(seeker, stats);
+                            mSeekerStats.put(seeker, stats);
                         }
                     }
                     switch (action.getActualAction()) {
@@ -900,6 +907,7 @@ public class VideoStatsActivity extends Activity implements
                                 continue;
                             }
                             if (startTime != -1) {
+                                checkSeekerGameType(gameId, stats, scoreDifferential);
                                 int tt = action.getYoutubeTime() - startTime;
                                 stats.gamesSeeked.add(gameId);
                                 stats.timeSeeking += tt;
@@ -941,6 +949,7 @@ public class VideoStatsActivity extends Activity implements
                             break;
                         case PAUSE_CLOCK:
                             if (startTime != -1) {
+                                checkSeekerGameType(gameId, stats, scoreDifferential);
                                 stats.gamesSeeked.add(gameId);
                                 int tt = action.getYoutubeTime() - startTime;
                                 stats.timeSeeking += tt;
@@ -983,12 +992,14 @@ public class VideoStatsActivity extends Activity implements
         @Override
         protected void onPostExecute(Void aVoid) {
             super.onPostExecute(aVoid);
-            displaySeekerStats(mSnitchStats);
+            displaySeekerStats(mSeekerStats);
         }
     }
 
     private void displaySeekerStats(Map<String, SeekerStats> seekerMap) {
         LinearLayout statsParent = getStatsParent();
+        statsParent.removeAllViews();
+
         for(Map.Entry<String, SeekerStats> entry : seekerMap.entrySet()) {
             String playerId = entry.getKey();
             SeekerStats stats = entry.getValue();
@@ -1005,11 +1016,33 @@ public class VideoStatsActivity extends Activity implements
             isrGamesSeeked.setText("SWIM games: " + stats.isrGames.size());
             statsParent.addView(isrGamesSeeked);
 
-            TextView isrAvgTime = new TextView(this);
-            double isrAT = stats.isrTime / stats.isrGames.size();
-            isrAvgTime.setText("Average time per game seeking when it matters: " );
-            
+            TextView isrCatches = new TextView(this);
+            isrCatches.setText("SWIM Catches: " + stats.isrCatchesFor);
+            statsParent.addView(isrCatches);
 
+            TextView isrPercent = new TextView(this);
+            double percent;
+            if (stats.isrGames.size() == 0) {
+                percent = 0;
+            } else {
+                percent = (double) stats.isrCatchesFor / (double) stats.isrGames.size();
+            }
+            percent *= 100;
+            isrPercent.setText("SWIM Percent: " + percent + "%");
+            statsParent.addView(isrPercent);
+
+            TextView isrAvgTime = new TextView(this);
+            int isrAT;
+            if (stats.isrGames.size() == 0) {
+                isrAT = 0;
+            } else {
+                isrAT = stats.isrTime / stats.isrGames.size();
+            }
+            String isrATString = getPrettyTimeFromMilliseconds(isrAT);
+            isrAvgTime.setText("Time per game in SWIM: " + isrATString);
+            statsParent.addView(isrAvgTime);
+
+            displayDivider(getStatsParent());
         }
     }
 
