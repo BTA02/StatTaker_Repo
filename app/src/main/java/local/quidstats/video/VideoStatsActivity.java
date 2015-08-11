@@ -316,31 +316,32 @@ public class VideoStatsActivity extends Activity implements
             HashMap<List<Pair<String, Integer>>, Pair<Integer, Integer>> plusMinusMap = new HashMap<>();
             // Map of on field time
             HashMap<List<Pair<String, Integer>>, Integer> timeOfGroupMap = new HashMap<>();
+
+            // Generate all combos of positions
+            Set<List<Integer>> allCombos = new HashSet<>();
+            int solutions = 1;
+            for (int i = 0; i < arrs.length; solutions *= arrs[i].length, i++) ;
+            for (int i = 0; i < solutions; i++) {
+                List<Integer> newList = new ArrayList<>();
+                int j = 1;
+                for (int[] arr : arrs) {
+                    newList.add(arr[(i / j) % arr.length]);
+                    j *= arr.length;
+                }
+                Collections.sort(newList);
+                Set<Integer> testSet = new HashSet<Integer>(newList);
+                if (testSet.size() == arrs.length) {
+                    allCombos.add(newList);
+                }
+            }
+
             // Loop through selected games
             for (int k = 0; k < games.size(); k++) {
                 // Get game info
                 String gameId = games.get(k);
                 SparseArray<List<String>> timeArray = getTimeArray(gameId);
                 List<NewActionDb> newActions = getAllActions(gameId);
-
-                // Generate all combos of positions
-                Set<List<Integer>> allCombos = new HashSet<>();
-                int solutions = 1;
-                for (int i = 0; i < arrs.length; solutions *= arrs[i].length, i++) ;
-                for (int i = 0; i < solutions; i++) {
-                    List<Integer> newList = new ArrayList<>();
-                    int j = 1;
-                    for (int[] arr : arrs) {
-                        newList.add(arr[(i / j) % arr.length]);
-                        j *= arr.length;
-                    }
-                    Collections.sort(newList);
-                    Set<Integer> testSet = new HashSet<Integer>(newList);
-                    if (testSet.size() == arrs.length) {
-                        allCombos.add(newList);
-                    }
-                }
-
+                
                 // Loop through each game action
                 for (NewActionDb action : newActions) {
                     int actionTime = action.getYoutubeTime() / 1000;
