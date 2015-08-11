@@ -908,18 +908,8 @@ public class VideoStatsActivity extends Activity implements
                                 continue;
                             }
                             if (startTime != -1) {
-                                checkSeekerGameType(gameId, stats, scoreDifferential);
-                                int tt = action.getYoutubeTime() - startTime;
-                                stats.gamesSeeked.add(gameId);
-                                stats.timeSeeking += tt;
-                                if (scoreDifferential < -30) {
-                                    stats.osrDownTime += tt;
-                                } else if (scoreDifferential > 30) {
-                                    stats.osrUpTime += tt;
-                                } else {
-                                    stats.isrTime += tt;
-                                }
-                                startTime = action.getYoutubeTime();
+                                startTime = addSeekerTime(startTime, gameId, action,
+                                        stats, scoreDifferential);
                             }
                             break;
                         case SNITCH_CATCH:
@@ -941,10 +931,18 @@ public class VideoStatsActivity extends Activity implements
                             }
                             break;
                         case GOAL:
+                            if (startTime != -1) {
+                                startTime = addSeekerTime(startTime, gameId, action,
+                                        stats, scoreDifferential);
+                            }
                             scoreDifferential += 10;
                             checkSeekerGameType(gameId, stats, scoreDifferential);
                             break;
                         case AWAY_GOAL:
+                            if (startTime != -1) {
+                                startTime = addSeekerTime(startTime, gameId, action,
+                                        stats, scoreDifferential);
+                            }
                             scoreDifferential -= 10;
                             checkSeekerGameType(gameId, stats, scoreDifferential);
                             break;
@@ -974,7 +972,23 @@ public class VideoStatsActivity extends Activity implements
             }
             return null;
         }
+        private int addSeekerTime(int startTime, String gameId, NewActionDb action,
+                                  SeekerStats stats, int scoreDifferential) {
 
+            checkSeekerGameType(gameId, stats, scoreDifferential);
+            int tt = action.getYoutubeTime() - startTime;
+            stats.gamesSeeked.add(gameId);
+            stats.timeSeeking += tt;
+            if (scoreDifferential < -30) {
+                stats.osrDownTime += tt;
+            } else if (scoreDifferential > 30) {
+                stats.osrUpTime += tt;
+            } else {
+                stats.isrTime += tt;
+            }
+            return action.getYoutubeTime();
+
+        }
         private void checkSeekerGameType(String gameId, SeekerStats stats, int scoreDifferential) {
             if (stats.isrGames.contains(gameId)) {
                 return;
