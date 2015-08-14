@@ -991,13 +991,15 @@ public class VideoStatsActivity extends Activity implements
 
         }
         private void checkSeekerGameType(String gameId, SeekerStats stats, int scoreDifferential) {
+            /*
             if (stats.isrGames.contains(gameId)) {
                 return;
             }
+            */
             if (scoreDifferential > 30) {
-                stats.osrUpGamesTotally.add(gameId);
+                stats.osrUpGames.add(gameId);
             } else if (scoreDifferential < -30) {
-                stats.osrDownGamesTotally.add(gameId);
+                stats.osrDownGames.add(gameId);
             } else {
                 stats.isrGames.add(gameId);
             }
@@ -1022,6 +1024,7 @@ public class VideoStatsActivity extends Activity implements
 
             TextView name = new TextView(this);
             name.setText(db.getPlayerById(playerId).toString());
+            name.setTypeface(null, Typeface.BOLD);
             statsParent.addView(name);
 
             TextView gamesSeeked = new TextView(this);
@@ -1029,12 +1032,16 @@ public class VideoStatsActivity extends Activity implements
             statsParent.addView(gamesSeeked);
 
             TextView isrGamesSeeked = new TextView(this);
-            isrGamesSeeked.setText("SWIM games: " + stats.isrGames.size());
+            isrGamesSeeked.setText("In snitch range games: " + stats.isrGames.size());
             statsParent.addView(isrGamesSeeked);
 
             TextView isrCatches = new TextView(this);
-            isrCatches.setText("SWIM Catches: " + stats.isrCatchesFor);
+            isrCatches.setText("In snitch range catches for: " + stats.isrCatchesFor);
             statsParent.addView(isrCatches);
+
+            TextView isrCatchesAgainst = new TextView(this);
+            isrCatchesAgainst.setText("In snitch range catches against: " + stats.isrCatchesAgainst);
+            statsParent.addView(isrCatchesAgainst);
 
             TextView isrPercent = new TextView(this);
             double percent;
@@ -1057,6 +1064,79 @@ public class VideoStatsActivity extends Activity implements
             String isrATString = getPrettyTimeFromMilliseconds(isrAT);
             isrAvgTime.setText("Time per game in SWIM: " + isrATString);
             statsParent.addView(isrAvgTime);
+
+            // OSR Up
+            TextView osrUpGamesSeeked = new TextView(this);
+            osrUpGamesSeeked.setText("Out of snitch range up games seeked: " + stats.osrUpGames.size());
+            statsParent.addView(osrUpGamesSeeked);
+
+            TextView osrUpCatchesFor = new TextView(this);
+            osrUpCatchesFor.setText("Out of snitch range up catches for: " + stats.osrUpCatchesFor);
+            statsParent.addView(osrUpCatchesFor);
+
+            TextView osrUpCatchesAgainst = new TextView(this);
+            osrUpCatchesAgainst.setText("Out of snitch range up catches against: " + stats.osrUpCatchesAgainst);
+            statsParent.addView(osrUpCatchesAgainst);
+
+            TextView osrUpPercent = new TextView(this);
+            double osrUpP;
+            if (stats.osrUpGames.size() == 0) {
+                osrUpP = 0;
+            } else {
+                osrUpP = (double) stats.osrUpCatchesFor / (double) stats.osrUpGames.size();
+            }
+            osrUpP *= 100;
+            osrUpPercent.setText("OSR Up Percent: " + osrUpP + "%");
+            statsParent.addView(osrUpPercent);
+
+            TextView osrUpAvgTime = new TextView(this);
+            int osrUpAT;
+            if (stats.osrUpGames.size() == 0) {
+                osrUpAT = 0;
+            } else {
+                osrUpAT = stats.osrUpTime / stats.osrUpGames.size();
+            }
+            String osrUpAt = getPrettyTimeFromMilliseconds(osrUpAT);
+            osrUpAvgTime.setText("Time per game osr up: " + osrUpAt);
+            statsParent.addView(osrUpAvgTime);
+
+            // OSR Down
+            TextView osrDownGamesSeeked = new TextView(this);
+            osrDownGamesSeeked.setText("Out of snitch range down games seeked: " + stats.osrDownGames.size());
+            statsParent.addView(osrDownGamesSeeked);
+
+            TextView osrDownCatchesFor = new TextView(this);
+            osrDownCatchesFor.setText("Out of snitch range down catches for: " + stats.osrDownCatchesFor);
+            statsParent.addView(osrDownCatchesFor);
+
+            TextView osrDownCatchesAgainst = new TextView(this);
+            osrDownCatchesAgainst.setText("Out of snitch range down catches against: " + stats.osrDownCatchesAgainst);
+            statsParent.addView(osrDownCatchesAgainst);
+
+            TextView osrDownPercent = new TextView(this);
+            double osrDownP;
+            if (stats.osrDownGames.size() == 0) {
+                osrDownP = 0;
+            } else {
+                osrDownP = (double) stats.osrDownCatchesFor / (double) stats.osrDownGames.size();
+            }
+            osrDownP *= 100;
+            osrDownPercent.setText("OSR Down Percent: " + osrDownP + "%");
+            statsParent.addView(osrDownPercent);
+
+            TextView osrDownAvgTime = new TextView(this);
+            int osrDownAT;
+            if (stats.osrDownGames.size() == 0) {
+                osrDownAT = 0;
+            } else {
+                osrDownAT = stats.osrDownTime / stats.osrDownGames.size();
+            }
+            String osrDownAt = getPrettyTimeFromMilliseconds(osrDownAT);
+            osrDownAvgTime.setText("Time per game osr down: " + osrDownAt);
+            statsParent.addView(osrDownAvgTime);
+
+
+
 
             displayDivider(getStatsParent());
         }

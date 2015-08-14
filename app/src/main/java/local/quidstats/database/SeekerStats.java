@@ -1,6 +1,5 @@
 package local.quidstats.database;
 
-import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -26,14 +25,14 @@ public class SeekerStats implements Comparable {
     public int osrDownCatchesAgainst;
 
     public Set<String> isrGames;
-    public Set<String> osrUpGamesTotally;
-    public Set<String> osrDownGamesTotally;
+    public Set<String> osrUpGames;
+    public Set<String> osrDownGames;
 
     public SeekerStats(String id) {
         seekerId = id;
         isrGames = new HashSet<>();
-        osrUpGamesTotally = new HashSet<>();
-        osrDownGamesTotally = new HashSet<>();
+        osrUpGames = new HashSet<>();
+        osrDownGames = new HashSet<>();
         gamesSeeked = new HashSet<>();
     }
 
